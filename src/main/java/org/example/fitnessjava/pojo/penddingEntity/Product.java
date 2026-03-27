@@ -19,6 +19,7 @@ public class Product {
     private String image;
     private Integer pointsPrice;      // optional
     private Integer pointsReward;     // optional
+    @Column(name = "description")
     private String desc;
     private Integer stock;            // optional
     @Enumerated(EnumType.STRING)
