@@ -25,5 +25,9 @@ wx:
     appid: "213"
     appsecret: "123"
 
+jwt:
+  secret: fitness-admin-secret-key-2026-change-in-production
+  expiration: 86400000
+
 server:
   port: 8081
