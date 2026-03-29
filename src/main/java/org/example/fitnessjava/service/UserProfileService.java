@@ -16,4 +16,5 @@ public interface UserProfileService {
     List<UserVO> getAllClientProfiles();
     Optional<UserVO> getClientProfileById(Integer id);
     Optional<UserVO> updateClientProfile(Integer id, String memberLevel, Integer points, String membershipExpireAt);
+    void convertUserToCoach(Integer userId);
 }

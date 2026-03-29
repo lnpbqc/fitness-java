@@ -94,4 +94,21 @@ public class AdminUserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PostMapping("/{id}/convert-to-coach")
+    @Operation(summary = "将用户转换为教练")
+    public ResponseEntity<Map<String, Object>> convertToCoach(@PathVariable Integer id) {
+        try {
+            userProfileService.convertUserToCoach(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "用户已成功转换为教练");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "转换失败：" + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 }

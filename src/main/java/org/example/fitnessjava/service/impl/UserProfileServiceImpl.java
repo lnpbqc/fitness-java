@@ -2,7 +2,11 @@ package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.ClientProfileRepository;
+import org.example.fitnessjava.dao.CoachRepository;
+import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.dao.UserProfileRepository;
+import org.example.fitnessjava.pojo.Coach;
+import org.example.fitnessjava.pojo.CoachWithUser;
 import org.example.fitnessjava.pojo.UserProfile;
 import org.example.fitnessjava.pojo.UserRole;
 import org.example.fitnessjava.pojo.ClientProfile;
@@ -20,6 +24,10 @@ public class UserProfileServiceImpl implements UserProfileService {
     private UserProfileRepository userProfileRepository;
     @Resource
     private ClientProfileRepository clientProfileRepository;
+    @Resource
+    private CoachRepository coachRepository;
+    @Resource
+    private CoachWithUserRepository coachWithUserRepository;
 
     @Override
     public Boolean addUser(UserProfile user) {
@@ -102,5 +110,34 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
 
         return vo;
+    }
+
+    @Override
+    public void convertUserToCoach(Integer userId) {
+        UserProfile userProfile = userProfileRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        userProfile.setRole(UserRole.COACH);
+        userProfileRepository.save(userProfile);
+        
+        Coach coach = new Coach();
+        coach.setName(userProfile.getNickname());
+        coach.setAvatar(userProfile.getAvatar());
+        coach.setPhone(userProfile.getPhone());
+        coach.setIntro("新加入的教练");
+        coach.setSpecialty("待设置");
+        coach.setDescription("");
+        coach.setRating(5.0);
+        coach.setLevel(1);
+        coach.setClassCount(0);
+        coach.setTags(java.util.Arrays.asList("新教练"));
+        coach.setFeatured(false);
+        coach.setStatus(Coach.Status.ONLINE);
+        coachRepository.save(coach);
+        
+        CoachWithUser relation = new CoachWithUser();
+        relation.setCoachId(coach.getId());
+        relation.setUserId(userProfile.getId());
+        coachWithUserRepository.save(relation);
     }
 }

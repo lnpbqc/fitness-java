@@ -1,0 +1,13 @@
+package org.example.fitnessjava.dao;
+
+import org.example.fitnessjava.pojo.CoachWithUser;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface CoachWithUserRepository extends JpaRepository<CoachWithUser, Long> {
+    Optional<CoachWithUser> findByUserId(Integer userId);
+    Optional<CoachWithUser> findByCoachId(Integer coachId);
+}
