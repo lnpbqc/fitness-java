@@ -45,7 +45,7 @@ public class AdminCoachController {
     @PutMapping("/{id}")
     @Operation(summary = "修改教练信息")
     public ResponseEntity<Coach> updateCoach(@PathVariable Long id, @RequestBody Coach request) {
-        return coachService.updateCoach(id, request.getName(), request.getAvatar(), request.getIntro(), 
+        return coachService.updateCoach(id, request.getNickname(), request.getAvatar(), request.getIntro(),
                 request.getSpecialty(), request.getDescription(), request.getRating(), 
                 request.getLevel(), request.getPhone(), request.getStatus(), request.getFeatured())
                 .map(ResponseEntity::ok)

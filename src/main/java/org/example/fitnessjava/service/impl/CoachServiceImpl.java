@@ -56,7 +56,7 @@ public class CoachServiceImpl implements CoachService {
             return Optional.empty();
         }
         Coach coach = optional.get();
-        if (name != null) coach.setName(name);
+        if (name != null) coach.setNickname(name);
         if (avatar != null) coach.setAvatar(avatar);
         if (intro != null) coach.setIntro(intro);
         if (specialty != null) coach.setSpecialty(specialty);

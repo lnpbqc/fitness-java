@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.example.fitnessjava.config.WXAConfig;
-import org.example.fitnessjava.pojo.UserProfile;
-import org.example.fitnessjava.service.UserProfileService;
+import org.example.fitnessjava.pojo.Client;
+import org.example.fitnessjava.service.ClientService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ public class UserController {
     @Resource
     private WXAConfig wxaConfig;
     @Resource
-    private UserProfileService userProfileService;
+    private ClientService clientService;
 
     @PostMapping
     @Operation(summary = "通过code获取openid然后注册用户")
@@ -39,13 +39,13 @@ public class UserController {
         String openid = result.getOpenid();
         System.out.println(openid);
 
-        UserProfile userProfile = userProfileService.existUser(openid);
-        if (userProfile == null) {
-            userProfile = new UserProfile();
-            userProfile.setNickname(nickname);
-            userProfile.setAvatar(avatar);
-            userProfile.setOpenid(openid);
-            userProfileService.addUser(userProfile);
+        Client client = clientService.existUser(openid);
+        if (client == null) {
+            client = new Client();
+            client.setNickname(nickname);
+            client.setAvatar(avatar);
+            client.setOpenid(openid);
+            clientService.addUser(client);
         }
 
         // todo: 加入SpringSecurity生成token

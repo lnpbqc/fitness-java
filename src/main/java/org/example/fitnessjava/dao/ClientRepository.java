@@ -1,9 +1,10 @@
 package org.example.fitnessjava.dao;
 
-import org.example.fitnessjava.pojo.ClientProfile;
+import org.example.fitnessjava.pojo.Client;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ClientProfileRepository extends JpaRepository<ClientProfile, Long> {
+public interface ClientRepository extends JpaRepository<Client, Long> {
+    Client findByOpenid(String openid);
 }

@@ -17,5 +17,5 @@ public class CoachWithUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int coachId;
-    private int userId;
+    private int clientId;
 }

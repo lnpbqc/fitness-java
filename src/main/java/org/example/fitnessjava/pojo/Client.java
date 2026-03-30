@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "UserProfile")
-public class UserProfile {
+@Entity
+public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +19,10 @@ public class UserProfile {
     private String nickname;
     private String avatar;
     private String phone;
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private String memberNumber;
+    private String memberLevel;
+    private int points;
+    private int coupons;
+    private int totalTrainingCount;
+    private String membershipExpireAt;
 }

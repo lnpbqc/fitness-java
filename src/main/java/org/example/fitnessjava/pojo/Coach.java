@@ -14,8 +14,10 @@ public class Coach {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
+    private String openid;
+    private String nickname;
     private String avatar;
+    private String phone;
     private String intro;
     private String specialty;
     private String description;
@@ -23,7 +25,6 @@ public class Coach {
     private int level;
     private int classCount;
     private java.util.List<String> tags;
-    private String phone;
     private Boolean featured;
     @Enumerated(EnumType.STRING)
     private Status status;

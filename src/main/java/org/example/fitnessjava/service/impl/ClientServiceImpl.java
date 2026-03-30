@@ -1,17 +1,14 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
-import org.example.fitnessjava.dao.ClientProfileRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CoachWithUserRepository;
-import org.example.fitnessjava.dao.UserProfileRepository;
+import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.CoachWithUser;
-import org.example.fitnessjava.pojo.UserProfile;
-import org.example.fitnessjava.pojo.UserRole;
-import org.example.fitnessjava.pojo.ClientProfile;
+import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.vo.UserVO;
-import org.example.fitnessjava.service.UserProfileService;
+import org.example.fitnessjava.service.ClientService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,111 +16,103 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserProfileServiceImpl implements UserProfileService {
+public class ClientServiceImpl implements ClientService {
     @Resource
-    private UserProfileRepository userProfileRepository;
-    @Resource
-    private ClientProfileRepository clientProfileRepository;
+    private ClientRepository clientRepository;
     @Resource
     private CoachRepository coachRepository;
     @Resource
     private CoachWithUserRepository coachWithUserRepository;
 
     @Override
-    public Boolean addUser(UserProfile user) {
-        UserProfile save = userProfileRepository.save(user);
-        Optional<UserProfile> byId = userProfileRepository.findById(Long.valueOf(save.getId()));
+    public Boolean addUser(Client user) {
+        Client save = clientRepository.save(user);
+        Optional<Client> byId = clientRepository.findById(Long.valueOf(save.getId()));
         return byId.isPresent();
     }
 
     @Override
-    public UserProfile existUser(String openid) {
-        return userProfileRepository.findByOpenid(openid);
+    public Client existUser(String openid) {
+        return clientRepository.findByOpenid(openid);
     }
 
     @Override
     public List<UserVO> getAllUsers() {
-        List<UserProfile> users = userProfileRepository.findAll();
+        List<Client> users = clientRepository.findAll();
         return users.stream().map(this::convertToUserVO).collect(Collectors.toList());
     }
 
     @Override
     public Optional<UserVO> getUserById(Integer id) {
-        return userProfileRepository.findById(Long.valueOf(id))
+        return clientRepository.findById(Long.valueOf(id))
                 .map(this::convertToUserVO);
     }
 
     @Override
     public Optional<UserVO> updateUser(Integer id, String nickname, String avatar, String phone, String role) {
-        return userProfileRepository.findById(Long.valueOf(id))
+        return clientRepository.findById(Long.valueOf(id))
                 .map(user -> {
                     if (nickname != null) user.setNickname(nickname);
                     if (avatar != null) user.setAvatar(avatar);
                     if (phone != null) user.setPhone(phone);
-                    if (role != null) user.setRole(UserRole.valueOf(role));
-                    userProfileRepository.save(user);
+                    clientRepository.save(user);
                     return convertToUserVO(user);
                 });
     }
 
     @Override
     public List<UserVO> getAllClientProfiles() {
-        List<ClientProfile> clients = clientProfileRepository.findAll();
+        List<Client> clients = clientRepository.findAll();
         return clients.stream().map(this::convertToUserVO).collect(Collectors.toList());
     }
 
     @Override
     public Optional<UserVO> getClientProfileById(Integer id) {
-        return clientProfileRepository.findById(Long.valueOf(id))
+        return clientRepository.findById(Long.valueOf(id))
                 .map(this::convertToUserVO);
     }
 
     @Override
     public Optional<UserVO> updateClientProfile(Integer id, String memberLevel, Integer points, String membershipExpireAt) {
-        return clientProfileRepository.findById(Long.valueOf(id))
+        return clientRepository.findById(Long.valueOf(id))
                 .map(client -> {
                     if (memberLevel != null) client.setMemberLevel(memberLevel);
                     if (points != null) client.setPoints(points);
                     if (membershipExpireAt != null) client.setMembershipExpireAt(membershipExpireAt);
-                    clientProfileRepository.save(client);
+                    clientRepository.save(client);
                     return convertToUserVO(client);
                 });
     }
 
-    private UserVO convertToUserVO(UserProfile user) {
+    private UserVO convertToUserVO(Client user) {
         UserVO vo = new UserVO();
         vo.setId(user.getId());
         vo.setOpenid(user.getOpenid());
         vo.setNickname(user.getNickname());
         vo.setAvatar(user.getAvatar());
         vo.setPhone(user.getPhone());
-        vo.setRole(user.getRole());
 
-        if (user instanceof ClientProfile) {
-            ClientProfile client = (ClientProfile) user;
-            vo.setMemberNumber(client.getMemberNumber());
-            vo.setMemberLevel(client.getMemberLevel());
-            vo.setPoints(client.getPoints());
-            vo.setCoupons(client.getCoupons());
-            vo.setTotalTrainingCount(client.getTotalTrainingCount());
-            vo.setMembershipExpireAt(client.getMembershipExpireAt());
-        }
+        vo.setMemberNumber(user.getMemberNumber());
+        vo.setMemberLevel(user.getMemberLevel());
+        vo.setPoints(user.getPoints());
+        vo.setCoupons(user.getCoupons());
+        vo.setTotalTrainingCount(user.getTotalTrainingCount());
+        vo.setMembershipExpireAt(user.getMembershipExpireAt());
 
         return vo;
     }
 
     @Override
     public void convertUserToCoach(Integer userId) {
-        UserProfile userProfile = userProfileRepository.findById(Long.valueOf(userId))
+        Client client = clientRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
-        
-        userProfile.setRole(UserRole.COACH);
-        userProfileRepository.save(userProfile);
+
+        clientRepository.save(client);
         
         Coach coach = new Coach();
-        coach.setName(userProfile.getNickname());
-        coach.setAvatar(userProfile.getAvatar());
-        coach.setPhone(userProfile.getPhone());
+        coach.setNickname(client.getNickname());
+        coach.setAvatar(client.getAvatar());
+        coach.setPhone(client.getPhone());
         coach.setIntro("新加入的教练");
         coach.setSpecialty("待设置");
         coach.setDescription("");
@@ -137,7 +126,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         
         CoachWithUser relation = new CoachWithUser();
         relation.setCoachId(coach.getId());
-        relation.setUserId(userProfile.getId());
+        relation.setClientId(client.getId());
         coachWithUserRepository.save(relation);
     }
 }

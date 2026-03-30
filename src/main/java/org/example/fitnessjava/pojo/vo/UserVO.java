@@ -3,7 +3,6 @@ package org.example.fitnessjava.pojo.vo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.fitnessjava.pojo.UserRole;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +13,6 @@ public class UserVO {
     private String nickname;
     private String avatar;
     private String phone;
-    private UserRole role;
     private String memberNumber;
     private String memberLevel;
     private Integer points;
