@@ -10,6 +10,7 @@ import org.example.fitnessjava.service.BannerService;
 import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.service.HealthSurveyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,7 @@ public class HomeController {
 
     @GetMapping
     @Operation(summary = "获取首页信息")
+    @Cacheable(key = "#userId",value = "CHR")
     public ClientHomeResponse home(@RequestParam(defaultValue = "-1") String userId) {
         HealthSurvey survey = null;
         if (userId == null || userId.isEmpty() || userId.equals("-1")) {

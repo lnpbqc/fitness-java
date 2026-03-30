@@ -94,14 +94,6 @@ public class DataInitializer {
             client2.setMembershipExpireAt("2026-06-30");
             clientRepository.save(client2);
             System.out.println("测试用户已创建：李四 (银卡会员)");
-
-            Coach coach1 = new Coach();
-            coach1.setOpenid("oCoach001");
-            coach1.setNickname("王教练");
-            coach1.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=coach");
-            coach1.setPhone("13700137003");
-            coachRepository.save(coach1);
-            System.out.println("测试教练已创建：王教练");
         }
     }
 
@@ -183,7 +175,16 @@ public class DataInitializer {
             coach5.setStatus(Coach.Status.OFFLINE);
             coachRepository.save(coach5);
 
-            System.out.println("测试教练数据已创建：5 名教练");
+
+            Coach coach6 = new Coach();
+            coach6.setOpenid("oCoach001");
+            coach6.setNickname("王教练");
+            coach6.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=coach");
+            coach6.setPhone("13700137003");
+            coachRepository.save(coach6);
+            System.out.println("王教练");
+
+            System.out.println("测试教练数据已创建：6 名教练");
         }
     }
 }

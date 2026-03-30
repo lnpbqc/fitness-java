@@ -1,8 +1,13 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
+import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.dao.CoachRepository;
+import org.example.fitnessjava.dao.CoachWithUserRepository;
+import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
+import org.example.fitnessjava.pojo.CoachWithUser;
+import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.CoachService;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +19,10 @@ import java.util.Optional;
 public class CoachServiceImpl implements CoachService {
     @Resource
     private CoachRepository coachRepository;
+    @Resource
+    private ClientRepository clientRepository;
+    @Resource
+    private CoachWithUserRepository coachWithUserRepository;
 
     @Override
     public ArrayList<Coach> getCoachesByFeatured() {
@@ -94,5 +103,26 @@ public class CoachServiceImpl implements CoachService {
     @Override
     public void deleteCoach(Long id) {
         coachRepository.deleteById(id);
+    }
+
+    // todo: 根据排班表来安排
+    @Override
+    public ArrayList<Coach> getTodayCoaches() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<Coach> getCoachesOfUser(String userId) {
+        ArrayList<Coach> coaches = new ArrayList<>();
+        Optional<Client> byId = clientRepository.findById(Long.valueOf(userId));
+        if (byId.isEmpty()) {
+            return coaches;
+        }
+        ArrayList<CoachWithUser> allByClientId = coachWithUserRepository.findAllByClientId(byId.get().getId());
+        for (CoachWithUser coachWithUser : allByClientId) {
+            Optional<Coach> coach = coachRepository.findById((long) coachWithUser.getCoachId());
+            coach.ifPresent(coaches::add);
+        }
+        return coaches;
     }
 }

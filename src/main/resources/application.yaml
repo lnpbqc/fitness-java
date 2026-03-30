@@ -3,9 +3,12 @@ spring:
     name: fitness-java
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+#    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+#    username: root
+#    password: X7#k9P$m2@qL!vWc
+    url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: X7#k9P$m2@qL!vWc
+    password: lnpbqc
   jpa:
     show-sql: true
     database: mysql
@@ -13,6 +16,10 @@ spring:
       ddl-auto: update
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000, expireAfterWrite=10s # 最大1000条，写入后10秒过期
 
 springdoc: # 生产记的关闭
   api-docs:

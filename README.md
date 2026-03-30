@@ -11,3 +11,8 @@
 
 `/src/.../pojo/pendingEntity`
 > 待使用实体
+
+
+#### TODO
+> 教练返回信息需规范
+> 增加对

@@ -21,4 +21,8 @@ public interface CoachService {
     Optional<Coach> updateCoachStatus(Long id, Coach.Status status);
     
     void deleteCoach(Long id);
+
+    ArrayList<Coach> getTodayCoaches();
+
+    ArrayList<Coach> getCoachesOfUser(String userId);
 }
