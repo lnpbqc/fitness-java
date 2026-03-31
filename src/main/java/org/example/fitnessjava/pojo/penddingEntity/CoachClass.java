@@ -16,11 +16,7 @@ public class CoachClass {
     private Integer id;
 
     private Integer coachId;
-    private Integer memberId;
-
-    private String memberName;
-    private String memberAvatar;
-    private String phone;
+    private Integer clientId;
 
     private String date;
     private String startTime;

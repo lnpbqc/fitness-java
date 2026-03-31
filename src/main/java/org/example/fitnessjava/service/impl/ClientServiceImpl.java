@@ -61,12 +61,6 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public List<UserVO> getAllClientProfiles() {
-        List<Client> clients = clientRepository.findAll();
-        return clients.stream().map(this::convertToUserVO).collect(Collectors.toList());
-    }
-
-    @Override
     public Optional<UserVO> getClientProfileById(Integer id) {
         return clientRepository.findById(Long.valueOf(id))
                 .map(this::convertToUserVO);
@@ -84,7 +78,7 @@ public class ClientServiceImpl implements ClientService {
                 });
     }
 
-    private UserVO convertToUserVO(Client user) {
+    public UserVO convertToUserVO(Client user) {
         UserVO vo = new UserVO();
         vo.setId(user.getId());
         vo.setOpenid(user.getOpenid());

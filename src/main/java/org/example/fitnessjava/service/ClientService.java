@@ -12,8 +12,8 @@ public interface ClientService {
     List<UserVO> getAllUsers();
     Optional<UserVO> getUserById(Integer id);
     Optional<UserVO> updateUser(Integer id, String nickname, String avatar, String phone, String role);
-    List<UserVO> getAllClientProfiles();
     Optional<UserVO> getClientProfileById(Integer id);
     Optional<UserVO> updateClientProfile(Integer id, String memberLevel, Integer points, String membershipExpireAt);
     void convertUserToCoach(Integer userId);
+    UserVO convertToUserVO(Client user);
 }

@@ -6,9 +6,12 @@ spring:
 #    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
 #    username: root
 #    password: X7#k9P$m2@qL!vWc
-    url: jdbc:mysql://localhost:3336/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+#    url: jdbc:mysql://localhost:3336/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+#    username: root
+#    password: X7#k9P$m2@qL!vWc
+    url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: X7#k9P$m2@qL!vWc
+    password: lnpbqc
   jpa:
     show-sql: true
     database: mysql
@@ -29,8 +32,8 @@ springdoc: # 生产记的关闭
 
 wx:
   miniapp:
-    appid: "213"
-    appsecret: "123"
+    app-id: "wxdc02d8b2987dc20d"
+    app-secret: "fa468b64ccf3a8ec5b2f8f539f13c5a2"
 
 jwt:
   secret: fitness-admin-secret-key-2026-change-in-production

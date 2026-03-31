@@ -187,4 +187,17 @@ public class DataInitializer {
             System.out.println("测试教练数据已创建：6 名教练");
         }
     }
+
+    private void initClientData() {
+        long count = clientRepository.count();
+        if (count == 0) {
+            Client client = new Client();
+            client.setNickname("lnpbqc");
+            client.setAvatar("<UNK>");
+            client.setOpenid("234234");
+            client.setPhone("1231342");
+            clientRepository.save(client);
+
+        }
+    }
 }

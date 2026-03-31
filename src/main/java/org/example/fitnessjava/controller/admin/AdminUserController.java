@@ -57,7 +57,7 @@ public class AdminUserController {
     @GetMapping("/client-profiles")
     @Operation(summary = "获取会员档案列表")
     public ResponseEntity<List<UserVO>> getClientProfiles() {
-        List<UserVO> clients = clientService.getAllClientProfiles();
+        List<UserVO> clients = clientService.getAllUsers();
         return ResponseEntity.ok(clients);
     }
 
