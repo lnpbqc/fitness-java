@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.fitnessjava.pojo.SaleStatus;
 
 @Data
 @AllArgsConstructor
@@ -12,16 +13,16 @@ import lombok.NoArgsConstructor;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String name;
     private String category;
-    private double price;
+    private Double price;
     private String image;
-    private Integer pointsPrice;      // optional
-    private Integer pointsReward;     // optional
+    private Integer pointsPrice;
+    private Integer pointsReward;
     @Column(name = "description")
     private String desc;
-    private Integer stock;            // optional
+    private Integer stock;
     @Enumerated(EnumType.STRING)
-    private SaleStatus saleStatus;    // optional
+    private SaleStatus saleStatus;
 }
