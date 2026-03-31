@@ -6,9 +6,9 @@ spring:
 #    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
 #    username: root
 #    password: X7#k9P$m2@qL!vWc
-    url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3336/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: lnpbqc
+    password: X7#k9P$m2@qL!vWc
   jpa:
     show-sql: true
     database: mysql
