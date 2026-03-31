@@ -15,7 +15,6 @@ public class Booking {
     private int id;
     private int userId;
     private int coachId;
-    private String coachName;
     private String bookingDate;
     private String startTime;
     private String endTime;
@@ -29,5 +28,4 @@ public class Booking {
     private String coachAvatar;
     private String specialty;
     private String packageOrderId;
-    private String phone;
 }

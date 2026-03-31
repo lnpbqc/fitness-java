@@ -103,4 +103,9 @@ public class ProductServiceImpl implements ProductService {
         existing.setStock(stock);
         return Optional.of(productRepository.save(existing));
     }
+
+    @Override
+    public List<String> getCategories() {
+        return productRepository.getCategories();
+    }
 }

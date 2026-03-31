@@ -1,4 +1,4 @@
-package org.example.fitnessjava.pojo.penddingEntity;
+package org.example.fitnessjava.pojo;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

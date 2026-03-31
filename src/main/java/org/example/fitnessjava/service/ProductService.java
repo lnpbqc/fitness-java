@@ -14,4 +14,5 @@ public interface ProductService {
     void deleteProduct(Long id);
     Optional<Product> updateSaleStatus(Long id, SaleStatus saleStatus);
     Optional<Product> updateStock(Long id, Integer stock);
+    List<String> getCategories();
 }

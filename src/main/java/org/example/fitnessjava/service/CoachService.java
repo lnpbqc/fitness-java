@@ -25,4 +25,6 @@ public interface CoachService {
     ArrayList<Coach> getTodayCoaches();
 
     ArrayList<Coach> getCoachesOfUser(String userId);
+
+    Optional<Coach> getCoachByOpenid(String openid);
 }

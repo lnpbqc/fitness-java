@@ -131,4 +131,9 @@ public class CoachServiceImpl implements CoachService {
         }
         return coaches;
     }
+
+    @Override
+    public Optional<Coach> getCoachByOpenid(String openid) {
+        return coachRepository.findByOpenid(openid);
+    }
 }
