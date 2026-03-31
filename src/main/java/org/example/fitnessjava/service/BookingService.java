@@ -1,6 +1,6 @@
 package org.example.fitnessjava.service;
 
-import org.example.fitnessjava.pojo.penddingEntity.Booking;
+import org.example.fitnessjava.pojo.Booking;
 import org.example.fitnessjava.pojo.penddingEntity.CoachScheduleSlot;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;

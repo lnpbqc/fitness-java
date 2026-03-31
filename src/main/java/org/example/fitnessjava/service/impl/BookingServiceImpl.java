@@ -1,6 +1,7 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.dao.BookingRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
@@ -11,9 +12,9 @@ import org.example.fitnessjava.pojo.CourseOrderStatus;
 import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
-import org.example.fitnessjava.pojo.penddingEntity.Booking;
-import org.example.fitnessjava.pojo.penddingEntity.BookingSource;
-import org.example.fitnessjava.pojo.penddingEntity.BookingStatus;
+import org.example.fitnessjava.pojo.Booking;
+import org.example.fitnessjava.pojo.BookingSource;
+import org.example.fitnessjava.pojo.BookingStatus;
 import org.example.fitnessjava.pojo.penddingEntity.CoachScheduleSlot;
 import org.example.fitnessjava.service.BookingService;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class BookingServiceImpl implements BookingService {
 
     @Resource
@@ -73,6 +75,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking createBooking(Integer userId, BookingCreateRequest request) {
+        log.info("Create booking request: {}", request);
         validateCreateRequest(request);
         CoachScheduleSlot scheduleSlot = getAvailableScheduleSlot(request.getScheduleSlotId());
         validateUserBookingConflict(userId, scheduleSlot.getDate(), scheduleSlot.getStartTime(), scheduleSlot.getEndTime(), null);
@@ -91,6 +94,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         occupyScheduleSlot(scheduleSlot, savedBooking.getId());
+        log.error("savedBooking: {}", savedBooking);
         return savedBooking;
     }
 

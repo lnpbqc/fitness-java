@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/client/user/login","/api/client/home").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/client/booking/schedule").permitAll()
+                .requestMatchers("/api/client/booking/schedule").permitAll()
                 .requestMatchers("/api/coach/**").permitAll()
                 .requestMatchers("/api/product/all","/api/product/categories").permitAll()
                 .requestMatchers("/api/**").authenticated()
