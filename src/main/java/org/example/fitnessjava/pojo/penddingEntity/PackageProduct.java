@@ -12,19 +12,19 @@ import lombok.NoArgsConstructor;
 public class PackageProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String name;
     @Enumerated(EnumType.STRING)
     private PackageType type;
-    private int sessions;
-    private int validDays;
-    private double price;
-    private int pointsReward;
+    private Integer sessions;
+    private Integer validDays;
+    private Double price;
+    private Integer pointsReward;
 
     // Optional fields (nullable)
-    private Double originalPrice;       // nullable, corresponds to `originalPrice?`
-    private Boolean limitPurchase;      // nullable, corresponds to `limitPurchase?`
-    private String description;         // nullable, corresponds to `description?`
+    private Double originalPrice;
+    private Boolean limitPurchase;
+    private String description;
     @Enumerated(EnumType.STRING)
-    private SaleStatus saleStatus;      // nullable, corresponds to `saleStatus?`
+    private SaleStatus saleStatus;
 }
