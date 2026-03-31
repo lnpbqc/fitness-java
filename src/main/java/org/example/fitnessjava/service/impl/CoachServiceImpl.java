@@ -38,10 +38,10 @@ public class CoachServiceImpl implements CoachService {
 
     @Override
     public Coach createCoach(Coach coach) {
-        if (coach.getRating() == 0) {
+        if (coach.getRating() == null || coach.getRating() == 0) {
             coach.setRating(5.0);
         }
-        if (coach.getClassCount() == 0) {
+        if (coach.getClassCount() == null || coach.getClassCount() == 0) {
             coach.setClassCount(0);
         }
         if (coach.getFeatured() == null) {
@@ -49,6 +49,12 @@ public class CoachServiceImpl implements CoachService {
         }
         if (coach.getStatus() == null) {
             coach.setStatus(Coach.Status.ONLINE);
+        }
+        if (coach.getTags() == null) {
+            coach.setTags(new java.util.ArrayList<>());
+        }
+        if (coach.getLevel() == null) {
+            coach.setLevel(1);
         }
         return coachRepository.save(coach);
     }

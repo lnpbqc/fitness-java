@@ -13,7 +13,7 @@ public class Coach {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String openid;
     private String nickname;
     private String avatar;
@@ -21,9 +21,9 @@ public class Coach {
     private String intro;
     private String specialty;
     private String description;
-    private double rating;
-    private int level;
-    private int classCount;
+    private Double rating;
+    private Integer level;
+    private Integer classCount;
     private java.util.List<String> tags;
     private Boolean featured;
     @Enumerated(EnumType.STRING)
