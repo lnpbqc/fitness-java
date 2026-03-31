@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.fitnessjava.pojo.PackageType;
+import org.example.fitnessjava.pojo.SaleStatus;
 
 @Data
 @AllArgsConstructor

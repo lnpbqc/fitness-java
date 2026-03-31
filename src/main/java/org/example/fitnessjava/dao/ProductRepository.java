@@ -1,7 +1,7 @@
 package org.example.fitnessjava.dao;
 
 import org.example.fitnessjava.pojo.penddingEntity.Product;
-import org.example.fitnessjava.pojo.penddingEntity.SaleStatus;
+import org.example.fitnessjava.pojo.SaleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

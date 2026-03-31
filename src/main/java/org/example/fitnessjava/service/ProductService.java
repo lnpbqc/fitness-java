@@ -1,7 +1,7 @@
 package org.example.fitnessjava.service;
 
 import org.example.fitnessjava.pojo.penddingEntity.Product;
-import org.example.fitnessjava.pojo.penddingEntity.SaleStatus;
+import org.example.fitnessjava.pojo.SaleStatus;
 
 import java.util.List;
 import java.util.Optional;

@@ -2,15 +2,18 @@ package org.example.fitnessjava.listener;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.ClientRepository;
+import org.example.fitnessjava.dao.CoachRepository;
+import org.example.fitnessjava.dao.CourseOrderRepository;
 import org.example.fitnessjava.dao.PackageProductRepository;
 import org.example.fitnessjava.dao.ProductRepository;
 import org.example.fitnessjava.pojo.*;
+import org.example.fitnessjava.pojo.CourseOrder;
+import org.example.fitnessjava.pojo.CourseOrderStatus;
+import org.example.fitnessjava.pojo.PackageType;
+import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.pojo.penddingEntity.PackageProduct;
-import org.example.fitnessjava.pojo.penddingEntity.PackageType;
 import org.example.fitnessjava.pojo.penddingEntity.Product;
-import org.example.fitnessjava.pojo.penddingEntity.SaleStatus;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
 import org.springframework.stereotype.Component;
@@ -39,6 +42,9 @@ public class DataInitializer {
     @Resource
     private ProductRepository productRepository;
 
+    @Resource
+    private CourseOrderRepository courseOrderRepository;
+
     @PostConstruct
     public void init() {
         initAdminUser();
@@ -47,6 +53,7 @@ public class DataInitializer {
         initBanners();
         initPackageData();
         initProductData();
+        initCourseOrderData();
     }
 
     ArrayList<String> banners = new ArrayList<>(Arrays.asList(
@@ -367,6 +374,115 @@ public class DataInitializer {
             productRepository.save(p8);
 
             System.out.println("测试商品数据已创建：8 个商品");
+        }
+    }
+
+    private void initCourseOrderData() {
+        long count = courseOrderRepository.count();
+        if (count == 0) {
+            CourseOrder o1 = new CourseOrder();
+            o1.setUserId(1);
+            o1.setPackageId(2);
+            o1.setPackageName("20 次私教课");
+            o1.setType(PackageType.SESSION_CARD);
+            o1.setTotalSessions(20);
+            o1.setUsedSessions(8);
+            o1.setRemainingSessions(12);
+            o1.setValidDays(90);
+            o1.setStartDate("2026-03-01");
+            o1.setEndDate("2026-05-30");
+            o1.setPurchaseDate("2026-03-01");
+            o1.setPrice(3999.0);
+            o1.setPointsReward(400);
+            o1.setStatus(CourseOrderStatus.ACTIVE);
+            courseOrderRepository.save(o1);
+
+            CourseOrder o2 = new CourseOrder();
+            o2.setUserId(2);
+            o2.setPackageId(1);
+            o2.setPackageName("月度健身卡");
+            o2.setType(PackageType.TIME_CARD);
+            o2.setTotalSessions(0);
+            o2.setUsedSessions(0);
+            o2.setRemainingSessions(0);
+            o2.setValidDays(30);
+            o2.setStartDate("2026-03-15");
+            o2.setEndDate("2026-04-14");
+            o2.setPurchaseDate("2026-03-15");
+            o2.setPrice(599.0);
+            o2.setPointsReward(60);
+            o2.setStatus(CourseOrderStatus.ACTIVE);
+            courseOrderRepository.save(o2);
+
+            CourseOrder o3 = new CourseOrder();
+            o3.setUserId(1);
+            o3.setPackageId(4);
+            o3.setPackageName("季度健身卡");
+            o3.setType(PackageType.TIME_CARD);
+            o3.setTotalSessions(0);
+            o3.setUsedSessions(0);
+            o3.setRemainingSessions(0);
+            o3.setValidDays(90);
+            o3.setStartDate("2026-02-01");
+            o3.setEndDate("2026-05-01");
+            o3.setPurchaseDate("2026-02-01");
+            o3.setPrice(1599.0);
+            o3.setPointsReward(160);
+            o3.setStatus(CourseOrderStatus.ACTIVE);
+            courseOrderRepository.save(o3);
+
+            CourseOrder o4 = new CourseOrder();
+            o4.setUserId(3);
+            o4.setPackageId(3);
+            o4.setPackageName("体测评估服务");
+            o4.setType(PackageType.ASSESSMENT);
+            o4.setTotalSessions(1);
+            o4.setUsedSessions(1);
+            o4.setRemainingSessions(0);
+            o4.setValidDays(7);
+            o4.setStartDate("2026-03-20");
+            o4.setEndDate("2026-03-27");
+            o4.setPurchaseDate("2026-03-20");
+            o4.setPrice(199.0);
+            o4.setPointsReward(20);
+            o4.setStatus(CourseOrderStatus.COMPLETED);
+            courseOrderRepository.save(o4);
+
+            CourseOrder o5 = new CourseOrder();
+            o5.setUserId(4);
+            o5.setPackageId(5);
+            o5.setPackageName("体验课程");
+            o5.setType(PackageType.EXPERIENCE);
+            o5.setTotalSessions(1);
+            o5.setUsedSessions(0);
+            o5.setRemainingSessions(1);
+            o5.setValidDays(7);
+            o5.setStartDate("2026-03-25");
+            o5.setEndDate("2026-04-01");
+            o5.setPurchaseDate("2026-03-25");
+            o5.setPrice(9.9);
+            o5.setPointsReward(1);
+            o5.setStatus(CourseOrderStatus.ACTIVE);
+            courseOrderRepository.save(o5);
+
+            CourseOrder o6 = new CourseOrder();
+            o6.setUserId(5);
+            o6.setPackageId(2);
+            o6.setPackageName("20 次私教课");
+            o6.setType(PackageType.SESSION_CARD);
+            o6.setTotalSessions(20);
+            o6.setUsedSessions(15);
+            o6.setRemainingSessions(5);
+            o6.setValidDays(90);
+            o6.setStartDate("2026-01-15");
+            o6.setEndDate("2026-04-15");
+            o6.setPurchaseDate("2026-01-15");
+            o6.setPrice(3999.0);
+            o6.setPointsReward(400);
+            o6.setStatus(CourseOrderStatus.REFUNDING);
+            courseOrderRepository.save(o6);
+
+            System.out.println("测试课程订单数据已创建：6 个订单");
         }
     }
 }

@@ -3,7 +3,7 @@ package org.example.fitnessjava.service.impl;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.ProductRepository;
 import org.example.fitnessjava.pojo.penddingEntity.Product;
-import org.example.fitnessjava.pojo.penddingEntity.SaleStatus;
+import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.service.ProductService;
 import org.springframework.stereotype.Service;
 
