@@ -1,7 +1,7 @@
 package org.example.fitnessjava.repository;
 
-import org.example.fitnessjava.pojo.penddingEntity.CoachClass;
-import org.example.fitnessjava.pojo.penddingEntity.CoachClassStatus;
+import org.example.fitnessjava.pojo.CoachClass;
+import org.example.fitnessjava.pojo.CoachClassStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

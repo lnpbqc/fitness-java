@@ -1,7 +1,7 @@
 package org.example.fitnessjava.pojo.vo;
 
 import lombok.Data;
-import org.example.fitnessjava.pojo.penddingEntity.TicketStatus;
+import org.example.fitnessjava.pojo.TicketStatus;
 
 @Data
 public class CheckinTicketVO {

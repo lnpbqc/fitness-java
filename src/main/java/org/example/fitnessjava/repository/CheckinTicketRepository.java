@@ -1,7 +1,7 @@
 package org.example.fitnessjava.repository;
 
-import org.example.fitnessjava.pojo.penddingEntity.CheckinTicket;
-import org.example.fitnessjava.pojo.penddingEntity.TicketStatus;
+import org.example.fitnessjava.pojo.CheckinTicket;
+import org.example.fitnessjava.pojo.TicketStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,4 +1,4 @@
-package org.example.fitnessjava.pojo.penddingEntity;
+package org.example.fitnessjava.pojo;
 
 public enum TicketStatus {
     UNUSED, USED, EXPIRED

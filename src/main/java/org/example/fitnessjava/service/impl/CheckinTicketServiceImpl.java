@@ -1,8 +1,8 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
-import org.example.fitnessjava.pojo.penddingEntity.CheckinTicket;
-import org.example.fitnessjava.pojo.penddingEntity.TicketStatus;
+import org.example.fitnessjava.pojo.CheckinTicket;
+import org.example.fitnessjava.pojo.TicketStatus;
 import org.example.fitnessjava.pojo.vo.CheckinTicketVO;
 import org.example.fitnessjava.repository.CheckinTicketRepository;
 import org.example.fitnessjava.service.CheckinTicketService;

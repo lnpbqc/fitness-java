@@ -1,7 +1,7 @@
 package org.example.fitnessjava.service;
 
-import org.example.fitnessjava.pojo.penddingEntity.CoachClass;
-import org.example.fitnessjava.pojo.penddingEntity.CoachClassStatus;
+import org.example.fitnessjava.pojo.CoachClass;
+import org.example.fitnessjava.pojo.CoachClassStatus;
 import org.example.fitnessjava.pojo.vo.CoachClassVO;
 
 import java.util.List;

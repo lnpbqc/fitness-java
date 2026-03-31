@@ -1,7 +1,7 @@
 package org.example.fitnessjava.pojo.vo;
 
 import lombok.Data;
-import org.example.fitnessjava.pojo.penddingEntity.CoachClassStatus;
+import org.example.fitnessjava.pojo.CoachClassStatus;
 
 @Data
 public class CoachClassVO {
