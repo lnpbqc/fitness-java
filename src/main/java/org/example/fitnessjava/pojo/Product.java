@@ -1,32 +1,28 @@
-package org.example.fitnessjava.pojo.penddingEntity;
+package org.example.fitnessjava.pojo;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.SaleStatus;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "PackageProduct")
-public class PackageProduct {
+@Entity(name = "Product")
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    @Enumerated(EnumType.STRING)
-    private PackageType type;
-    private Integer sessions;
-    private Integer validDays;
+    private String category;
     private Double price;
+    private String image;
+    private Integer pointsPrice;
     private Integer pointsReward;
-
-    // Optional fields (nullable)
-    private Double originalPrice;
-    private Boolean limitPurchase;
-    private String description;
+    @Column(name = "description")
+    private String desc;
+    private Integer stock;
     @Enumerated(EnumType.STRING)
     private SaleStatus saleStatus;
 }

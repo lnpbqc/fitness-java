@@ -7,20 +7,25 @@ import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CourseOrderRepository;
 import org.example.fitnessjava.dao.PackageProductRepository;
+import org.example.fitnessjava.dao.ProductOrderRepository;
 import org.example.fitnessjava.dao.ProductRepository;
 import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.CourseOrder;
 import org.example.fitnessjava.pojo.CourseOrderStatus;
 import org.example.fitnessjava.pojo.PackageType;
+import org.example.fitnessjava.pojo.ProductOrder;
+import org.example.fitnessjava.pojo.ProductOrderItem;
+import org.example.fitnessjava.pojo.ProductOrderStatus;
 import org.example.fitnessjava.pojo.SaleStatus;
-import org.example.fitnessjava.pojo.penddingEntity.PackageProduct;
-import org.example.fitnessjava.pojo.penddingEntity.Product;
+import org.example.fitnessjava.pojo.PackageProduct;
+import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class DataInitializer {
@@ -46,6 +51,9 @@ public class DataInitializer {
     @Resource
     private CourseOrderRepository courseOrderRepository;
 
+    @Resource
+    private ProductOrderRepository productOrderRepository;
+
     @PostConstruct
     public void init() {
         initAdminUser();
@@ -55,6 +63,7 @@ public class DataInitializer {
         initPackageData();
         initProductData();
         initCourseOrderData();
+        initProductOrderData();
     }
 
     ArrayList<String> banners = new ArrayList<>(Arrays.asList(
@@ -116,6 +125,190 @@ public class DataInitializer {
             client2.setMembershipExpireAt("2026-06-30");
             clientRepository.save(client2);
             System.out.println("测试用户已创建：李四 (银卡会员)");
+
+            Client client3 = new Client();
+            client3.setOpenid("oTest003");
+            client3.setNickname("王五");
+            client3.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu");
+            client3.setPhone("13600136003");
+            client3.setMemberNumber("M2026003");
+            client3.setMemberLevel("普通会员");
+            client3.setPoints(320);
+            client3.setCoupons(0);
+            client3.setTotalTrainingCount(8);
+            client3.setMembershipExpireAt("2026-04-30");
+            clientRepository.save(client3);
+            System.out.println("测试用户已创建：王五 (普通会员)");
+
+            Client client4 = new Client();
+            client4.setOpenid("oTest004");
+            client4.setNickname("赵六");
+            client4.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu");
+            client4.setPhone("13500135004");
+            client4.setMemberNumber("M2026004");
+            client4.setMemberLevel("银卡会员");
+            client4.setPoints(780);
+            client4.setCoupons(2);
+            client4.setTotalTrainingCount(31);
+            client4.setMembershipExpireAt("2026-08-31");
+            clientRepository.save(client4);
+            System.out.println("测试用户已创建：赵六 (银卡会员)");
+
+            Client client5 = new Client();
+            client5.setOpenid("oTest005");
+            client5.setNickname("李明");
+            client5.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=liming");
+            client5.setPhone("13400134005");
+            client5.setMemberNumber("M2026005");
+            client5.setMemberLevel("金卡会员");
+            client5.setPoints(1580);
+            client5.setCoupons(4);
+            client5.setTotalTrainingCount(56);
+            client5.setMembershipExpireAt("2026-12-31");
+            clientRepository.save(client5);
+            System.out.println("测试用户已创建：李明 (金卡会员)");
+
+            Client client6 = new Client();
+            client6.setOpenid("oTest006");
+            client6.setNickname("刘强");
+            client6.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=liuqiang");
+            client6.setPhone("13300133006");
+            client6.setMemberNumber("M2026006");
+            client6.setMemberLevel("普通会员");
+            client6.setPoints(150);
+            client6.setCoupons(0);
+            client6.setTotalTrainingCount(3);
+            client6.setMembershipExpireAt("2026-05-31");
+            clientRepository.save(client6);
+            System.out.println("测试用户已创建：刘强 (普通会员)");
+
+            Client client7 = new Client();
+            client7.setOpenid("oTest007");
+            client7.setNickname("陈静");
+            client7.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=chenjing");
+            client7.setPhone("13200132007");
+            client7.setMemberNumber("M2026007");
+            client7.setMemberLevel("钻石会员");
+            client7.setPoints(2580);
+            client7.setCoupons(6);
+            client7.setTotalTrainingCount(89);
+            client7.setMembershipExpireAt("2027-03-31");
+            clientRepository.save(client7);
+            System.out.println("测试用户已创建：陈静 (钻石会员)");
+
+            Client client8 = new Client();
+            client8.setOpenid("oTest008");
+            client8.setNickname("周杰");
+            client8.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=zhoujie");
+            client8.setPhone("13100131008");
+            client8.setMemberNumber("M2026008");
+            client8.setMemberLevel("银卡会员");
+            client8.setPoints(520);
+            client8.setCoupons(1);
+            client8.setTotalTrainingCount(15);
+            client8.setMembershipExpireAt("2026-07-31");
+            clientRepository.save(client8);
+            System.out.println("测试用户已创建：周杰 (银卡会员)");
+
+            Client client9 = new Client();
+            client9.setOpenid("oTest009");
+            client9.setNickname("吴梅");
+            client9.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=wumei");
+            client9.setPhone("13000130009");
+            client9.setMemberNumber("M2026009");
+            client9.setMemberLevel("金卡会员");
+            client9.setPoints(1350);
+            client9.setCoupons(3);
+            client9.setTotalTrainingCount(42);
+            client9.setMembershipExpireAt("2026-11-30");
+            clientRepository.save(client9);
+            System.out.println("测试用户已创建：吴梅 (金卡会员)");
+
+            Client client10 = new Client();
+            client10.setOpenid("oTest010");
+            client10.setNickname("郑浩");
+            client10.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=zhenghao");
+            client10.setPhone("13700137010");
+            client10.setMemberNumber("M2026010");
+            client10.setMemberLevel("普通会员");
+            client10.setPoints(280);
+            client10.setCoupons(0);
+            client10.setTotalTrainingCount(6);
+            client10.setMembershipExpireAt("2026-05-15");
+            clientRepository.save(client10);
+            System.out.println("测试用户已创建：郑浩 (普通会员)");
+
+            Client client11 = new Client();
+            client11.setOpenid("oTest011");
+            client11.setNickname("孙丽");
+            client11.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=sunli");
+            client11.setPhone("13800138011");
+            client11.setMemberNumber("M2026011");
+            client11.setMemberLevel("银卡会员");
+            client11.setPoints(890);
+            client11.setCoupons(2);
+            client11.setTotalTrainingCount(28);
+            client11.setMembershipExpireAt("2026-09-30");
+            clientRepository.save(client11);
+            System.out.println("测试用户已创建：孙丽 (银卡会员)");
+
+            Client client12 = new Client();
+            client12.setOpenid("oTest012");
+            client12.setNickname("王伟");
+            client12.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=wangwei");
+            client12.setPhone("13900139012");
+            client12.setMemberNumber("M2026012");
+            client12.setMemberLevel("金卡会员");
+            client12.setPoints(1680);
+            client12.setCoupons(5);
+            client12.setTotalTrainingCount(67);
+            client12.setMembershipExpireAt("2027-01-31");
+            clientRepository.save(client12);
+            System.out.println("测试用户已创建：王伟 (金卡会员)");
+
+            Client client13 = new Client();
+            client13.setOpenid("oTest013");
+            client13.setNickname("冯敏");
+            client13.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=fengmin");
+            client13.setPhone("13600136013");
+            client13.setMemberNumber("M2026013");
+            client13.setMemberLevel("钻石会员");
+            client13.setPoints(3200);
+            client13.setCoupons(8);
+            client13.setTotalTrainingCount(120);
+            client13.setMembershipExpireAt("2027-06-30");
+            clientRepository.save(client13);
+            System.out.println("测试用户已创建：冯敏 (钻石会员)");
+
+            Client client14 = new Client();
+            client14.setOpenid("oTest014");
+            client14.setNickname("陈晨");
+            client14.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=chenchen");
+            client14.setPhone("13500135014");
+            client14.setMemberNumber("M2026014");
+            client14.setMemberLevel("普通会员");
+            client14.setPoints(95);
+            client14.setCoupons(0);
+            client14.setTotalTrainingCount(2);
+            client14.setMembershipExpireAt("2026-04-15");
+            clientRepository.save(client14);
+            System.out.println("测试用户已创建：陈晨 (普通会员)");
+
+            Client client15 = new Client();
+            client15.setOpenid("oTest015");
+            client15.setNickname("褚雪");
+            client15.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=chuxue");
+            client15.setPhone("13400134015");
+            client15.setMemberNumber("M2026015");
+            client15.setMemberLevel("银卡会员");
+            client15.setPoints(720);
+            client15.setCoupons(2);
+            client15.setTotalTrainingCount(25);
+            client15.setMembershipExpireAt("2026-08-15");
+            clientRepository.save(client15);
+            System.out.println("测试用户已创建：褚雪 (银卡会员)");
+
+            System.out.println("测试用户数据已创建：15 名用户");
         }
     }
 
@@ -485,5 +678,246 @@ public class DataInitializer {
 
             System.out.println("测试课程订单数据已创建：6 个订单");
         }
+    }
+
+    private void initProductOrderData() {
+        long count = productOrderRepository.count();
+        if (count == 0) {
+            ProductOrder o1 = new ProductOrder();
+            o1.setUserId(1);
+            o1.setItems(List.of(
+                createOrderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 2, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
+                createOrderItem(3, "运动水杯", "500ml 蓝色", 1, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400")
+            ));
+            o1.setTotalAmount(687.0);
+            o1.setPointsUsed(0);
+            o1.setActualPay(687.0);
+            o1.setOrderDate("2026-03-26");
+            o1.setStatus(ProductOrderStatus.PAID);
+            o1.setStatusText("已付款");
+            productOrderRepository.save(o1);
+
+            ProductOrder o2 = new ProductOrder();
+            o2.setUserId(2);
+            o2.setItems(List.of(
+                createOrderItem(2, "运动毛巾", "灰色 L 码", 3, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
+            ));
+            o2.setTotalAmount(177.0);
+            o2.setPointsUsed(100);
+            o2.setActualPay(167.0);
+            o2.setOrderDate("2026-03-25");
+            o2.setStatus(ProductOrderStatus.SHIPPED);
+            o2.setStatusText("已发货");
+            o2.setTrackingNumber("SF1234567890");
+            o2.setEstimatedDelivery("2026-03-28");
+            productOrderRepository.save(o2);
+
+            ProductOrder o3 = new ProductOrder();
+            o3.setUserId(3);
+            o3.setItems(List.of(
+                createOrderItem(6, "瑜伽垫", "紫色 10mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
+                createOrderItem(7, "弹力带套装", "阻力组合装", 2, 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400")
+            ));
+            o3.setTotalAmount(457.0);
+            o3.setPointsUsed(200);
+            o3.setActualPay(437.0);
+            o3.setOrderDate("2026-03-24");
+            o3.setStatus(ProductOrderStatus.DELIVERED);
+            o3.setStatusText("已送达");
+            o3.setTrackingNumber("SF1234567891");
+            o3.setEstimatedDelivery("2026-03-27");
+            productOrderRepository.save(o3);
+
+            ProductOrder o4 = new ProductOrder();
+            o4.setUserId(4);
+            o4.setItems(List.of(
+                createOrderItem(4, "BCAA 氨基酸", "300g 柠檬味", 1, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400")
+            ));
+            o4.setTotalAmount(199.0);
+            o4.setPointsUsed(0);
+            o4.setActualPay(199.0);
+            o4.setOrderDate("2026-03-23");
+            o4.setStatus(ProductOrderStatus.CANCELLED);
+            o4.setStatusText("已退款：用户申请退款");
+            productOrderRepository.save(o4);
+
+            ProductOrder o5 = new ProductOrder();
+            o5.setUserId(5);
+            o5.setItems(List.of(
+                createOrderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 1, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
+                createOrderItem(8, "左旋肉碱", "60 粒装", 1, 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400")
+            ));
+            o5.setTotalAmount(558.0);
+            o5.setPointsUsed(0);
+            o5.setActualPay(558.0);
+            o5.setOrderDate("2026-03-22");
+            o5.setStatus(ProductOrderStatus.PAID);
+            o5.setStatusText("已付款");
+            productOrderRepository.save(o5);
+
+            ProductOrder o6 = new ProductOrder();
+            o6.setUserId(6);
+            o6.setItems(List.of(
+                createOrderItem(3, "运动水杯", "750ml 黑色", 2, 99.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"),
+                createOrderItem(2, "运动毛巾", "蓝色 M 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
+            ));
+            o6.setTotalAmount(316.0);
+            o6.setPointsUsed(150);
+            o6.setActualPay(301.0);
+            o6.setOrderDate("2026-03-21");
+            o6.setStatus(ProductOrderStatus.SHIPPED);
+            o6.setStatusText("已发货");
+            o6.setTrackingNumber("SF1234567892");
+            o6.setEstimatedDelivery("2026-03-24");
+            productOrderRepository.save(o6);
+
+            ProductOrder o7 = new ProductOrder();
+            o7.setUserId(7);
+            o7.setItems(List.of(
+                createOrderItem(6, "瑜伽垫", "粉色 8mm", 1, 179.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
+                createOrderItem(7, "弹力带套装", "轻量级", 1, 99.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"),
+                createOrderItem(2, "运动毛巾", "粉色 S 码", 2, 49.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
+            ));
+            o7.setTotalAmount(376.0);
+            o7.setPointsUsed(0);
+            o7.setActualPay(376.0);
+            o7.setOrderDate("2026-03-20");
+            o7.setStatus(ProductOrderStatus.DELIVERED);
+            o7.setStatusText("已送达");
+            o7.setTrackingNumber("SF1234567893");
+            o7.setEstimatedDelivery("2026-03-23");
+            productOrderRepository.save(o7);
+
+            ProductOrder o8 = new ProductOrder();
+            o8.setUserId(8);
+            o8.setItems(List.of(
+                createOrderItem(4, "BCAA 氨基酸", "300g 葡萄味", 2, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400")
+            ));
+            o8.setTotalAmount(398.0);
+            o8.setPointsUsed(0);
+            o8.setActualPay(398.0);
+            o8.setOrderDate("2026-03-19");
+            o8.setStatus(ProductOrderStatus.PENDING);
+            o8.setStatusText("待付款");
+            productOrderRepository.save(o8);
+
+            ProductOrder o9 = new ProductOrder();
+            o9.setUserId(9);
+            o9.setItems(List.of(
+                createOrderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 1, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
+                createOrderItem(6, "瑜伽垫", "绿色 10mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400")
+            ));
+            o9.setTotalAmount(498.0);
+            o9.setPointsUsed(300);
+            o9.setActualPay(468.0);
+            o9.setOrderDate("2026-03-18");
+            o9.setStatus(ProductOrderStatus.DELIVERED);
+            o9.setStatusText("已送达");
+            o9.setTrackingNumber("SF1234567894");
+            o9.setEstimatedDelivery("2026-03-21");
+            productOrderRepository.save(o9);
+
+            ProductOrder o10 = new ProductOrder();
+            o10.setUserId(10);
+            o10.setItems(List.of(
+                createOrderItem(3, "运动水杯", "500ml 白色", 3, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400")
+            ));
+            o10.setTotalAmount(267.0);
+            o10.setPointsUsed(0);
+            o10.setActualPay(267.0);
+            o10.setOrderDate("2026-03-17");
+            o10.setStatus(ProductOrderStatus.PAID);
+            o10.setStatusText("已付款");
+            productOrderRepository.save(o10);
+
+            ProductOrder o11 = new ProductOrder();
+            o11.setUserId(11);
+            o11.setItems(List.of(
+                createOrderItem(7, "弹力带套装", "阻力组合装", 1, 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"),
+                createOrderItem(2, "运动毛巾", "紫色 L 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
+            ));
+            o11.setTotalAmount(247.0);
+            o11.setPointsUsed(50);
+            o11.setActualPay(242.0);
+            o11.setOrderDate("2026-03-16");
+            o11.setStatus(ProductOrderStatus.SHIPPED);
+            o11.setStatusText("已发货");
+            o11.setTrackingNumber("SF1234567895");
+            o11.setEstimatedDelivery("2026-03-19");
+            productOrderRepository.save(o11);
+
+            ProductOrder o12 = new ProductOrder();
+            o12.setUserId(12);
+            o12.setItems(List.of(
+                createOrderItem(8, "左旋肉碱", "60 粒装", 2, 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"),
+                createOrderItem(4, "BCAA 氨基酸", "300g 柠檬味", 1, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400")
+            ));
+            o12.setTotalAmount(717.0);
+            o12.setPointsUsed(0);
+            o12.setActualPay(717.0);
+            o12.setOrderDate("2026-03-15");
+            o12.setStatus(ProductOrderStatus.DELIVERED);
+            o12.setStatusText("已送达");
+            o12.setTrackingNumber("SF1234567896");
+            o12.setEstimatedDelivery("2026-03-18");
+            productOrderRepository.save(o12);
+
+            ProductOrder o13 = new ProductOrder();
+            o13.setUserId(13);
+            o13.setItems(List.of(
+                createOrderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 3, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
+                createOrderItem(8, "左旋肉碱", "60 粒装", 2, 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"),
+                createOrderItem(4, "BCAA 氨基酸", "300g 柠檬味", 2, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400")
+            ));
+            o13.setTotalAmount(1813.0);
+            o13.setPointsUsed(500);
+            o13.setActualPay(1763.0);
+            o13.setOrderDate("2026-03-14");
+            o13.setStatus(ProductOrderStatus.DELIVERED);
+            o13.setStatusText("已送达");
+            o13.setTrackingNumber("SF1234567897");
+            o13.setEstimatedDelivery("2026-03-17");
+            productOrderRepository.save(o13);
+
+            ProductOrder o14 = new ProductOrder();
+            o14.setUserId(14);
+            o14.setItems(List.of(
+                createOrderItem(2, "运动毛巾", "灰色 M 码", 1, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
+            ));
+            o14.setTotalAmount(59.0);
+            o14.setPointsUsed(0);
+            o14.setActualPay(59.0);
+            o14.setOrderDate("2026-03-13");
+            o14.setStatus(ProductOrderStatus.PENDING);
+            o14.setStatusText("待付款");
+            productOrderRepository.save(o14);
+
+            ProductOrder o15 = new ProductOrder();
+            o15.setUserId(15);
+            o15.setItems(List.of(
+                createOrderItem(6, "瑜伽垫", "蓝色 8mm", 1, 179.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
+                createOrderItem(3, "运动水杯", "750ml 粉色", 1, 99.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400")
+            ));
+            o15.setTotalAmount(278.0);
+            o15.setPointsUsed(100);
+            o15.setActualPay(268.0);
+            o15.setOrderDate("2026-03-12");
+            o15.setStatus(ProductOrderStatus.PAID);
+            o15.setStatusText("已付款");
+            productOrderRepository.save(o15);
+
+            System.out.println("测试商品订单数据已创建：15 个订单");
+        }
+    }
+
+    private ProductOrderItem createOrderItem(Integer productId, String name, String specs, Integer quantity, Double price, String image) {
+        ProductOrderItem item = new ProductOrderItem();
+        item.setProductId(productId);
+        item.setName(name);
+        item.setSpecs(specs);
+        item.setQuantity(quantity);
+        item.setPrice(price);
+        item.setImage(image);
+        return item;
     }
 }

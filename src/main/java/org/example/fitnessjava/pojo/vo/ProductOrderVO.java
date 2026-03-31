@@ -1,36 +1,23 @@
-package org.example.fitnessjava.pojo.penddingEntity;
+package org.example.fitnessjava.pojo.vo;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.example.fitnessjava.pojo.ProductOrderItem;
+import org.example.fitnessjava.pojo.ProductOrderStatus;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-public class ProductOrder {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+public class ProductOrderVO {
+    private Integer id;
     private Integer userId;
-
-    @OneToMany
+    private String userName;
     private List<ProductOrderItem> items;
-
+    private Integer itemCount;
     private Double totalAmount;
     private Integer pointsUsed;
     private Double actualPay;
-
     private String orderDate;
-
-    @Enumerated(EnumType.STRING)
     private ProductOrderStatus status;
-
     private String statusText;
     private String trackingNumber;
     private String estimatedDelivery;

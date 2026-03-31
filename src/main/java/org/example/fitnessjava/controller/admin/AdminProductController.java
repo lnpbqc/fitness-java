@@ -3,7 +3,7 @@ package org.example.fitnessjava.controller.admin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.example.fitnessjava.pojo.penddingEntity.Product;
+import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.service.ProductService;
 import org.springframework.http.ResponseEntity;
