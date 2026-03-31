@@ -3,17 +3,22 @@ package org.example.fitnessjava.service.impl;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.dao.CoachRepository;
+import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
 import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.CoachWithUser;
-import org.example.fitnessjava.service.ClientService;
+import org.example.fitnessjava.pojo.penddingEntity.CoachScheduleSlot;
 import org.example.fitnessjava.service.CoachService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CoachServiceImpl implements CoachService {
@@ -23,6 +28,8 @@ public class CoachServiceImpl implements CoachService {
     private ClientRepository clientRepository;
     @Resource
     private CoachWithUserRepository coachWithUserRepository;
+    @Resource
+    private CoachScheduleSlotRepository coachScheduleSlotRepository;
 
     @Override
     public ArrayList<Coach> getCoachesByFeatured() {
@@ -111,12 +118,37 @@ public class CoachServiceImpl implements CoachService {
         coachRepository.deleteById(id);
     }
 
-    // todo: 根据排班表来安排
     @Override
     public ArrayList<Coach> getTodayCoaches() {
+        String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        List<CoachScheduleSlot> todaySlots = coachScheduleSlotRepository.findAllByDateOrderByStartTimeAsc(today);
+        if (todaySlots.isEmpty()) {
+            return getFallbackTodayCoaches();
+        }
+
+        ArrayList<Coach> todayCoaches = new ArrayList<>();
+        Set<Integer> addedCoachIds = new LinkedHashSet<>();
+        // 按当天排班时段顺序去重返回教练列表。
+        for (CoachScheduleSlot todaySlot : todaySlots) {
+            if (!addedCoachIds.add(todaySlot.getCoachId())) {
+                continue;
+            }
+            Optional<Coach> coachOptional = coachRepository.findById((long) todaySlot.getCoachId());
+            if (coachOptional.isEmpty()) {
+                continue;
+            }
+            Coach coach = coachOptional.get();
+            if (coach.getStatus() == null || coach.getStatus() != Coach.Status.OFFLINE) {
+                todayCoaches.add(coach);
+            }
+        }
+        return todayCoaches;
+    }
+
+    private ArrayList<Coach> getFallbackTodayCoaches() {
         ArrayList<Coach> todayCoaches = new ArrayList<>();
         List<Coach> allCoaches = coachRepository.findAll();
-        // 当前尚未接入排班表，today 先按非离线状态返回教练列表。
+        // 当天尚未配置排班时，降级为返回非离线教练，避免列表直接为空。
         for (Coach coach : allCoaches) {
             if (coach.getStatus() == null || coach.getStatus() != Coach.Status.OFFLINE) {
                 todayCoaches.add(coach);
