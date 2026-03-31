@@ -114,17 +114,25 @@ public class CoachServiceImpl implements CoachService {
     // todo: 根据排班表来安排
     @Override
     public ArrayList<Coach> getTodayCoaches() {
-        return null;
+        ArrayList<Coach> todayCoaches = new ArrayList<>();
+        List<Coach> allCoaches = coachRepository.findAll();
+        // 当前尚未接入排班表，today 先按非离线状态返回教练列表。
+        for (Coach coach : allCoaches) {
+            if (coach.getStatus() == null || coach.getStatus() != Coach.Status.OFFLINE) {
+                todayCoaches.add(coach);
+            }
+        }
+        return todayCoaches;
     }
 
     @Override
-    public ArrayList<Coach> getCoachesOfUser(String userId) {
+    public ArrayList<Coach> getCoachesOfUser(String openid) {
         ArrayList<Coach> coaches = new ArrayList<>();
-        Optional<Client> byId = clientRepository.findById(Long.valueOf(userId));
-        if (byId.isEmpty()) {
+        Client byId = clientRepository.findByOpenid(openid);
+        if (byId==null) {
             return coaches;
         }
-        ArrayList<CoachWithUser> allByClientId = coachWithUserRepository.findAllByClientId(byId.get().getId());
+        ArrayList<CoachWithUser> allByClientId = coachWithUserRepository.findAllByClientId(byId.getId());
         for (CoachWithUser coachWithUser : allByClientId) {
             Optional<Coach> coach = coachRepository.findById((long) coachWithUser.getCoachId());
             coach.ifPresent(coaches::add);

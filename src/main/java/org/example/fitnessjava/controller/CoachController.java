@@ -6,11 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
-import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.dto.WxLoginRequest;
-import org.example.fitnessjava.pojo.vo.UserVO;
-import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.cache.annotation.Cacheable;
@@ -51,21 +48,30 @@ public class CoachController {
 
     @GetMapping()
     @Operation(summary = "获取指定类型教练,all|today|mine")
-    @Cacheable(value = "coaches", key = "#tabType + ':' + (#userId != null ? #userId : 'anonymous')")
+    @Cacheable(value = "coaches", key = "(#tabType != null ? #tabType : 'all') + ':' + (#token != null ? #token : 'anonymous')")
     public ArrayList<Coach> coaches(
-            @RequestParam(required = true,defaultValue = "all") String tabType,
-            @RequestParam(required = false) String userId
+            @RequestParam(required = false, defaultValue = "all") String tabType,
+            @RequestHeader(value = "Authorization", required = false) String token
     ) {
-        log.info("CoachController: coaches tabType: {}, userId: {}", tabType, userId);
-        switch (tabType) {
-            case "all":
-                return coachService.getAllCoaches();
+        String normalizedTabType = Optional.ofNullable(tabType)
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .filter(value -> !value.isEmpty())
+                .orElse("all");
+        log.info("CoachController: coaches tabType: {}", normalizedTabType);
+        switch (normalizedTabType) {
             case "today":
                 return coachService.getTodayCoaches();
             case "mine":
-                return coachService.getCoachesOfUser(userId);
+                String openid = jwtUtil.getSubjectFromAuthorization(token);
+                if (openid == null) {
+                    log.warn("CoachController: 无效的 Authorization token");
+                    return new ArrayList<>();
+                }
+                return coachService.getCoachesOfUser(openid);
+            case "all":
             default:
-                return null;
+                return coachService.getAllCoaches();
         }
     }
 
@@ -126,8 +132,10 @@ public class CoachController {
     @Operation(description = "通过携带的token获取对应id")
     @Cacheable(value = "coach",key = "#token")
     public Coach getUserById(@RequestHeader("Authorization") String token) {
-        token = token.substring(7);
-        String openid = jwtUtil.getSubjectFromToken(token);
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        if (openid == null) {
+            return new Coach();
+        }
         Optional<Coach> coachByOpenid = coachService.getCoachByOpenid(openid);
         return coachByOpenid.orElse(new Coach());
     }

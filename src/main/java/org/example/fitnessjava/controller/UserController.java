@@ -90,8 +90,10 @@ public class UserController {
     @Operation(description = "通过携带的token获取对应id")
     @Cacheable(value = "user",key = "#token")
     public UserVO getUserById(@RequestHeader("Authorization") String token) {
-        token = token.substring(7);
-        String openid = jwtUtil.getSubjectFromToken(token);
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        if (openid == null) {
+            return null;
+        }
         Client client = clientService.existUser(openid);
         if (client == null) {
             return null;

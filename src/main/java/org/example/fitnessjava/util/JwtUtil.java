@@ -19,6 +19,14 @@ public class JwtUtil {
     @Value("${jwt.expiration:86400000}")
     private long expiration;
 
+    private Claims parseClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -38,29 +46,39 @@ public class JwtUtil {
     }
 
     public String getSubjectFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.getSubject();
+        return parseClaims(token).getSubject();
     }
 
     public String getRoleFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return claims.get("role", String.class);
+        return parseClaims(token).get("role", String.class);
+    }
+
+    public String extractTokenFromAuthorization(String authorizationHeader) {
+        if (authorizationHeader == null || authorizationHeader.isBlank()) {
+            return null;
+        }
+        String token = authorizationHeader.startsWith("Bearer ")
+                ? authorizationHeader.substring(7)
+                : authorizationHeader;
+        token = token.trim();
+        return token.isEmpty() ? null : token;
+    }
+
+    public String getSubjectFromAuthorization(String authorizationHeader) {
+        String token = extractTokenFromAuthorization(authorizationHeader);
+        if (token == null) {
+            return null;
+        }
+        try {
+            return getSubjectFromToken(token);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
+            parseClaims(token);
             return true;
         } catch (Exception e) {
             return false;
