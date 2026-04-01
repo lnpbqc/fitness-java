@@ -15,7 +15,7 @@ import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
 import org.example.fitnessjava.pojo.Booking;
 import org.example.fitnessjava.pojo.BookingSource;
 import org.example.fitnessjava.pojo.BookingStatus;
-import org.example.fitnessjava.pojo.penddingEntity.CoachScheduleSlot;
+import org.example.fitnessjava.pojo.CoachScheduleSlot;
 import org.example.fitnessjava.service.BookingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -196,8 +196,6 @@ public class BookingServiceImpl implements BookingService {
         booking.setStartTime(scheduleSlot.getStartTime());
         booking.setEndTime(scheduleSlot.getEndTime());
         booking.setLocation(location != null && !location.isBlank() ? location : scheduleSlot.getRoomName());
-        booking.setCoachAvatar(coach.getAvatar());
-        booking.setSpecialty(coach.getSpecialty());
     }
 
     private void occupyScheduleSlot(CoachScheduleSlot scheduleSlot, Integer bookingId) {

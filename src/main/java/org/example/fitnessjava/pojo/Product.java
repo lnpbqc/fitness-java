@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.fitnessjava.pojo.SaleStatus;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,7 +17,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity(name = "Product")
 @Schema(description = "商品")
-public class Product{
+@EqualsAndHashCode(callSuper = true)
+public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,10 +33,4 @@ public class Product{
     private Integer stock;
     @Enumerated(EnumType.STRING)
     private SaleStatus saleStatus;
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createTime;
-    // 修改时间
-    @UpdateTimestamp
-    private LocalDateTime updateTime;
 }

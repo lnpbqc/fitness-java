@@ -3,6 +3,7 @@ package org.example.fitnessjava.pojo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,7 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Client{
+@EqualsAndHashCode(callSuper = true)
+public class Client extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,10 +31,4 @@ public class Client{
     private int coupons;
     private int totalTrainingCount;
     private String membershipExpireAt;
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createTime;
-    // 修改时间
-    @UpdateTimestamp
-    private LocalDateTime updateTime;
 }

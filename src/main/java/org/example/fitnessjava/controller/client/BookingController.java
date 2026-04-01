@@ -9,7 +9,7 @@ import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
 import org.example.fitnessjava.pojo.Booking;
-import org.example.fitnessjava.pojo.penddingEntity.CoachScheduleSlot;
+import org.example.fitnessjava.pojo.CoachScheduleSlot;
 import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.BookingService;
 import org.example.fitnessjava.util.JwtUtil;

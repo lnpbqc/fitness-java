@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,7 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Schema(description = "商品订单")
-public class ProductOrder{
+@EqualsAndHashCode(callSuper = true)
+public class ProductOrder extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,10 +42,4 @@ public class ProductOrder{
     private String statusText;
     private String trackingNumber;
     private String estimatedDelivery;
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createTime;
-    // 修改时间
-    @UpdateTimestamp
-    private LocalDateTime updateTime;
 }

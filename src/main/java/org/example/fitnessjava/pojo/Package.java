@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity(name = "Package")
 @Schema(description = "套餐")
-public class Package{
+@EqualsAndHashCode(callSuper = true)
+public class Package extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -33,10 +35,4 @@ public class Package{
     private String description;
     @Enumerated(EnumType.STRING)
     private SaleStatus saleStatus;
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createTime;
-    // 修改时间
-    @UpdateTimestamp
-    private LocalDateTime updateTime;
 }

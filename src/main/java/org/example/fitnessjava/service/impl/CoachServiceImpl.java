@@ -8,7 +8,7 @@ import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.CoachWithUser;
-import org.example.fitnessjava.pojo.penddingEntity.CoachScheduleSlot;
+import org.example.fitnessjava.pojo.CoachScheduleSlot;
 import org.example.fitnessjava.service.CoachService;
 import org.springframework.stereotype.Service;
 
