@@ -150,7 +150,4 @@ public class CoachController {
         Optional<Coach> coachByOpenid = coachService.getCoachByOpenid(openid);
         return coachByOpenid.orElse(new Coach());
     }
-
-
-
 }

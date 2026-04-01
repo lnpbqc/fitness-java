@@ -2,9 +2,12 @@ package org.example.fitnessjava.listener;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import org.example.fitnessjava.dao.BookingRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.ClientRepository;
+import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
 import org.example.fitnessjava.dao.CourseOrderRepository;
+import org.example.fitnessjava.dao.HealthSurveyRepository;
 import org.example.fitnessjava.dao.PackageProductRepository;
 import org.example.fitnessjava.dao.ProductOrderRepository;
 import org.example.fitnessjava.dao.ProductRepository;
@@ -53,6 +56,15 @@ public class DataInitializer {
     @Resource
     private ProductOrderRepository productOrderRepository;
 
+    @Resource
+    private HealthSurveyRepository healthSurveyRepository;
+
+    @Resource
+    private CoachScheduleSlotRepository coachScheduleSlotRepository;
+
+    @Resource
+    private BookingRepository bookingRepository;
+
     @PostConstruct
     public void init() {
         initAdminUser();
@@ -63,6 +75,9 @@ public class DataInitializer {
         initProductData();
         initCourseOrderData();
         initProductOrderData();
+        initHealthSurveyData();
+        initCoachScheduleSlotData();
+        initBookingData();
     }
 
     ArrayList<String> banners = new ArrayList<>(Arrays.asList(
@@ -392,11 +407,19 @@ public class DataInitializer {
 
             Coach coach6 = new Coach();
             coach6.setOpenid("oCoach001");
-            coach6.setNickname("王教练");
-            coach6.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=coach");
+            coach6.setNickname("赵教练");
+            coach6.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=zhaocoach");
+            coach6.setIntro("有氧与核心训练教练，注重体能全面提升和心肺功能改善。");
+            coach6.setSpecialty("有氧训练");
+            coach6.setDescription("ACE-CPT 认证教练，心肺康复训练师");
+            coach6.setRating(4.5);
+            coach6.setLevel(3);
+            coach6.setClassCount(72);
+            coach6.setTags(Arrays.asList("有氧", "核心训练", "体能"));
             coach6.setPhone("13700137003");
+            coach6.setFeatured(false);
+            coach6.setStatus(Coach.Status.ONLINE);
             coachRepository.save(coach6);
-            System.out.println("王教练");
 
             System.out.println("测试教练数据已创建：6 名教练");
         }
@@ -757,12 +780,12 @@ public class DataInitializer {
             ProductOrder o6 = new ProductOrder();
             o6.setUserId(6);
             o6.setItems(List.of(
-                createOrderItem(3, "运动水杯", "750ml 黑色", 2, 99.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"),
+                createOrderItem(3, "运动水杯", "750ml 黑色", 2, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"),
                 createOrderItem(2, "运动毛巾", "蓝色 M 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
             ));
-            o6.setTotalAmount(316.0);
+            o6.setTotalAmount(296.0);
             o6.setPointsUsed(150);
-            o6.setActualPay(301.0);
+            o6.setActualPay(146.0);
             o6.setOrderDate("2026-03-21");
             o6.setStatus(ProductOrderStatus.SHIPPED);
             o6.setStatusText("已发货");
@@ -773,13 +796,13 @@ public class DataInitializer {
             ProductOrder o7 = new ProductOrder();
             o7.setUserId(7);
             o7.setItems(List.of(
-                createOrderItem(6, "瑜伽垫", "粉色 8mm", 1, 179.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
-                createOrderItem(7, "弹力带套装", "轻量级", 1, 99.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"),
-                createOrderItem(2, "运动毛巾", "粉色 S 码", 2, 49.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
+                createOrderItem(6, "瑜伽垫", "粉色 8mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
+                createOrderItem(7, "弹力带套装", "轻量级", 1, 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"),
+                createOrderItem(2, "运动毛巾", "粉色 S 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400")
             ));
-            o7.setTotalAmount(376.0);
+            o7.setTotalAmount(446.0);
             o7.setPointsUsed(0);
-            o7.setActualPay(376.0);
+            o7.setActualPay(446.0);
             o7.setOrderDate("2026-03-20");
             o7.setStatus(ProductOrderStatus.DELIVERED);
             o7.setStatusText("已送达");
@@ -894,18 +917,345 @@ public class DataInitializer {
             ProductOrder o15 = new ProductOrder();
             o15.setUserId(15);
             o15.setItems(List.of(
-                createOrderItem(6, "瑜伽垫", "蓝色 8mm", 1, 179.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
-                createOrderItem(3, "运动水杯", "750ml 粉色", 1, 99.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400")
+                createOrderItem(6, "瑜伽垫", "蓝色 8mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
+                createOrderItem(3, "运动水杯", "750ml 粉色", 1, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400")
             ));
-            o15.setTotalAmount(278.0);
+            o15.setTotalAmount(288.0);
             o15.setPointsUsed(100);
-            o15.setActualPay(268.0);
+            o15.setActualPay(188.0);
             o15.setOrderDate("2026-03-12");
             o15.setStatus(ProductOrderStatus.PAID);
             o15.setStatusText("已付款");
             productOrderRepository.save(o15);
 
             System.out.println("测试商品订单数据已创建：15 个订单");
+        }
+    }
+
+    private void initHealthSurveyData() {
+        long count = healthSurveyRepository.count();
+        if (count == 0) {
+            // 张三 - 金卡会员，以增肌为目标
+            HealthSurvey s1 = new HealthSurvey();
+            s1.setUserId(1);
+            s1.setName("张三");
+            s1.setGender("男");
+            s1.setAge(28);
+            s1.setHeight(178.0);
+            s1.setWeight(75.0);
+            s1.setGoal("增肌塑形");
+            s1.setFrequency("每周 4-5 次");
+            s1.setHealthIssues(List.of());
+            s1.setNotes("有 2 年健身基础，希望增加肌肉量");
+            healthSurveyRepository.save(s1);
+
+            // 李四 - 银卡会员，减脂为主
+            HealthSurvey s2 = new HealthSurvey();
+            s2.setUserId(2);
+            s2.setName("李四");
+            s2.setGender("女");
+            s2.setAge(25);
+            s2.setHeight(163.0);
+            s2.setWeight(60.0);
+            s2.setGoal("减脂瘦身");
+            s2.setFrequency("每周 3 次");
+            s2.setHealthIssues(List.of("膝盖旧伤"));
+            s2.setNotes("膝盖有旧伤，需要避免高强度跳跃动作");
+            healthSurveyRepository.save(s2);
+
+            // 王五 - 普通会员，初学者
+            HealthSurvey s3 = new HealthSurvey();
+            s3.setUserId(3);
+            s3.setName("王五");
+            s3.setGender("男");
+            s3.setAge(32);
+            s3.setHeight(172.0);
+            s3.setWeight(80.0);
+            s3.setGoal("减脂增肌");
+            s3.setFrequency("每周 2 次");
+            s3.setHealthIssues(List.of("轻度脂肪肝"));
+            s3.setNotes("刚开始健身，需要从基础开始");
+            healthSurveyRepository.save(s3);
+
+            // 陈静 - 钻石会员，以瑜伽为主
+            HealthSurvey s4 = new HealthSurvey();
+            s4.setUserId(7);
+            s4.setName("陈静");
+            s4.setGender("女");
+            s4.setAge(30);
+            s4.setHeight(165.0);
+            s4.setWeight(55.0);
+            s4.setGoal("体态矫正");
+            s4.setFrequency("每周 5 次");
+            s4.setHealthIssues(List.of());
+            s4.setNotes("长期伏案工作，肩颈酸痛，希望改善体态");
+            healthSurveyRepository.save(s4);
+
+            // 冯敏 - 钻石会员，功能训练
+            HealthSurvey s5 = new HealthSurvey();
+            s5.setUserId(13);
+            s5.setName("冯敏");
+            s5.setGender("男");
+            s5.setAge(35);
+            s5.setHeight(180.0);
+            s5.setWeight(85.0);
+            s5.setGoal("体能提升");
+            s5.setFrequency("每周 5-6 次");
+            s5.setHealthIssues(List.of());
+            s5.setNotes("运动爱好者，希望全面提升综合体能");
+            healthSurveyRepository.save(s5);
+
+            // 郑浩 - 普通会员
+            HealthSurvey s6 = new HealthSurvey();
+            s6.setUserId(10);
+            s6.setName("郑浩");
+            s6.setGender("男");
+            s6.setAge(22);
+            s6.setHeight(175.0);
+            s6.setWeight(68.0);
+            s6.setGoal("增肌");
+            s6.setFrequency("每周 3 次");
+            s6.setHealthIssues(List.of());
+            s6.setNotes("大学生，预算有限，希望性价比高的训练方案");
+            healthSurveyRepository.save(s6);
+
+            System.out.println("健康问卷数据已创建：6 份");
+        }
+    }
+
+    private void initCoachScheduleSlotData() {
+        long count = coachScheduleSlotRepository.count();
+        if (count == 0) {
+            // 教练1（李教练）的排班 - 2026-04-01 ~ 04-07
+            saveSlot(1, "2026-04-01", "09:00", "10:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-01", "10:30", "11:30", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-01", "14:00", "15:00", false, "A2 训练室", null);
+            saveSlot(1, "2026-04-01", "16:00", "17:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-02", "09:00", "10:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-02", "10:30", "11:30", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-02", "15:00", "16:00", true, "A2 训练室", null);
+            saveSlot(1, "2026-04-03", "09:00", "10:00", false, "A1 训练室", null);
+            saveSlot(1, "2026-04-03", "14:00", "15:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-04", "09:00", "10:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-04", "10:30", "11:30", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-05", "09:00", "10:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-07", "10:00", "11:00", true, "A1 训练室", null);
+
+            // 教练2（王教练）的排班 - 瑜伽普拉提
+            saveSlot(2, "2026-04-01", "08:00", "09:00", true, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-01", "10:00", "11:00", true, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-01", "15:00", "16:00", false, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-02", "08:00", "09:00", true, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-02", "10:00", "11:00", true, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-03", "08:00", "09:00", true, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-03", "15:00", "16:00", true, "B2 普拉提室", null);
+            saveSlot(2, "2026-04-04", "08:00", "09:00", true, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-04", "10:00", "11:00", false, "B1 瑜伽室", null);
+
+            // 教练3（张教练）的排班 - 减脂塑形
+            saveSlot(3, "2026-04-01", "09:00", "10:00", true, "C1 有氧区", null);
+            saveSlot(3, "2026-04-01", "11:00", "12:00", true, "C1 有氧区", null);
+            saveSlot(3, "2026-04-02", "09:00", "10:00", false, "C1 有氧区", null);
+            saveSlot(3, "2026-04-02", "14:00", "15:00", true, "C1 有氧区", null);
+            saveSlot(3, "2026-04-03", "09:00", "10:00", true, "C1 有氧区", null);
+            saveSlot(3, "2026-04-05", "09:00", "10:00", true, "C1 有氧区", null);
+
+            // 教练4（刘教练）的排班 - 功能训练
+            saveSlot(4, "2026-04-01", "10:00", "11:00", true, "D1 功能区", null);
+            saveSlot(4, "2026-04-01", "14:00", "15:00", true, "D1 功能区", null);
+            saveSlot(4, "2026-04-02", "10:00", "11:00", true, "D1 功能区", null);
+            saveSlot(4, "2026-04-03", "10:00", "11:00", false, "D1 功能区", null);
+            saveSlot(4, "2026-04-04", "10:00", "11:00", true, "D1 功能区", null);
+
+            // 教练6（赵教练）的排班 - 有氧训练
+            saveSlot(6, "2026-04-01", "07:00", "08:00", true, "E1 有氧教室", null);
+            saveSlot(6, "2026-04-01", "18:00", "19:00", true, "E1 有氧教室", null);
+            saveSlot(6, "2026-04-02", "07:00", "08:00", true, "E1 有氧教室", null);
+            saveSlot(6, "2026-04-03", "07:00", "08:00", true, "E1 有氧教室", null);
+            saveSlot(6, "2026-04-03", "18:00", "19:00", false, "E1 有氧教室", null);
+
+            System.out.println("排班数据已创建：37 个排班时段");
+        }
+    }
+
+    private void saveSlot(int coachId, String date, String startTime, String endTime, boolean available, String roomName, Integer bookingId) {
+        CoachScheduleSlot slot = new CoachScheduleSlot();
+        slot.setCoachId(coachId);
+        slot.setDate(date);
+        slot.setStartTime(startTime);
+        slot.setEndTime(endTime);
+        slot.setAvailable(available);
+        slot.setRoomName(roomName);
+        slot.setBookingId(bookingId);
+        coachScheduleSlotRepository.save(slot);
+    }
+
+    private void initBookingData() {
+        long count = bookingRepository.count();
+        if (count == 0) {
+            // 预约1：张三预约李教练 - 已确认
+            Booking b1 = new Booking();
+            b1.setUserId(1);
+            b1.setCoachId(1);
+            b1.setBookingDate("2026-04-01");
+            b1.setStartTime("14:00");
+            b1.setEndTime("15:00");
+            b1.setLocation("A2 训练室");
+            b1.setStatus(BookingStatus.CONFIRMED);
+            b1.setStatusText("已确认");
+            b1.setSource(BookingSource.CLIENT);
+            b1.setPackageOrderId("2");
+            bookingRepository.save(b1);
+
+            // 预约2：李四预约王教练 - 已确认
+            Booking b2 = new Booking();
+            b2.setUserId(2);
+            b2.setCoachId(2);
+            b2.setBookingDate("2026-04-01");
+            b2.setStartTime("15:00");
+            b2.setEndTime("16:00");
+            b2.setLocation("B1 瑜伽室");
+            b2.setStatus(BookingStatus.CONFIRMED);
+            b2.setStatusText("已确认");
+            b2.setSource(BookingSource.CLIENT);
+            b2.setPackageOrderId("2");
+            bookingRepository.save(b2);
+
+            // 预约3：王五预约张教练 - 待确认
+            Booking b3 = new Booking();
+            b3.setUserId(3);
+            b3.setCoachId(3);
+            b3.setBookingDate("2026-04-02");
+            b3.setStartTime("09:00");
+            b3.setEndTime("10:00");
+            b3.setLocation("C1 有氧区");
+            b3.setStatus(BookingStatus.PENDING);
+            b3.setStatusText("待确认");
+            b3.setSource(BookingSource.CLIENT);
+            b3.setPackageOrderId("5");
+            bookingRepository.save(b3);
+
+            // 预约4：张三预约刘教练 - 已完成
+            Booking b4 = new Booking();
+            b4.setUserId(1);
+            b4.setCoachId(4);
+            b4.setBookingDate("2026-03-28");
+            b4.setStartTime("10:00");
+            b4.setEndTime("11:00");
+            b4.setLocation("D1 功能区");
+            b4.setStatus(BookingStatus.COMPLETED);
+            b4.setStatusText("已完成");
+            b4.setSource(BookingSource.CLIENT);
+            b4.setPackageOrderId("2");
+            bookingRepository.save(b4);
+
+            // 预约5：赵六预约李教练 - 已确认
+            Booking b5 = new Booking();
+            b5.setUserId(4);
+            b5.setCoachId(1);
+            b5.setBookingDate("2026-04-03");
+            b5.setStartTime("14:00");
+            b5.setEndTime("15:00");
+            b5.setLocation("A1 训练室");
+            b5.setStatus(BookingStatus.CONFIRMED);
+            b5.setStatusText("已确认");
+            b5.setSource(BookingSource.CLIENT);
+            b5.setPackageOrderId("2");
+            bookingRepository.save(b5);
+
+            // 预约6：李明预约王教练 - 已签到
+            Booking b6 = new Booking();
+            b6.setUserId(5);
+            b6.setCoachId(2);
+            b6.setBookingDate("2026-04-01");
+            b6.setStartTime("08:00");
+            b6.setEndTime("09:00");
+            b6.setLocation("B1 瑜伽室");
+            b6.setStatus(BookingStatus.CHECKED_IN);
+            b6.setStatusText("已签到");
+            b6.setSource(BookingSource.CLIENT);
+            b6.setPackageOrderId("6");
+            bookingRepository.save(b6);
+
+            // 预约7：陈静预约赵教练 - 已确认
+            Booking b7 = new Booking();
+            b7.setUserId(7);
+            b7.setCoachId(6);
+            b7.setBookingDate("2026-04-01");
+            b7.setStartTime("18:00");
+            b7.setEndTime("19:00");
+            b7.setLocation("E1 有氧教室");
+            b7.setStatus(BookingStatus.CONFIRMED);
+            b7.setStatusText("已确认");
+            b7.setSource(BookingSource.CLIENT);
+            b7.setPackageOrderId("2");
+            bookingRepository.save(b7);
+
+            // 预约8：冯敏预约李教练 - 已取消
+            Booking b8 = new Booking();
+            b8.setUserId(13);
+            b8.setCoachId(1);
+            b8.setBookingDate("2026-03-30");
+            b8.setStartTime("09:00");
+            b8.setEndTime("10:00");
+            b8.setLocation("A1 训练室");
+            b8.setStatus(BookingStatus.CANCELLED);
+            b8.setStatusText("已取消");
+            b8.setSource(BookingSource.CLIENT);
+            b8.setPackageOrderId("2");
+            bookingRepository.save(b8);
+
+            // 预约9：孙丽预约张教练 - 教练代约
+            Booking b9 = new Booking();
+            b9.setUserId(11);
+            b9.setCoachId(3);
+            b9.setBookingDate("2026-04-05");
+            b9.setStartTime("09:00");
+            b9.setEndTime("10:00");
+            b9.setLocation("C1 有氧区");
+            b9.setStatus(BookingStatus.CONFIRMED);
+            b9.setStatusText("已确认");
+            b9.setSource(BookingSource.COACH_PROXY);
+            b9.setPackageOrderId("2");
+            bookingRepository.save(b9);
+
+            // 预约10：王伟预约刘教练 - 已完成
+            Booking b10 = new Booking();
+            b10.setUserId(12);
+            b10.setCoachId(4);
+            b10.setBookingDate("2026-03-29");
+            b10.setStartTime("14:00");
+            b10.setEndTime("15:00");
+            b10.setLocation("D1 功能区");
+            b10.setStatus(BookingStatus.COMPLETED);
+            b10.setStatusText("已完成");
+            b10.setSource(BookingSource.CLIENT);
+            b10.setPackageOrderId("2");
+            bookingRepository.save(b10);
+
+            // 更新对应的排班时段为已占用
+            updateSlotBooking(1, "2026-04-01", "14:00", b1.getId());
+            updateSlotBooking(2, "2026-04-01", "15:00", b2.getId());
+            updateSlotBooking(3, "2026-04-02", "09:00", b3.getId());
+            updateSlotBooking(4, "2026-03-28", "10:00", b4.getId());
+            updateSlotBooking(1, "2026-04-03", "14:00", b5.getId());
+            updateSlotBooking(2, "2026-04-01", "08:00", b6.getId());
+            updateSlotBooking(6, "2026-04-01", "18:00", b7.getId());
+            updateSlotBooking(6, "2026-04-05", "09:00", b9.getId());
+
+            System.out.println("预约数据已创建：10 条预约记录");
+        }
+    }
+
+    private void updateSlotBooking(int coachId, String date, String startTime, int bookingId) {
+        List<CoachScheduleSlot> slots = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId);
+        for (CoachScheduleSlot slot : slots) {
+            if (slot.getDate().equals(date) && slot.getStartTime().equals(startTime)) {
+                slot.setAvailable(false);
+                slot.setBookingId(bookingId);
+                coachScheduleSlotRepository.save(slot);
+                break;
+            }
         }
     }
 

@@ -17,4 +17,28 @@ public class HealthSurveyServiceImpl implements HealthSurveyService {
         healthSurveyRepository.findByUserId(Integer.valueOf(userId));
         return null;
     }
+
+    @Override
+    public HealthSurvey getHealthSurveyById(String id) {
+        return healthSurveyRepository.findById(Long.valueOf(id)).orElse(null);
+    }
+
+    @Override
+    public HealthSurvey saveHealthSurvey(HealthSurvey healthSurvey) {
+        return healthSurveyRepository.save(healthSurvey);
+    }
+
+    @Override
+    public HealthSurvey deleteHealthSurveyById(String id) {
+        return healthSurveyRepository.deleteById(Integer.valueOf(id)).orElse(null);
+    }
+
+    @Override
+    public HealthSurvey updateHealthSurvey(HealthSurvey healthSurvey) {
+        HealthSurvey res =  healthSurveyRepository.findById(Long.valueOf(healthSurvey.getId())).orElse(null);
+        if (res != null) {
+            return healthSurveyRepository.save(healthSurvey);
+        }
+        return null;
+    }
 }
