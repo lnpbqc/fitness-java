@@ -2,15 +2,7 @@ package org.example.fitnessjava.listener;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import org.example.fitnessjava.dao.BookingRepository;
-import org.example.fitnessjava.dao.CoachRepository;
-import org.example.fitnessjava.dao.ClientRepository;
-import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
-import org.example.fitnessjava.dao.CourseOrderRepository;
-import org.example.fitnessjava.dao.HealthSurveyRepository;
-import org.example.fitnessjava.dao.PackageProductRepository;
-import org.example.fitnessjava.dao.ProductOrderRepository;
-import org.example.fitnessjava.dao.ProductRepository;
+import org.example.fitnessjava.dao.*;
 import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.CourseOrder;
 import org.example.fitnessjava.pojo.CourseOrderStatus;
@@ -23,6 +15,7 @@ import org.example.fitnessjava.pojo.Package;
 import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
+import org.example.fitnessjava.service.NotificationService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -65,6 +58,9 @@ public class DataInitializer {
     @Resource
     private BookingRepository bookingRepository;
 
+    @Resource
+    private NotificationService notificationService;
+
     @PostConstruct
     public void init() {
         initAdminUser();
@@ -78,6 +74,7 @@ public class DataInitializer {
         initHealthSurveyData();
         initCoachScheduleSlotData();
         initBookingData();
+        initNotifications();
     }
 
     ArrayList<String> banners = new ArrayList<>(Arrays.asList(
@@ -1244,6 +1241,45 @@ public class DataInitializer {
             updateSlotBooking(6, "2026-04-05", "09:00", b9.getId());
 
             System.out.println("预约数据已创建：10 条预约记录");
+        }
+    }
+
+    private void initNotifications() {
+        try {
+            List<NotificationItem> existing = notificationService.getAllNotifications();
+            if (existing.isEmpty()) {
+                // 系统通知
+                NotificationItem n1 = new NotificationItem();
+                n1.setReceiverUserId(null);
+                n1.setType(NotificationType.SYSTEM);
+                n1.setTitle("系统维护通知");
+                n1.setContent("系统将于今晚 23:00 进行例行维护，预计持续 2 小时。");
+                n1.setIsRead(false);
+                n1.setActionLink("");
+                notificationService.createNotification(n1);
+
+                // 会员通知
+                NotificationItem n2 = new NotificationItem();
+                n2.setReceiverUserId(1);
+                n2.setType(NotificationType.MEMBER);
+                n2.setTitle("会员等级提升");
+                n2.setContent("恭喜您升级为黄金会员，享受更多专属权益！");
+                n2.setIsRead(false);
+                notificationService.createNotification(n2);
+
+                // 预约通知
+                NotificationItem n3 = new NotificationItem();
+                n3.setReceiverUserId(2);
+                n3.setType(NotificationType.BOOKING);
+                n3.setTitle("预约确认");
+                n3.setContent("您的预约已成功确认，请按时到达。");
+                n3.setIsRead(true);
+                notificationService.createNotification(n3);
+
+                System.out.println("通知数据已创建：3 条测试通知");
+            }
+        } catch (Exception e) {
+            System.err.println("初始化通知数据失败：" + e.getMessage());
         }
     }
 

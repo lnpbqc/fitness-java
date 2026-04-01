@@ -1,19 +1,23 @@
-package org.example.fitnessjava.pojo.penddingEntity;
+package org.example.fitnessjava.pojo;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class NotificationItem {
+@EqualsAndHashCode(callSuper = true)
+public class NotificationItem extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
 
     private Integer receiverUserId;
 
@@ -26,5 +30,4 @@ public class NotificationItem {
     private Boolean isRead;
 
     private String actionLink;
-    private String createdAt;
 }
