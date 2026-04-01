@@ -6,12 +6,12 @@ spring:
 #    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
 #    username: root
 #    password: X7#k9P$m2@qL!vWc
-#    url: jdbc:mysql://localhost:3336/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
-#    username: root
-#    password: X7#k9P$m2@qL!vWc
     url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: lnpbqc
+    password: 123456
+    # url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    # username: root
+    # password: lnpbqc
   jpa:
     show-sql: true
     database: mysql
@@ -41,3 +41,10 @@ jwt:
 
 server:
   port: 8081
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+upload:
+  path: ${user.dir}/fitness-java/uploads

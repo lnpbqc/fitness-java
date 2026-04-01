@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Banner extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String image;
     private String linkType;
     private String linkValue;
