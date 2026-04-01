@@ -1,5 +1,6 @@
 package org.example.fitnessjava.pojo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Schema(description = "商品订单")
 public class ProductOrder {
 
     @Id

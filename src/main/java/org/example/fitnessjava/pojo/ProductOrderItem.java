@@ -1,5 +1,6 @@
 package org.example.fitnessjava.pojo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Schema(description = "商品订单子项")
 public class ProductOrderItem {
 
     @Id

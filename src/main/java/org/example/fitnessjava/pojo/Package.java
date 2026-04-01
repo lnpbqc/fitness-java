@@ -1,17 +1,17 @@
 package org.example.fitnessjava.pojo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.fitnessjava.pojo.PackageType;
-import org.example.fitnessjava.pojo.SaleStatus;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "PackageProduct")
-public class PackageProduct {
+@Entity(name = "Package")
+@Schema(description = "套餐")
+public class Package {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

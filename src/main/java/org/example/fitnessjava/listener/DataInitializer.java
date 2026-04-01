@@ -4,7 +4,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.ClientRepository;
-import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CourseOrderRepository;
 import org.example.fitnessjava.dao.PackageProductRepository;
 import org.example.fitnessjava.dao.ProductOrderRepository;
@@ -17,7 +16,7 @@ import org.example.fitnessjava.pojo.ProductOrder;
 import org.example.fitnessjava.pojo.ProductOrderItem;
 import org.example.fitnessjava.pojo.ProductOrderStatus;
 import org.example.fitnessjava.pojo.SaleStatus;
-import org.example.fitnessjava.pojo.PackageProduct;
+import org.example.fitnessjava.pojo.Package;
 import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
@@ -406,7 +405,7 @@ public class DataInitializer {
     private void initPackageData() {
         long count = packageProductRepository.count();
         if (count == 0) {
-            PackageProduct p1 = new PackageProduct();
+            Package p1 = new Package();
             p1.setName("月度健身卡");
             p1.setType(PackageType.TIME_CARD);
             p1.setSessions(0);
@@ -418,7 +417,7 @@ public class DataInitializer {
             p1.setSaleStatus(SaleStatus.ON_SALE);
             packageProductRepository.save(p1);
 
-            PackageProduct p2 = new PackageProduct();
+            Package p2 = new Package();
             p2.setName("20 次私教课");
             p2.setType(PackageType.SESSION_CARD);
             p2.setSessions(20);
@@ -430,7 +429,7 @@ public class DataInitializer {
             p2.setSaleStatus(SaleStatus.ON_SALE);
             packageProductRepository.save(p2);
 
-            PackageProduct p3 = new PackageProduct();
+            Package p3 = new Package();
             p3.setName("体测评估服务");
             p3.setType(PackageType.ASSESSMENT);
             p3.setSessions(1);
@@ -441,7 +440,7 @@ public class DataInitializer {
             p3.setSaleStatus(SaleStatus.ON_SALE);
             packageProductRepository.save(p3);
 
-            PackageProduct p4 = new PackageProduct();
+            Package p4 = new Package();
             p4.setName("季度健身卡");
             p4.setType(PackageType.TIME_CARD);
             p4.setSessions(0);
@@ -453,7 +452,7 @@ public class DataInitializer {
             p4.setSaleStatus(SaleStatus.ON_SALE);
             packageProductRepository.save(p4);
 
-            PackageProduct p5 = new PackageProduct();
+            Package p5 = new Package();
             p5.setName("体验课程");
             p5.setType(PackageType.EXPERIENCE);
             p5.setSessions(1);

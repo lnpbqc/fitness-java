@@ -1,5 +1,6 @@
 package org.example.fitnessjava.pojo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.example.fitnessjava.pojo.SaleStatus;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "Product")
+@Schema(description = "商品")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

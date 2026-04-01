@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/client/user/login","/api/client/home").permitAll()
                 .requestMatchers("/api/client/booking/schedule").permitAll()
                 .requestMatchers("/api/coach/**").permitAll()
+                .requestMatchers("/api/client/package/**").permitAll()
                 .requestMatchers("/api/product/all","/api/product/categories").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

@@ -1,5 +1,6 @@
 package org.example.fitnessjava.pojo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "Booking")
+@Schema(description = "预约")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

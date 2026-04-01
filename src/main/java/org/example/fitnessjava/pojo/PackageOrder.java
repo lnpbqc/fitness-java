@@ -1,5 +1,7 @@
 package org.example.fitnessjava.pojo;
 
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,12 +13,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ProductSnapshot")
-public class ProductSnapshot {
+@Entity
+@Schema(description = "套餐订单")
+public class PackageOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String name;
-    private String image;
-    private Double price;
+    private Integer packageId;
+    private String clientId;
 }
