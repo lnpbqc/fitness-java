@@ -110,8 +110,8 @@ public class DataInitializer {
         long count = clientRepository.count();
         if (count == 0) {
             Client client1 = new Client();
-            client1.setOpenid("oTest001");
-            client1.setNickname("张三");
+            client1.setOpenid("o9Nev67lfstCOQ0ZN63B_LcrAngA");
+            client1.setNickname("lnpbqc");
             client1.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan");
             client1.setPhone("13800138001");
             client1.setMemberNumber("M2026001");
@@ -121,7 +121,7 @@ public class DataInitializer {
             client1.setTotalTrainingCount(45);
             client1.setMembershipExpireAt("2026-12-31");
             clientRepository.save(client1);
-            System.out.println("测试用户已创建：张三 (金卡会员)");
+            System.out.println("测试用户已创建：lnpbqc (金卡会员)");
 
             Client client2 = new Client();
             client2.setOpenid("oTest002");
