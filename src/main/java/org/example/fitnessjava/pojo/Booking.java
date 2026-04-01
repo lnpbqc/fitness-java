@@ -5,13 +5,17 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "Booking")
 @Schema(description = "预约")
-public class Booking {
+public class Booking{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -25,9 +29,11 @@ public class Booking {
     private String statusText;
     @Enumerated(EnumType.STRING)
     private BookingSource source;
-
-    // Optional fields (may be null)
-    private String coachAvatar;
-    private String specialty;
     private String packageOrderId;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createTime;
+    // 修改时间
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 }

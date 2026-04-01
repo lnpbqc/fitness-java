@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -13,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Schema(description = "商品订单")
-public class ProductOrder {
+public class ProductOrder{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +40,10 @@ public class ProductOrder {
     private String statusText;
     private String trackingNumber;
     private String estimatedDelivery;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createTime;
+    // 修改时间
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 }

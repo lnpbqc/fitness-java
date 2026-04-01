@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface PackageProductRepository extends JpaRepository<Package, Long> {
     List<Package> findBySaleStatus(SaleStatus saleStatus);
-    @Query("SELECT DISTINCT pp.type FROM PackageProduct pp")
+    @Query("SELECT DISTINCT pp.type FROM Package pp")
     List<String> findTypes();
 }

@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface HealthSurveyRepository extends JpaRepository<HealthSurvey, Long> {
-    HealthSurveyRepository findByUserId(String userId);
+    HealthSurvey findByUserId(Integer userId);
 }

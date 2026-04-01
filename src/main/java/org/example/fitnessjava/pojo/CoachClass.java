@@ -5,13 +5,17 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Schema(description = "教练排班")
-public class CoachClass {
+public class CoachClass{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,4 +44,10 @@ public class CoachClass {
     private CoachClassStatus status;
 
     private String statusText;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createTime;
+    // 修改时间
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 }

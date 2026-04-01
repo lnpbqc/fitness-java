@@ -6,13 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.fitnessjava.pojo.SaleStatus;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "Product")
 @Schema(description = "商品")
-public class Product {
+public class Product{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -27,4 +31,10 @@ public class Product {
     private Integer stock;
     @Enumerated(EnumType.STRING)
     private SaleStatus saleStatus;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createTime;
+    // 修改时间
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 }

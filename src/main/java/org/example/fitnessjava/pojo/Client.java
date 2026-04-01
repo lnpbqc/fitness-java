@@ -4,13 +4,17 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 // Class representing a user's profile
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Client {
+public class Client{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +29,10 @@ public class Client {
     private int coupons;
     private int totalTrainingCount;
     private String membershipExpireAt;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createTime;
+    // 修改时间
+    @UpdateTimestamp
+    private LocalDateTime updateTime;
 }
