@@ -16,6 +16,7 @@ import org.example.fitnessjava.pojo.Booking;
 import org.example.fitnessjava.pojo.BookingSource;
 import org.example.fitnessjava.pojo.BookingStatus;
 import org.example.fitnessjava.pojo.CoachScheduleSlot;
+import org.example.fitnessjava.pojo.vo.BookingVO;
 import org.example.fitnessjava.service.BookingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,92 @@ public class BookingServiceImpl implements BookingService {
             return coachScheduleSlotRepository.findAllByBookingIdInOrderByDateAscStartTimeAsc(bookingIds);
         }
         return coachScheduleSlotRepository.findAllByCoachIdAndBookingIdInOrderByDateAscStartTimeAsc(coachId, bookingIds);
+    }
+
+    @Override
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
+
+    @Override
+    public List<BookingVO> getAllBookingsWithUserInfo() {
+        return bookingRepository.findAll().stream()
+                .map(this::convertToVO)
+                .toList();
+    }
+
+    @Override
+    public List<Booking> getBookingsByStatus(BookingStatus status) {
+        return bookingRepository.findByStatus(status);
+    }
+
+    @Override
+    public List<Booking> getBookingsByCoachId(int coachId) {
+        return bookingRepository.findByCoachId(coachId);
+    }
+
+    @Override
+    public List<Booking> getBookingsByUserId(int userId) {
+        return bookingRepository.findByUserId(userId);
+    }
+
+    @Override
+    public List<BookingVO> getBookingsWithUserInfo(BookingStatus status, Integer coachId, Integer userId) {
+        return bookingRepository.findBookings(status, coachId, userId).stream()
+                .map(this::convertToVO)
+                .toList();
+    }
+
+    @Override
+    public Optional<Booking> getBookingById(Integer id) {
+        return bookingRepository.findById(id);
+    }
+
+    @Override
+    public BookingVO getBookingByIdWithUserInfo(Integer id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("预约不存在"));
+        return convertToVO(booking);
+    }
+
+    @Override
+    public Booking createBooking(Booking booking) {
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    public Booking updateBookingStatus(Integer id, BookingStatus status) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("预约不存在"));
+        booking.setStatus(status);
+        booking.setStatusText(getStatusText(status));
+        return bookingRepository.save(booking);
+    }
+
+    private String getStatusText(BookingStatus status) {
+        return switch (status) {
+            case PENDING -> "待确认";
+            case CONFIRMED -> "已确认";
+            case COMPLETED -> "已完成";
+            case CANCELLED -> "已取消";
+            case CHECKED_IN -> "已核销";
+        };
+    }
+
+    private BookingVO convertToVO(Booking booking) {
+        BookingVO vo = new BookingVO();
+        vo.setId(booking.getId());
+        vo.setUserId(booking.getUserId());
+        vo.setCoachId(booking.getCoachId());
+        vo.setBookingDate(booking.getBookingDate());
+        vo.setStartTime(booking.getStartTime());
+        vo.setEndTime(booking.getEndTime());
+        vo.setLocation(booking.getLocation());
+        vo.setStatus(booking.getStatus());
+        vo.setStatusText(booking.getStatusText());
+        vo.setSource(booking.getSource());
+        vo.setPackageOrderId(booking.getPackageOrderId());
+        return vo;
     }
 
     @Override
@@ -145,6 +232,21 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStatusText("已取消");
+        return bookingRepository.save(booking);
+    }
+
+    @Override
+    @Transactional
+    public Booking cancelBooking(Integer id, String reason) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("预约记录不存在"));
+        validateCancelableBooking(booking);
+
+        coachScheduleSlotRepository.findByBookingId(booking.getId()).ifPresent(this::releaseScheduleSlot);
+        restorePackageOrderSessions(booking.getPackageOrderId());
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking.setStatusText(reason != null ? reason : "已取消");
         return bookingRepository.save(booking);
     }
 
