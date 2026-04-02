@@ -11,4 +11,5 @@ import java.util.List;
 public interface PackageOrderRepository extends JpaRepository<PackageOrder, Long> {
     List<PackageOrder> findByStatus(PackageOrderStatus status);
     List<PackageOrder> findByUserId(Integer userId);
+    List<PackageOrder> findByPurchaseDate(String purchaseDate);
 }

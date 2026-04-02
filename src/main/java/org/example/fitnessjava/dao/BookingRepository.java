@@ -21,6 +21,8 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByCoachId(int coachId);
     
     List<Booking> findByUserId(int userId);
+
+    List<Booking> findByBookingDate(String bookingDate);
     
     @Query("SELECT b FROM Booking b WHERE " +
            "(:status IS NULL OR b.status = :status) AND " +
