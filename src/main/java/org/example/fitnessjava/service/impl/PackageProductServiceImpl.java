@@ -1,8 +1,9 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.dao.PackageProductRepository;
-import org.example.fitnessjava.pojo.PackageProduct;
+import org.example.fitnessjava.pojo.Package;
 import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.service.PackageProductService;
 import org.springframework.stereotype.Service;
@@ -11,74 +12,75 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class PackageProductServiceImpl implements PackageProductService {
 
     @Resource
     private PackageProductRepository packageProductRepository;
 
     @Override
-    public List<PackageProduct> getAllPackages() {
+    public List<Package> getAllPackages() {
         return packageProductRepository.findAll();
     }
 
     @Override
-    public Optional<PackageProduct> getPackageById(Long id) {
+    public Optional<Package> getPackageById(Long id) {
         return packageProductRepository.findById(id);
     }
 
     @Override
-    public PackageProduct createPackage(PackageProduct packageProduct) {
-        if (packageProduct.getSessions() == null) {
-            packageProduct.setSessions(0);
+    public Package createPackage(Package aPackage) {
+        if (aPackage.getSessions() == null) {
+            aPackage.setSessions(0);
         }
-        if (packageProduct.getValidDays() == null) {
-            packageProduct.setValidDays(30);
+        if (aPackage.getValidDays() == null) {
+            aPackage.setValidDays(30);
         }
-        if (packageProduct.getPrice() == null) {
-            packageProduct.setPrice(0.0);
+        if (aPackage.getPrice() == null) {
+            aPackage.setPrice(0.0);
         }
-        if (packageProduct.getPointsReward() == null) {
-            packageProduct.setPointsReward(0);
+        if (aPackage.getPointsReward() == null) {
+            aPackage.setPointsReward(0);
         }
-        if (packageProduct.getSaleStatus() == null) {
-            packageProduct.setSaleStatus(SaleStatus.ON_SALE);
+        if (aPackage.getSaleStatus() == null) {
+            aPackage.setSaleStatus(SaleStatus.ON_SALE);
         }
-        return packageProductRepository.save(packageProduct);
+        return packageProductRepository.save(aPackage);
     }
 
     @Override
-    public Optional<PackageProduct> updatePackage(Long id, PackageProduct packageProduct) {
-        Optional<PackageProduct> optional = packageProductRepository.findById(id);
+    public Optional<Package> updatePackage(Long id, Package aPackage) {
+        Optional<Package> optional = packageProductRepository.findById(id);
         if (optional.isEmpty()) {
             return Optional.empty();
         }
-        PackageProduct existing = optional.get();
-        if (packageProduct.getName() != null) {
-            existing.setName(packageProduct.getName());
+        Package existing = optional.get();
+        if (aPackage.getName() != null) {
+            existing.setName(aPackage.getName());
         }
-        if (packageProduct.getType() != null) {
-            existing.setType(packageProduct.getType());
+        if (aPackage.getType() != null) {
+            existing.setType(aPackage.getType());
         }
-        if (packageProduct.getSessions() != null) {
-            existing.setSessions(packageProduct.getSessions());
+        if (aPackage.getSessions() != null) {
+            existing.setSessions(aPackage.getSessions());
         }
-        if (packageProduct.getValidDays() != null) {
-            existing.setValidDays(packageProduct.getValidDays());
+        if (aPackage.getValidDays() != null) {
+            existing.setValidDays(aPackage.getValidDays());
         }
-        if (packageProduct.getPrice() != null) {
-            existing.setPrice(packageProduct.getPrice());
+        if (aPackage.getPrice() != null) {
+            existing.setPrice(aPackage.getPrice());
         }
-        if (packageProduct.getPointsReward() != null) {
-            existing.setPointsReward(packageProduct.getPointsReward());
+        if (aPackage.getPointsReward() != null) {
+            existing.setPointsReward(aPackage.getPointsReward());
         }
-        if (packageProduct.getOriginalPrice() != null) {
-            existing.setOriginalPrice(packageProduct.getOriginalPrice());
+        if (aPackage.getOriginalPrice() != null) {
+            existing.setOriginalPrice(aPackage.getOriginalPrice());
         }
-        if (packageProduct.getDescription() != null) {
-            existing.setDescription(packageProduct.getDescription());
+        if (aPackage.getDescription() != null) {
+            existing.setDescription(aPackage.getDescription());
         }
-        if (packageProduct.getSaleStatus() != null) {
-            existing.setSaleStatus(packageProduct.getSaleStatus());
+        if (aPackage.getSaleStatus() != null) {
+            existing.setSaleStatus(aPackage.getSaleStatus());
         }
         return Optional.of(packageProductRepository.save(existing));
     }
@@ -89,13 +91,18 @@ public class PackageProductServiceImpl implements PackageProductService {
     }
 
     @Override
-    public Optional<PackageProduct> updateSaleStatus(Long id, SaleStatus saleStatus) {
-        Optional<PackageProduct> optional = packageProductRepository.findById(id);
+    public Optional<Package> updateSaleStatus(Long id, SaleStatus saleStatus) {
+        Optional<Package> optional = packageProductRepository.findById(id);
         if (optional.isEmpty()) {
             return Optional.empty();
         }
-        PackageProduct existing = optional.get();
+        Package existing = optional.get();
         existing.setSaleStatus(saleStatus);
         return Optional.of(packageProductRepository.save(existing));
+    }
+
+    @Override
+    public List<String> getAllTypes() {
+        return packageProductRepository.findTypes();
     }
 }

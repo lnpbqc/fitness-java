@@ -1,5 +1,7 @@
 package org.example.fitnessjava.pojo;
 
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,25 +12,15 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-// Class representing a user's profile
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Schema(description = "套餐订单")
 @EqualsAndHashCode(callSuper = true)
-public class Client extends BaseEntity {
-
+public class PackageOrder extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String openid;
-    private String nickname;
-    private String avatar;
-    private String phone;
-    private String memberNumber;
-    private String memberLevel;
-    private int points;
-    private int coupons;
-    private int totalTrainingCount;
-    private String membershipExpireAt;
+    private Integer id;
+    private Integer packageId;
 }

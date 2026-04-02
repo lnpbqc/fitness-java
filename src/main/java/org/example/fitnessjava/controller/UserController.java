@@ -2,14 +2,13 @@ package org.example.fitnessjava.controller;
 
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
-import cn.binarywang.wx.miniapp.api.impl.WxMaServiceImpl;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
-import cn.binarywang.wx.miniapp.config.impl.WxMaDefaultConfigImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
-import org.example.fitnessjava.config.WXAConfig;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.dto.WxLoginRequest;
 import org.example.fitnessjava.pojo.vo.UserVO;
@@ -20,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/client/user")
 @Slf4j
+@Tag(name = "客户端用户接口", description = "客户端用户登录与当前用户信息查询接口")
 public class UserController {
     @Resource
     private ClientService clientService;
@@ -34,7 +33,7 @@ public class UserController {
     private WxMaService wxMaService;
 
     @PostMapping("/login")
-    @Operation(description = "小程序登录")
+    @Operation(summary = "客户端小程序登录", description = "通过微信 code 登录，首次登录自动创建客户端用户")
     public Map<String, String> login(@RequestBody WxLoginRequest req) {
 
         Map<String, String> res = new HashMap<>();
@@ -87,11 +86,16 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    @Operation(description = "通过携带的token获取对应id")
+    @Operation(summary = "获取当前客户端用户信息", description = "根据 Authorization 中的 token 获取当前客户端用户信息")
     @Cacheable(value = "user",key = "#token")
-    public UserVO getUserById(@RequestHeader("Authorization") String token) {
-        token = token.substring(7);
-        String openid = jwtUtil.getSubjectFromToken(token);
+    public UserVO getUserById(
+            @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
+            @RequestHeader("Authorization") String token
+    ) {
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        if (openid == null) {
+            return null;
+        }
         Client client = clientService.existUser(openid);
         if (client == null) {
             return null;
