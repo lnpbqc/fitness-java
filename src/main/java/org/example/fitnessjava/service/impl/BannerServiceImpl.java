@@ -89,12 +89,16 @@ public class BannerServiceImpl implements BannerService {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         String imageUrl = "/uploads/banners/" + filename;
+        System.out.println("图片上传成功，访问路径：" + imageUrl);
+        System.out.println("实际保存路径：" + filePath.toAbsolutePath());
 
         Banner banner = new Banner();
         banner.setImage(imageUrl);
         banner.setLinkType(linkType != null ? linkType : "");
         banner.setLinkValue(linkValue != null ? linkValue : "");
 
-        return bannerRepository.save(banner);
+        Banner savedBanner = bannerRepository.save(banner);
+        System.out.println("轮播图已保存到数据库，ID: " + savedBanner.getId());
+        return savedBanner;
     }
 }

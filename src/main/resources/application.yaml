@@ -47,4 +47,4 @@ server:
       max-request-size: 10MB
 
 upload:
-  path: ${user.dir}/fitness-java/uploads
+  path: /home/zfxt/formyself/fitness-admin-all/fitness-java/uploads
