@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.dao.PackageProductRepository;
 import org.example.fitnessjava.pojo.Package;
 import org.example.fitnessjava.pojo.SaleStatus;
-import org.example.fitnessjava.service.PackageProductService;
+import org.example.fitnessjava.service.PackageService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class PackageProductServiceImpl implements PackageProductService {
+public class PackageServiceImpl implements PackageService {
 
     @Resource
     private PackageProductRepository packageProductRepository;

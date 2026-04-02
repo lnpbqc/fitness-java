@@ -6,7 +6,7 @@ import org.example.fitnessjava.pojo.SaleStatus;
 import java.util.List;
 import java.util.Optional;
 
-public interface PackageProductService {
+public interface PackageService {
     List<Package> getAllPackages();
     Optional<Package> getPackageById(Long id);
     Package createPackage(Package aPackage);

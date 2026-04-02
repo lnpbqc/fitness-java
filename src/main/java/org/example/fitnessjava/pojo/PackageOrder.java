@@ -22,5 +22,6 @@ public class PackageOrder extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String clientId;
     private Integer packageId;
 }

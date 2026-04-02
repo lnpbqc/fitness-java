@@ -15,8 +15,7 @@ import org.hibernate.annotations.GenericGenerator;
 public class NotificationItem extends BaseEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     private Integer receiverUserId;
