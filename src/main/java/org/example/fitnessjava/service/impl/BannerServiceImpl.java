@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.BannerRepository;
 import org.example.fitnessjava.pojo.Banner;
 import org.example.fitnessjava.service.BannerService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +22,13 @@ public class BannerServiceImpl implements BannerService {
     @Resource
     private BannerRepository bannerRepository;
 
-    private static final String UPLOAD_DIR = "D:/ForMyself/fitness-admin-all/uploads/banners";
+    @Value("${upload.path}")
+    private String uploadBasePath;
+
+    private String getUploadDir() {
+        String path = uploadBasePath.endsWith("/") ? uploadBasePath : uploadBasePath + "/";
+        return path + "banners";
+    }
 
     @Override
     public ArrayList<Banner> getBanners() {
@@ -73,7 +80,7 @@ public class BannerServiceImpl implements BannerService {
         
         String filename = java.util.UUID.randomUUID().toString() + fileExtension;
 
-        Path uploadPath = Paths.get(UPLOAD_DIR);
+        Path uploadPath = Paths.get(getUploadDir());
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -81,7 +88,7 @@ public class BannerServiceImpl implements BannerService {
         Path filePath = uploadPath.resolve(filename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        String imageUrl = "/api/uploads/banners/" + filename;
+        String imageUrl = "/uploads/banners/" + filename;
 
         Banner banner = new Banner();
         banner.setImage(imageUrl);

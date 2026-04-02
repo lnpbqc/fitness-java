@@ -3,6 +3,7 @@ package org.example.fitnessjava.service.impl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.dao.BookingRepository;
+import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
 import org.example.fitnessjava.dao.PackageOrderRepository;
@@ -46,6 +47,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Resource
     private PackageOrderRepository packageOrderRepository;
+
+    @Resource
+    private ClientRepository clientRepository;
 
     @Override
     public List<CoachScheduleSlot> getScheduleSlots(Integer coachId, Integer clientId) {
@@ -156,6 +160,26 @@ public class BookingServiceImpl implements BookingService {
         vo.setStatusText(booking.getStatusText());
         vo.setSource(booking.getSource());
         vo.setPackageOrderId(booking.getPackageOrderId());
+
+        try {
+            clientRepository.findById((long) booking.getUserId()).ifPresent(client -> {
+                vo.setUserName(client.getNickname());
+                vo.setPhone(client.getPhone());
+            });
+        } catch (Exception e) {
+            log.warn("Failed to load client info for booking {}, userId: {}", booking.getId(), booking.getUserId());
+        }
+
+        try {
+            coachRepository.findById((long) booking.getCoachId()).ifPresent(coach -> {
+                vo.setCoachName(coach.getNickname());
+                vo.setCoachAvatar(coach.getAvatar());
+                vo.setSpecialty(coach.getSpecialty());
+            });
+        } catch (Exception e) {
+            log.warn("Failed to load coach info for booking {}, coachId: {}", booking.getId(), booking.getCoachId());
+        }
+
         return vo;
     }
 
