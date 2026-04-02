@@ -1,8 +1,10 @@
 package org.example.fitnessjava.service;
 
 import org.example.fitnessjava.pojo.Booking;
-<<<<<<< HEAD
 import org.example.fitnessjava.pojo.BookingStatus;
+import org.example.fitnessjava.pojo.CoachScheduleSlot;
+import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
+import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
 import org.example.fitnessjava.pojo.vo.BookingVO;
 
 import java.util.List;
@@ -35,14 +37,7 @@ public interface BookingService {
     Booking confirmBooking(Integer id);
     
     void deleteBooking(Integer id);
-=======
-import org.example.fitnessjava.pojo.CoachScheduleSlot;
-import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
-import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
-
-import java.util.List;
-
-public interface BookingService {
+    
     List<CoachScheduleSlot> getScheduleSlots(Integer coachId, Integer clientId);
 
     Booking createBooking(Integer userId, BookingCreateRequest request);
@@ -50,5 +45,4 @@ public interface BookingService {
     Booking updateBooking(Integer userId, Integer bookingId, BookingUpdateRequest request);
 
     Booking cancelBooking(Integer userId, Integer bookingId);
->>>>>>> bca8652673b4c1d46500a6d64ff2e65830634775
 }

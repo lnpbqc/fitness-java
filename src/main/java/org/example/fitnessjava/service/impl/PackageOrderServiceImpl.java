@@ -2,12 +2,12 @@ package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.ClientRepository;
-import org.example.fitnessjava.dao.CourseOrderRepository;
+import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.Client;
-import org.example.fitnessjava.pojo.CourseOrder;
-import org.example.fitnessjava.pojo.CourseOrderStatus;
-import org.example.fitnessjava.pojo.vo.CourseOrderVO;
-import org.example.fitnessjava.service.CourseOrderService;
+import org.example.fitnessjava.pojo.PackageOrder;
+import org.example.fitnessjava.pojo.PackageOrderStatus;
+import org.example.fitnessjava.pojo.vo.PackageOrderVO;
+import org.example.fitnessjava.service.PackageOrderService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,33 +17,33 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CourseOrderServiceImpl implements CourseOrderService {
+public class PackageOrderServiceImpl implements PackageOrderService {
 
     @Resource
-    private CourseOrderRepository courseOrderRepository;
+    private PackageOrderRepository packageOrderRepository;
 
     @Resource
     private ClientRepository clientRepository;
 
     @Override
-    public List<CourseOrderVO> getAllOrders() {
-        List<CourseOrder> orders = courseOrderRepository.findAll();
+    public List<PackageOrderVO> getAllOrders() {
+        List<PackageOrder> orders = packageOrderRepository.findAll();
         return orders.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<CourseOrderVO> getOrderById(Long id) {
-        return courseOrderRepository.findById(id).map(this::convertToVO);
+    public Optional<PackageOrderVO> getOrderById(Long id) {
+        return packageOrderRepository.findById(id).map(this::convertToVO);
     }
 
     @Override
-    public List<CourseOrderVO> getOrdersByStatus(CourseOrderStatus status) {
-        List<CourseOrder> orders = courseOrderRepository.findByStatus(status);
+    public List<PackageOrderVO> getOrdersByStatus(PackageOrderStatus status) {
+        List<PackageOrder> orders = packageOrderRepository.findByStatus(status);
         return orders.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
-    private CourseOrderVO convertToVO(CourseOrder order) {
-        CourseOrderVO vo = new CourseOrderVO();
+    private PackageOrderVO convertToVO(PackageOrder order) {
+        PackageOrderVO vo = new PackageOrderVO();
         vo.setId(order.getId());
         vo.setUserId(order.getUserId());
         vo.setPackageId(order.getPackageId());
@@ -69,7 +69,7 @@ public class CourseOrderServiceImpl implements CourseOrderService {
     }
 
     @Override
-    public CourseOrder createOrder(CourseOrder order) {
+    public PackageOrder createOrder(PackageOrder order) {
         if (order.getPrice() == null) {
             order.setPrice(0.0);
         }
@@ -83,56 +83,56 @@ public class CourseOrderServiceImpl implements CourseOrderService {
             order.setRemainingSessions(order.getTotalSessions());
         }
         if (order.getStatus() == null) {
-            order.setStatus(CourseOrderStatus.ACTIVE);
+            order.setStatus(PackageOrderStatus.ACTIVE);
         }
         if (order.getPurchaseDate() == null) {
             order.setPurchaseDate(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
-        return courseOrderRepository.save(order);
+        return packageOrderRepository.save(order);
     }
 
     @Override
-    public Optional<CourseOrder> updateOrder(Long id, CourseOrder order) {
-        Optional<CourseOrder> optional = courseOrderRepository.findById(id);
+    public Optional<PackageOrder> updateOrder(Long id, PackageOrder order) {
+        Optional<PackageOrder> optional = packageOrderRepository.findById(id);
         if (optional.isEmpty()) {
             return Optional.empty();
         }
-        CourseOrder existing = optional.get();
+        PackageOrder existing = optional.get();
         if (order.getStatus() != null) {
             existing.setStatus(order.getStatus());
         }
         if (order.getEndDate() != null) {
             existing.setEndDate(order.getEndDate());
         }
-        return Optional.of(courseOrderRepository.save(existing));
+        return Optional.of(packageOrderRepository.save(existing));
     }
 
     @Override
-    public Optional<CourseOrder> refundOrder(Long id, String reason) {
-        Optional<CourseOrder> optional = courseOrderRepository.findById(id);
+    public Optional<PackageOrder> refundOrder(Long id, String reason) {
+        Optional<PackageOrder> optional = packageOrderRepository.findById(id);
         if (optional.isEmpty()) {
             return Optional.empty();
         }
-        CourseOrder existing = optional.get();
-        existing.setStatus(CourseOrderStatus.REFUNDING);
-        return Optional.of(courseOrderRepository.save(existing));
+        PackageOrder existing = optional.get();
+        existing.setStatus(PackageOrderStatus.REFUNDING);
+        return Optional.of(packageOrderRepository.save(existing));
     }
 
     @Override
-    public Optional<CourseOrder> updateSessions(Long id, Integer sessions) {
-        Optional<CourseOrder> optional = courseOrderRepository.findById(id);
+    public Optional<PackageOrder> updateSessions(Long id, Integer sessions) {
+        Optional<PackageOrder> optional = packageOrderRepository.findById(id);
         if (optional.isEmpty()) {
             return Optional.empty();
         }
-        CourseOrder existing = optional.get();
+        PackageOrder existing = optional.get();
         Integer totalSessions = existing.getTotalSessions() != null ? existing.getTotalSessions() : 0;
         existing.setTotalSessions(totalSessions + sessions);
         existing.setRemainingSessions(existing.getRemainingSessions() + sessions);
-        return Optional.of(courseOrderRepository.save(existing));
+        return Optional.of(packageOrderRepository.save(existing));
     }
 
     @Override
     public void deleteOrder(Long id) {
-        courseOrderRepository.deleteById(id);
+        packageOrderRepository.deleteById(id);
     }
 }

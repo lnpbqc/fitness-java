@@ -4,8 +4,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.*;
 import org.example.fitnessjava.pojo.*;
-import org.example.fitnessjava.pojo.CourseOrder;
-import org.example.fitnessjava.pojo.CourseOrderStatus;
+import org.example.fitnessjava.pojo.PackageOrder;
+import org.example.fitnessjava.pojo.PackageOrderStatus;
 import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.ProductOrder;
 import org.example.fitnessjava.pojo.ProductOrderItem;
@@ -44,7 +44,7 @@ public class DataInitializer {
     private ProductRepository productRepository;
 
     @Resource
-    private CourseOrderRepository courseOrderRepository;
+    private PackageOrderRepository packageOrderRepository;
 
     @Resource
     private ProductOrderRepository productOrderRepository;
@@ -69,7 +69,7 @@ public class DataInitializer {
         initBanners();
         initPackageData();
         initProductData();
-        initCourseOrderData();
+        initPackageOrderData();
         initProductOrderData();
         initHealthSurveyData();
         initCoachScheduleSlotData();
@@ -590,10 +590,10 @@ public class DataInitializer {
         }
     }
 
-    private void initCourseOrderData() {
-        long count = courseOrderRepository.count();
+    private void initPackageOrderData() {
+        long count = packageOrderRepository.count();
         if (count == 0) {
-            CourseOrder o1 = new CourseOrder();
+            PackageOrder o1 = new PackageOrder();
             o1.setUserId(1);
             o1.setPackageId(2);
             o1.setPackageName("20 次私教课");
@@ -607,10 +607,10 @@ public class DataInitializer {
             o1.setPurchaseDate("2026-03-01");
             o1.setPrice(3999.0);
             o1.setPointsReward(400);
-            o1.setStatus(CourseOrderStatus.ACTIVE);
-            courseOrderRepository.save(o1);
+            o1.setStatus(PackageOrderStatus.ACTIVE);
+            packageOrderRepository.save(o1);
 
-            CourseOrder o2 = new CourseOrder();
+            PackageOrder o2 = new PackageOrder();
             o2.setUserId(2);
             o2.setPackageId(1);
             o2.setPackageName("月度健身卡");
@@ -624,10 +624,10 @@ public class DataInitializer {
             o2.setPurchaseDate("2026-03-15");
             o2.setPrice(599.0);
             o2.setPointsReward(60);
-            o2.setStatus(CourseOrderStatus.ACTIVE);
-            courseOrderRepository.save(o2);
+            o2.setStatus(PackageOrderStatus.ACTIVE);
+            packageOrderRepository.save(o2);
 
-            CourseOrder o3 = new CourseOrder();
+            PackageOrder o3 = new PackageOrder();
             o3.setUserId(1);
             o3.setPackageId(4);
             o3.setPackageName("季度健身卡");
@@ -641,10 +641,10 @@ public class DataInitializer {
             o3.setPurchaseDate("2026-02-01");
             o3.setPrice(1599.0);
             o3.setPointsReward(160);
-            o3.setStatus(CourseOrderStatus.ACTIVE);
-            courseOrderRepository.save(o3);
+            o3.setStatus(PackageOrderStatus.ACTIVE);
+            packageOrderRepository.save(o3);
 
-            CourseOrder o4 = new CourseOrder();
+            PackageOrder o4 = new PackageOrder();
             o4.setUserId(3);
             o4.setPackageId(3);
             o4.setPackageName("体测评估服务");
@@ -658,10 +658,10 @@ public class DataInitializer {
             o4.setPurchaseDate("2026-03-20");
             o4.setPrice(199.0);
             o4.setPointsReward(20);
-            o4.setStatus(CourseOrderStatus.COMPLETED);
-            courseOrderRepository.save(o4);
+            o4.setStatus(PackageOrderStatus.COMPLETED);
+            packageOrderRepository.save(o4);
 
-            CourseOrder o5 = new CourseOrder();
+            PackageOrder o5 = new PackageOrder();
             o5.setUserId(4);
             o5.setPackageId(5);
             o5.setPackageName("体验课程");
@@ -675,10 +675,10 @@ public class DataInitializer {
             o5.setPurchaseDate("2026-03-25");
             o5.setPrice(9.9);
             o5.setPointsReward(1);
-            o5.setStatus(CourseOrderStatus.ACTIVE);
-            courseOrderRepository.save(o5);
+            o5.setStatus(PackageOrderStatus.ACTIVE);
+            packageOrderRepository.save(o5);
 
-            CourseOrder o6 = new CourseOrder();
+            PackageOrder o6 = new PackageOrder();
             o6.setUserId(5);
             o6.setPackageId(2);
             o6.setPackageName("20 次私教课");
@@ -692,10 +692,10 @@ public class DataInitializer {
             o6.setPurchaseDate("2026-01-15");
             o6.setPrice(3999.0);
             o6.setPointsReward(400);
-            o6.setStatus(CourseOrderStatus.REFUNDING);
-            courseOrderRepository.save(o6);
+            o6.setStatus(PackageOrderStatus.REFUNDING);
+            packageOrderRepository.save(o6);
 
-            System.out.println("测试课程订单数据已创建：6 个订单");
+            System.out.println("测试套餐订单数据已创建：6 个订单");
         }
     }
 

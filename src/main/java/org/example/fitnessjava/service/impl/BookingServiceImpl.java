@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.dao.BookingRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
-import org.example.fitnessjava.dao.CourseOrderRepository;
+import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.Coach;
-import org.example.fitnessjava.pojo.CourseOrder;
-import org.example.fitnessjava.pojo.CourseOrderStatus;
+import org.example.fitnessjava.pojo.PackageOrder;
+import org.example.fitnessjava.pojo.PackageOrderStatus;
 import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
@@ -44,7 +44,7 @@ public class BookingServiceImpl implements BookingService {
     private CoachRepository coachRepository;
 
     @Resource
-    private CourseOrderRepository courseOrderRepository;
+    private PackageOrderRepository packageOrderRepository;
 
     @Override
     public List<CoachScheduleSlot> getScheduleSlots(Integer coachId, Integer clientId) {
@@ -80,8 +80,8 @@ public class BookingServiceImpl implements BookingService {
         CoachScheduleSlot scheduleSlot = getAvailableScheduleSlot(request.getScheduleSlotId());
         validateUserBookingConflict(userId, scheduleSlot.getDate(), scheduleSlot.getStartTime(), scheduleSlot.getEndTime(), null);
 
-        CourseOrder courseOrder = resolveCourseOrder(userId, request.getPackageOrderId());
-        reserveCourseOrderSessions(courseOrder);
+        PackageOrder packageOrder = resolvePackageOrder(userId, request.getPackageOrderId());
+        reservePackageOrderSessions(packageOrder);
 
         Coach coach = getCoach(scheduleSlot.getCoachId());
         Booking booking = new Booking();
@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.PENDING);
         booking.setStatusText("待确认");
         booking.setSource(BookingSource.CLIENT);
-        booking.setPackageOrderId(String.valueOf(courseOrder.getId()));
+        booking.setPackageOrderId(String.valueOf(packageOrder.getId()));
 
         Booking savedBooking = bookingRepository.save(booking);
         occupyScheduleSlot(scheduleSlot, savedBooking.getId());
@@ -141,7 +141,7 @@ public class BookingServiceImpl implements BookingService {
         validateCancelableBooking(booking);
 
         coachScheduleSlotRepository.findByBookingId(booking.getId()).ifPresent(this::releaseScheduleSlot);
-        restoreCourseOrderSessions(booking.getPackageOrderId());
+        restorePackageOrderSessions(booking.getPackageOrderId());
 
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStatusText("已取消");
@@ -235,96 +235,113 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private CourseOrder resolveCourseOrder(Integer userId, String packageOrderId) {
+    private PackageOrder resolvePackageOrder(Integer userId, String packageOrderId) {
         if (packageOrderId != null && !packageOrderId.isBlank()) {
             Integer orderId = parsePackageOrderId(packageOrderId);
-            CourseOrder courseOrder = courseOrderRepository.findById(Long.valueOf(orderId))
-                    .orElseThrow(() -> new IllegalArgumentException("课程订单不存在"));
-            validateCourseOrder(courseOrder, userId);
-            return courseOrder;
+            PackageOrder packageOrder = packageOrderRepository.findById(Long.valueOf(orderId))
+                    .orElseThrow(() -> new IllegalArgumentException("套餐订单不存在"));
+            validatePackageOrder(packageOrder, userId);
+            return packageOrder;
         }
 
-        return courseOrderRepository.findByUserId(userId).stream()
-                .filter(order -> isCourseOrderAvailable(order, userId))
-                .sorted(Comparator.comparing(CourseOrder::getId))
+        return packageOrderRepository.findByUserId(userId).stream()
+                .filter(order -> isPackageOrderAvailable(order, userId))
+                .sorted(Comparator.comparing(PackageOrder::getId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("当前用户没有可用的课程订单"));
+                .orElseThrow(() -> new IllegalArgumentException("当前用户没有可用的套餐订单"));
     }
 
-    private void validateCourseOrder(CourseOrder courseOrder, Integer userId) {
-        if (!isCourseOrderAvailable(courseOrder, userId)) {
-            throw new IllegalArgumentException("课程订单不可用于预约");
+    private void validatePackageOrder(PackageOrder packageOrder, Integer userId) {
+        if (!isPackageOrderAvailable(packageOrder, userId)) {
+            throw new IllegalArgumentException("套餐订单不可用于预约");
         }
     }
 
-    private boolean isCourseOrderAvailable(CourseOrder courseOrder, Integer userId) {
-        if (courseOrder == null || !Objects.equals(courseOrder.getUserId(), userId)) {
+    private boolean isPackageOrderAvailable(PackageOrder packageOrder, Integer userId) {
+        if (packageOrder == null || !Objects.equals(packageOrder.getUserId(), userId)) {
             return false;
         }
-        if (courseOrder.getStatus() != CourseOrderStatus.ACTIVE) {
+        if (packageOrder.getStatus() != PackageOrderStatus.ACTIVE) {
             return false;
         }
-        if (!isCourseOrderInValidDate(courseOrder)) {
+        if (!isPackageOrderInValidDate(packageOrder)) {
             return false;
         }
-        if (courseOrder.getType() == PackageType.TIME_CARD) {
+        if (packageOrder.getType() == PackageType.TIME_CARD) {
             return true;
         }
-        Integer remainingSessions = courseOrder.getRemainingSessions();
+        Integer remainingSessions = packageOrder.getRemainingSessions();
         return remainingSessions != null && remainingSessions > 0;
     }
 
-    private boolean isCourseOrderInValidDate(CourseOrder courseOrder) {
+    private boolean isPackageOrderInValidDate(PackageOrder packageOrder) {
         LocalDate today = LocalDate.now();
-        if (courseOrder.getStartDate() != null && !courseOrder.getStartDate().isBlank()) {
-            LocalDate startDate = LocalDate.parse(courseOrder.getStartDate());
+        if (packageOrder.getStartDate() != null && !packageOrder.getStartDate().isBlank()) {
+            LocalDate startDate = LocalDate.parse(packageOrder.getStartDate());
             if (today.isBefore(startDate)) {
                 return false;
             }
         }
-        if (courseOrder.getEndDate() != null && !courseOrder.getEndDate().isBlank()) {
-            LocalDate endDate = LocalDate.parse(courseOrder.getEndDate());
+        if (packageOrder.getEndDate() != null && !packageOrder.getEndDate().isBlank()) {
+            LocalDate endDate = LocalDate.parse(packageOrder.getEndDate());
             return !today.isAfter(endDate);
         }
         return true;
     }
 
-    private void reserveCourseOrderSessions(CourseOrder courseOrder) {
-        if (courseOrder.getType() == PackageType.TIME_CARD) {
+    private void reservePackageOrderSessions(PackageOrder packageOrder) {
+        if (packageOrder.getType() == PackageType.TIME_CARD) {
             return;
         }
-        Integer remainingSessions = courseOrder.getRemainingSessions();
+        Integer remainingSessions = packageOrder.getRemainingSessions();
         if (remainingSessions == null || remainingSessions <= 0) {
-            throw new IllegalArgumentException("课程订单剩余课时不足");
+            throw new IllegalArgumentException("套餐订单剩余课时不足");
         }
-        courseOrder.setRemainingSessions(remainingSessions - 1);
-        courseOrderRepository.save(courseOrder);
+        packageOrder.setRemainingSessions(remainingSessions - 1);
+        packageOrderRepository.save(packageOrder);
     }
 
-    private void restoreCourseOrderSessions(String packageOrderId) {
+    private void restorePackageOrderSessions(String packageOrderId) {
         if (packageOrderId == null || packageOrderId.isBlank()) {
             return;
         }
         Integer orderId = parsePackageOrderId(packageOrderId);
-        Optional<CourseOrder> courseOrderOptional = courseOrderRepository.findById(Long.valueOf(orderId));
-        if (courseOrderOptional.isEmpty()) {
+        Optional<PackageOrder> packageOrderOptional = packageOrderRepository.findById(Long.valueOf(orderId));
+        if (packageOrderOptional.isEmpty()) {
             return;
         }
-        CourseOrder courseOrder = courseOrderOptional.get();
-        if (courseOrder.getType() == PackageType.TIME_CARD) {
+        PackageOrder packageOrder = packageOrderOptional.get();
+        if (packageOrder.getType() == PackageType.TIME_CARD) {
             return;
         }
-        Integer remainingSessions = courseOrder.getRemainingSessions() != null ? courseOrder.getRemainingSessions() : 0;
-        Integer totalSessions = courseOrder.getTotalSessions() != null ? courseOrder.getTotalSessions() : remainingSessions + 1;
-        courseOrder.setRemainingSessions(Math.min(totalSessions, remainingSessions + 1));
-        courseOrderRepository.save(courseOrder);
+        Integer remainingSessions = packageOrder.getRemainingSessions() != null ? packageOrder.getRemainingSessions() : 0;
+        Integer totalSessions = packageOrder.getTotalSessions() != null ? packageOrder.getTotalSessions() : remainingSessions + 1;
+        packageOrder.setRemainingSessions(Math.min(totalSessions, remainingSessions + 1));
+        packageOrderRepository.save(packageOrder);
     }
 
     private Integer parsePackageOrderId(String packageOrderId) {
         try {
             return Integer.valueOf(packageOrderId);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("课程订单ID格式不正确");
+            throw new IllegalArgumentException("套餐订单 ID 格式不正确");
         }
+    }
+
+    @Override
+    public void deleteBooking(Integer id) {
+        bookingRepository.deleteById(id);
+    }
+
+    @Override
+    public Booking confirmBooking(Integer id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("预约不存在"));
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            throw new IllegalArgumentException("只有待确认的预约才能确认");
+        }
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setStatusText("已确认");
+        return bookingRepository.save(booking);
     }
 }
