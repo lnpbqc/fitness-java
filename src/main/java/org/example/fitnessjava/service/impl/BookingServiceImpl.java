@@ -6,11 +6,9 @@ import org.example.fitnessjava.dao.BookingRepository;
 import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
-import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.Client;
-import org.example.fitnessjava.pojo.CoachWithUser;
 import org.example.fitnessjava.pojo.PackageOrder;
 import org.example.fitnessjava.pojo.PackageOrderStatus;
 import org.example.fitnessjava.pojo.PackageType;
@@ -50,9 +48,6 @@ public class BookingServiceImpl implements BookingService {
 
     @Resource
     private PackageOrderRepository packageOrderRepository;
-
-    @Resource
-    private CoachWithUserRepository coachWithUserRepository;
 
     @Resource
     private ClientRepository clientRepository;
@@ -220,18 +215,8 @@ public class BookingServiceImpl implements BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         occupyScheduleSlot(scheduleSlot, savedBooking.getId());
-        bindCoachAndUser(coach.getId(), userId);
         log.error("savedBooking: {}", savedBooking);
         return savedBooking;
-    }
-
-    private void bindCoachAndUser(int coachId, int clientId) {
-        if (!coachWithUserRepository.existsByCoachIdAndClientId(coachId, clientId)) {
-            CoachWithUser relation = new CoachWithUser();
-            relation.setCoachId(coachId);
-            relation.setClientId(clientId);
-            coachWithUserRepository.save(relation);
-        }
     }
 
     @Override

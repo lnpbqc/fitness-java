@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CheckinTicketRepository extends JpaRepository<CheckinTicket, Integer> {
@@ -21,4 +22,6 @@ public interface CheckinTicketRepository extends JpaRepository<CheckinTicket, In
            "(:memberId IS NULL OR ct.memberId = :memberId)")
     List<CheckinTicket> findCheckinTickets(@Param("status") TicketStatus status,
                                            @Param("memberId") Integer memberId);
+
+    Optional<CheckinTicket> findByQrCode(String qrCode);
 }

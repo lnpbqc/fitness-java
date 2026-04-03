@@ -5,8 +5,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
+import org.example.fitnessjava.pojo.CoachWithUser;
 import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.util.JwtUtil;
@@ -31,6 +33,9 @@ public class ClientMemberController {
 
     @Resource
     private CoachService coachService;
+
+    @Resource
+    private CoachWithUserRepository coachWithUserRepository;
 
     @GetMapping
     @Operation(summary = "获取当前用户会员档案", description = "根据 Authorization token 获取当前登录用户的会员信息")
@@ -109,16 +114,6 @@ public class ClientMemberController {
                 "totalTrainingCount", client.getTotalTrainingCount(),
                 "membershipExpireAt", client.getMembershipExpireAt() != null ? client.getMembershipExpireAt() : ""
         );
-    }
-
-    @GetMapping("/coaches")
-    @Operation(summary = "获取当前用户的教练列表", description = "返回当前用户已绑定的所有教练")
-    public ArrayList<Coach> getMyCoaches(
-            @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
-            @RequestHeader("Authorization") String token
-    ) {
-        String openid = getCurrentOpenid(token);
-        return coachService.getCoachesOfUser(openid);
     }
 
     private String getCurrentOpenid(String token) {

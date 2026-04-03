@@ -4,14 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.pojo.PackageOrder;
-import org.example.fitnessjava.pojo.PackageOrderStatus;
-import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.vo.PackageOrderVO;
 import org.example.fitnessjava.service.PackageOrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
