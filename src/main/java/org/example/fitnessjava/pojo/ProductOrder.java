@@ -32,6 +32,7 @@ public class ProductOrder extends BaseEntity {
 
     private Double totalAmount;
     private Integer pointsUsed;
+    private Integer pointsReward;
     private Double actualPay;
 
     private String orderDate;

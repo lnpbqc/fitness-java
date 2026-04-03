@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 // Class representing a user's profile
 @Data
@@ -31,4 +32,11 @@ public class Client extends BaseEntity {
     private int coupons;
     private int totalTrainingCount;
     private String membershipExpireAt;
+
+    private String gender;
+    private Integer age;
+    private String joinDate;
+
+    @ElementCollection
+    private List<String> tags;
 }

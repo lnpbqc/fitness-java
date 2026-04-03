@@ -51,6 +51,9 @@ public class OrderController {
             @RequestHeader("Authorization") String token,
             @RequestBody ClientOrderRequest request
     ) {
+        log.info("创建订单请求: type={}, packageId={}, items={}, pointsUsed={}",
+                request.getType(), request.getPackageId(), request.getItems(), request.getPointsUsed());
+
         Integer userId = getCurrentClientId(token);
         String type = request.getType();
 
@@ -184,6 +187,22 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "套餐已下架");
         }
 
+        Client client = clientService.existUserByUserId(userId);
+        if (client == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在");
+        }
+
+        Integer pointsUsed = request.getPointsUsed() != null ? request.getPointsUsed() : 0;
+        if (pointsUsed > 0) {
+            if (client.getPoints() < pointsUsed) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "积分不足");
+            }
+            client.setPoints(client.getPoints() - pointsUsed);
+            clientService.updateClient(client);
+        }
+
+        double actualPay = Math.max(pkg.getPrice() - pointsUsed, 0);
+
         LocalDate now = LocalDate.now();
         LocalDate endDate = now.plusDays(pkg.getValidDays());
 
@@ -200,10 +219,22 @@ public class OrderController {
         order.setEndDate(endDate.format(DateTimeFormatter.ISO_LOCAL_DATE));
         order.setPurchaseDate(now.format(DateTimeFormatter.ISO_LOCAL_DATE));
         order.setPrice(pkg.getPrice());
+        order.setPointsUsed(pointsUsed);
+        order.setActualPay(actualPay);
         order.setPointsReward(pkg.getPointsReward());
         order.setStatus(CourseOrderStatus.ACTIVE);
 
-        return courseOrderService.createOrder(order);
+        CourseOrder savedOrder = courseOrderService.createOrder(order);
+
+        if (pkg.getPointsReward() != null && pkg.getPointsReward() > 0) {
+            client = clientService.existUserByUserId(userId);
+            if (client != null) {
+                client.setPoints(client.getPoints() + pkg.getPointsReward());
+                clientService.updateClient(client);
+            }
+        }
+
+        return savedOrder;
     }
 
     private ProductOrder createProductOrder(Integer userId, ClientOrderRequest request) {
@@ -228,7 +259,7 @@ public class OrderController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "商品已下架: " + product.getName());
             }
-            if (product.getStock() < itemReq.getQuantity()) {
+            if (product.getStock() != null && product.getStock() < itemReq.getQuantity()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "库存不足: " + product.getName() + "，剩余 " + product.getStock() + " 件");
             }
@@ -242,14 +273,21 @@ public class OrderController {
             orderItems.add(orderItem);
 
             totalAmount += product.getPrice() * itemReq.getQuantity();
-            totalPointsReward += product.getPointsReward() * itemReq.getQuantity();
+            if (product.getPointsReward() != null) {
+                totalPointsReward += product.getPointsReward() * itemReq.getQuantity();
+            }
         }
 
         Integer pointsUsed = request.getPointsUsed() != null ? request.getPointsUsed() : 0;
-        double actualPay = totalAmount - pointsUsed;
-        if (actualPay < 0) {
-            actualPay = 0;
+        Client client = clientService.existUserByUserId(userId);
+        if (client != null && pointsUsed > 0) {
+            if (client.getPoints() < pointsUsed) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "积分不足");
+            }
+            client.setPoints(client.getPoints() - pointsUsed);
+            clientService.updateClient(client);
         }
+        double actualPay = Math.max(totalAmount - pointsUsed, 0);
 
         LocalDate now = LocalDate.now();
 
@@ -258,16 +296,23 @@ public class OrderController {
         order.setItems(orderItems);
         order.setTotalAmount(totalAmount);
         order.setPointsUsed(pointsUsed);
+        order.setPointsReward(totalPointsReward);
         order.setActualPay(actualPay);
         order.setOrderDate(now.format(DateTimeFormatter.ISO_LOCAL_DATE));
         order.setStatus(ProductOrderStatus.PAID);
         order.setStatusText("已付款");
 
-        // deduct stock
         for (ClientOrderRequest.OrderItemRequest itemReq : items) {
             Product product = productService.getProductById((long) itemReq.getProductId()).get();
-            productService.updateStock((long) itemReq.getProductId(),
-                    product.getStock() - itemReq.getQuantity());
+            if (product.getStock() != null) {
+                productService.updateStock((long) itemReq.getProductId(),
+                        product.getStock() - itemReq.getQuantity());
+            }
+        }
+
+        if (client != null && totalPointsReward > 0) {
+            client.setPoints(client.getPoints() + totalPointsReward);
+            clientService.updateClient(client);
         }
 
         return productOrderService.createOrder(order);

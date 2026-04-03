@@ -176,4 +176,15 @@ public class CoachServiceImpl implements CoachService {
     public Optional<Coach> getCoachByOpenid(String openid) {
         return coachRepository.findByOpenid(openid);
     }
+
+    @Override
+    public ArrayList<Client> getClientsByCoachId(int coachId) {
+        ArrayList<Client> clients = new ArrayList<>();
+        ArrayList<CoachWithUser> relations = coachWithUserRepository.findAllByCoachId(coachId);
+        for (CoachWithUser relation : relations) {
+            Optional<Client> client = clientRepository.findById((long) relation.getClientId());
+            client.ifPresent(clients::add);
+        }
+        return clients;
+    }
 }

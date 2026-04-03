@@ -13,4 +13,8 @@ public interface CoachWithUserRepository extends JpaRepository<CoachWithUser, Lo
     Optional<CoachWithUser> findByCoachId(Integer coachId);
 
     ArrayList<CoachWithUser> findAllByClientId(int clientId);
+
+    ArrayList<CoachWithUser> findAllByCoachId(int coachId);
+
+    boolean existsByCoachIdAndClientId(int coachId, int clientId);
 }

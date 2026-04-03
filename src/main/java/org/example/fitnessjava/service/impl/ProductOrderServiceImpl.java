@@ -55,6 +55,7 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         vo.setItems(order.getItems());
         vo.setTotalAmount(order.getTotalAmount());
         vo.setPointsUsed(order.getPointsUsed());
+        vo.setPointsReward(order.getPointsReward());
         vo.setActualPay(order.getActualPay());
         vo.setOrderDate(order.getOrderDate());
         vo.setStatus(order.getStatus());

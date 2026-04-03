@@ -64,6 +64,8 @@ public class CourseOrderServiceImpl implements CourseOrderService {
         vo.setEndDate(order.getEndDate());
         vo.setPurchaseDate(order.getPurchaseDate());
         vo.setPrice(order.getPrice());
+        vo.setPointsUsed(order.getPointsUsed());
+        vo.setActualPay(order.getActualPay());
         vo.setPointsReward(order.getPointsReward());
         vo.setStatus(order.getStatus());
         

@@ -46,7 +46,8 @@ public class CourseOrder extends BaseEntity {
     private String purchaseDate;
 
     private Double price;
-
+    private Integer pointsUsed;
+    private Double actualPay;
     private Integer pointsReward;
 
     @Enumerated(EnumType.STRING)

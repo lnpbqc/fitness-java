@@ -16,4 +16,6 @@ public interface ClientService {
     Optional<UserVO> updateClientProfile(Integer id, String memberLevel, Integer points, String membershipExpireAt);
     void convertUserToCoach(Integer userId);
     UserVO convertToUserVO(Client user);
+    Client updateClient(Client client);
+    Client existUserByUserId(Integer userId);
 }

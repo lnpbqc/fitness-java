@@ -20,6 +20,8 @@ public class CourseOrderVO {
     private String endDate;
     private String purchaseDate;
     private Double price;
+    private Integer pointsUsed;
+    private Double actualPay;
     private Integer pointsReward;
     private CourseOrderStatus status;
 }

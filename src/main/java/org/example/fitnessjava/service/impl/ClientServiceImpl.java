@@ -92,6 +92,10 @@ public class ClientServiceImpl implements ClientService {
         vo.setCoupons(user.getCoupons());
         vo.setTotalTrainingCount(user.getTotalTrainingCount());
         vo.setMembershipExpireAt(user.getMembershipExpireAt());
+        vo.setGender(user.getGender());
+        vo.setAge(user.getAge());
+        vo.setJoinDate(user.getJoinDate());
+        vo.setTags(user.getTags());
 
         return vo;
     }
@@ -122,5 +126,15 @@ public class ClientServiceImpl implements ClientService {
         relation.setCoachId(coach.getId());
         relation.setClientId(client.getId());
         coachWithUserRepository.save(relation);
+    }
+
+    @Override
+    public Client updateClient(Client client) {
+        return clientRepository.save(client);
+    }
+
+    @Override
+    public Client existUserByUserId(Integer userId) {
+        return clientRepository.findById(Long.valueOf(userId)).orElse(null);
     }
 }

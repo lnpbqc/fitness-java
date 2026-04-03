@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,4 +21,8 @@ public class UserVO {
     private Integer coupons;
     private Integer totalTrainingCount;
     private String membershipExpireAt;
+    private String gender;
+    private Integer age;
+    private String joinDate;
+    private List<String> tags;
 }

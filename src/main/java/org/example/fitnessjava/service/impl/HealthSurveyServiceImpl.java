@@ -14,8 +14,7 @@ public class HealthSurveyServiceImpl implements HealthSurveyService {
 
     @Override
     public HealthSurvey getHealthSurveyByUserId(String userId) {
-        healthSurveyRepository.findByUserId(Integer.valueOf(userId));
-        return null;
+        return healthSurveyRepository.findByUserId(Integer.valueOf(userId));
     }
 
     @Override

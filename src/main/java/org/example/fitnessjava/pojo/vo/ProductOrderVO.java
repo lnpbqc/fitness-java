@@ -15,6 +15,7 @@ public class ProductOrderVO {
     private Integer itemCount;
     private Double totalAmount;
     private Integer pointsUsed;
+    private Integer pointsReward;
     private Double actualPay;
     private String orderDate;
     private ProductOrderStatus status;

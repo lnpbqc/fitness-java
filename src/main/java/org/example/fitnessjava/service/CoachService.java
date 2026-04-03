@@ -1,5 +1,6 @@
 package org.example.fitnessjava.service;
 
+import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public interface CoachService {
     ArrayList<Coach> getTodayCoaches();
 
     ArrayList<Coach> getCoachesOfUser(String openid);
+
+    ArrayList<Client> getClientsByCoachId(int coachId);
 
     Optional<Coach> getCoachByOpenid(String openid);
 }
