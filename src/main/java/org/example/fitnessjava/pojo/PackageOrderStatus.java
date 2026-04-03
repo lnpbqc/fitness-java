@@ -1,6 +1,6 @@
 package org.example.fitnessjava.pojo;
 
-public enum CourseOrderStatus {
+public enum PackageOrderStatus {
     ACTIVE,
     EXPIRED,
     COMPLETED,

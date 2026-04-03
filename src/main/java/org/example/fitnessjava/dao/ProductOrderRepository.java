@@ -11,4 +11,5 @@ import java.util.List;
 public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long> {
     List<ProductOrder> findByStatus(ProductOrderStatus status);
     List<ProductOrder> findByUserId(Integer userId);
+    List<ProductOrder> findByOrderDate(String orderDate);
 }
