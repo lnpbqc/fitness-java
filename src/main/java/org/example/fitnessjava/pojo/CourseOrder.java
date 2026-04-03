@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "CourseOrder")
-@Schema(description = "课程")
+@Schema(description = "课程订单")
 @EqualsAndHashCode(callSuper = true)
 public class CourseOrder extends BaseEntity {
     @Id

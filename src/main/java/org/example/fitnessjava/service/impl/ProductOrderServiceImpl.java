@@ -42,6 +42,12 @@ public class ProductOrderServiceImpl implements ProductOrderService {
         return orders.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ProductOrderVO> getOrdersByUserId(Integer userId) {
+        List<ProductOrder> orders = productOrderRepository.findByUserId(userId);
+        return orders.stream().map(this::convertToVO).collect(Collectors.toList());
+    }
+
     private ProductOrderVO convertToVO(ProductOrder order) {
         ProductOrderVO vo = new ProductOrderVO();
         vo.setId(order.getId());

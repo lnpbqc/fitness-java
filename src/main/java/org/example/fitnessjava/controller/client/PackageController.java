@@ -21,7 +21,6 @@ public class PackageController {
     private PackageService packageService;
 
     @GetMapping("/all")
-
     @Operation(description = "获取所有套餐")
     public List<Package> getAllPackageProducts() {
         return packageService.getAllPackages();

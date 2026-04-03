@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
@@ -28,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/client/booking")
 @Tag(name = "客户端预约接口", description = "客户端预约与排班查询接口")
+@Slf4j
 public class BookingController {
 
     @Resource
@@ -47,6 +49,7 @@ public class BookingController {
             @Parameter(description = "客户ID，不传则不过滤客户", example = "1")
             @RequestParam(required = false) Integer clientId
     ) {
+        log.info("client id:{}", clientId);
         return bookingService.getScheduleSlots(coachId, clientId);
     }
 

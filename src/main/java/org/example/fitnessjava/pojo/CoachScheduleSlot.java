@@ -3,13 +3,15 @@ package org.example.fitnessjava.pojo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "CoachScheduleSlot")
-public class CoachScheduleSlot {
+@EqualsAndHashCode(callSuper = true)
+public class CoachScheduleSlot extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

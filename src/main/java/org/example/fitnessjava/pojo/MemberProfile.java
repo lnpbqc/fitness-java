@@ -1,11 +1,13 @@
-package org.example.fitnessjava.pojo.penddingEntity;
+package org.example.fitnessjava.pojo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -14,33 +16,20 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class MemberProfile {
+@Schema(description = "会员卡")
+@EqualsAndHashCode(callSuper = true)
+public class MemberProfile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private Integer userId;
-
-    private String name;
-    private String avatar;
     private String gender;
     private Integer age;
-
     private String phone;
     private String level;
-    private String target;
-
     private Integer attendance;
-
-    private String nextClass;
-
     private List<String> tags;
-
     private String expireDate;
-    private Integer sessionsLeft;
-    private Integer totalSessions;
-
     private String joinDate;
-    private String packageType;
 }

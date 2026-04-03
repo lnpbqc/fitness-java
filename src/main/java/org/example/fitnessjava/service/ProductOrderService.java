@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface ProductOrderService {
     List<ProductOrderVO> getAllOrders();
     Optional<ProductOrderVO> getOrderById(Long id);
+    List<ProductOrderVO> getOrdersByUserId(Integer userId);
     List<ProductOrderVO> getOrdersByStatus(ProductOrderStatus status);
     ProductOrder createOrder(ProductOrder order);
     Optional<ProductOrder> updateOrder(Long id, ProductOrder order);

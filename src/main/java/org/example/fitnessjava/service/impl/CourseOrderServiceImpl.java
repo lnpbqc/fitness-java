@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +40,12 @@ public class CourseOrderServiceImpl implements CourseOrderService {
     @Override
     public List<CourseOrderVO> getOrdersByStatus(CourseOrderStatus status) {
         List<CourseOrder> orders = courseOrderRepository.findByStatus(status);
+        return orders.stream().map(this::convertToVO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseOrderVO> getOrdersByUserId(Integer userId) {
+        List<CourseOrder> orders = courseOrderRepository.findByUserId(userId);
         return orders.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
@@ -134,5 +141,19 @@ public class CourseOrderServiceImpl implements CourseOrderService {
     @Override
     public void deleteOrder(Long id) {
         courseOrderRepository.deleteById(id);
+    }
+
+    @Override
+    public List<CourseOrderVO> getOrdersOfMine(String openid) {
+        Client byOpenid = clientRepository.findByOpenid(openid);
+        if (byOpenid == null) {
+            throw new IllegalArgumentException("Couldn't find client with openid: " + openid);
+        }
+        List<CourseOrder> byUserId = courseOrderRepository.findByUserId(byOpenid.getId());
+        List<CourseOrderVO> res = new ArrayList<>();
+        for (CourseOrder order : byUserId) {
+            res.add(convertToVO(order));
+        }
+        return res;
     }
 }
