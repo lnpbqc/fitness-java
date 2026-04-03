@@ -27,9 +27,9 @@ public class PackageOrderController {
 
     @GetMapping
     @Operation(summary = "获取套餐订单列表")
-    public ResponseEntity<List<PackageOrderVO>> getOrders() {
+    public List<PackageOrderVO> getOrders() {
         List<PackageOrderVO> orders = packageOrderService.getAllOrders();
-        return ResponseEntity.ok(orders);
+        return orders;
     }
 
     @GetMapping("/me")

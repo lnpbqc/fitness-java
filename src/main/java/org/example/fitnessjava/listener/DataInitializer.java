@@ -135,7 +135,7 @@ public class DataInitializer {
     private void initCoachData() {
         long count = coachRepository.count();
         if (count == 0) {
-            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", true, Coach.Status.ONLINE, null);
+            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", true, Coach.Status.ONLINE, "o9Nev67lfstCOQ0ZN63B_LcrAngA");
             createCoach("王教练", "wangcoach", "瑜伽与普拉提资深教练，注重身心平衡，帮助学员改善体态。", "瑜伽·普拉提", "RYT-500 瑜伽教练，普拉提认证教练", 4.8, 4, 189, Arrays.asList("瑜伽", "普拉提", "体态矫正"), "13900139456", true, Coach.Status.ONLINE, null);
             createCoach("张教练", "zhangcoach", "专注减脂塑形领域，科学制定饮食与训练计划，效果显著。", "减脂塑形", "AASFP 私人教练，运动康复师", 4.7, 4, 156, Arrays.asList("减脂", "塑形", "营养指导"), "13600136789", false, Coach.Status.BUSY, null);
             createCoach("刘教练", "liucoach", "功能训练专家，帮助学员提升运动表现和日常活动能力。", "功能训练", "FMS 功能性训练认证，NASM-CPT", 4.6, 3, 98, Arrays.asList("功能训练", "运动康复", "体能提升"), "13700137321", false, Coach.Status.ONLINE, null);

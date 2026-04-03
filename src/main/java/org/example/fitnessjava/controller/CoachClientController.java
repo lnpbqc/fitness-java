@@ -7,13 +7,13 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
+import org.example.fitnessjava.pojo.vo.UserVO;
 import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/coach/clients")
@@ -49,9 +49,8 @@ public class CoachClientController {
 
     @GetMapping("/{id}")
     @Operation(summary = "获取客户详情", description = "获取指定客户的详细信息")
-    public Map<String, Object> getClientDetail(@PathVariable Integer id) {
+    public UserVO getClientDetail(@PathVariable Integer id) {
         return clientService.getUserById(id)
-                .map(user -> Map.of("success", true, "user", user))
-                .orElse(Map.of("success", false, "message", "客户不存在"));
+                .orElse(null);
     }
 }
