@@ -3,9 +3,11 @@ package org.example.fitnessjava.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.pojo.PackageOrder;
 import org.example.fitnessjava.pojo.vo.PackageOrderVO;
 import org.example.fitnessjava.service.PackageOrderService;
+import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,16 +17,31 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/package-order")
 @Tag(name = "套餐订单管理", description = "管理套餐订单相关接口")
+@Slf4j
 public class PackageOrderController {
 
     @Resource
     private PackageOrderService packageOrderService;
+    @Resource
+    private JwtUtil jwtUtil;
 
     @GetMapping
     @Operation(summary = "获取套餐订单列表")
     public ResponseEntity<List<PackageOrderVO>> getOrders() {
         List<PackageOrderVO> orders = packageOrderService.getAllOrders();
         return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "获取当前用户的套餐订单列表")
+    public List<PackageOrderVO> getOrdersOfMine(@RequestHeader("Authorization") String token) {
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("请检查请求头");
+        }
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        List<PackageOrderVO> orders = packageOrderService.getOrdersOfMine(openid);
+        log.info("orders: {}", orders);
+        return orders;
     }
 
     @GetMapping("/{id}")

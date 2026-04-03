@@ -10,10 +10,13 @@ import java.util.Optional;
 public interface PackageOrderService {
     List<PackageOrderVO> getAllOrders();
     Optional<PackageOrderVO> getOrderById(Long id);
+    List<PackageOrderVO> getOrdersByUserId(Integer userId);
     List<PackageOrderVO> getOrdersByStatus(PackageOrderStatus status);
     PackageOrder createOrder(PackageOrder order);
     Optional<PackageOrder> updateOrder(Long id, PackageOrder order);
     Optional<PackageOrder> refundOrder(Long id, String reason);
     Optional<PackageOrder> updateSessions(Long id, Integer sessions);
     void deleteOrder(Long id);
+
+    List<PackageOrderVO> getOrdersOfMine(String openid);
 }

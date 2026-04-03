@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.Package;
 import org.example.fitnessjava.pojo.dto.ClientOrderRequest;
-import org.example.fitnessjava.pojo.vo.CourseOrderVO;
+import org.example.fitnessjava.pojo.vo.PackageOrderVO;
 import org.example.fitnessjava.pojo.vo.ProductOrderVO;
 import org.example.fitnessjava.service.*;
 import org.example.fitnessjava.util.JwtUtil;
@@ -33,7 +33,7 @@ public class OrderController {
     private ClientService clientService;
 
     @Resource
-    private CourseOrderService courseOrderService;
+    private PackageOrderService packageOrderService;
 
     @Resource
     private ProductOrderService productOrderService;
@@ -64,9 +64,9 @@ public class OrderController {
         Map<String, Object> result = new HashMap<>();
 
         if ("PACKAGE".equalsIgnoreCase(type)) {
-            CourseOrder order = createCourseOrder(userId, request);
+            PackageOrder order = createPackageOrder(userId, request);
             result.put("type", "PACKAGE");
-            result.put("order", courseOrderService.getOrderById((long) order.getId()).orElse(null));
+            result.put("order", packageOrderService.getOrderById((long) order.getId()).orElse(null));
         } else if ("SHOP".equalsIgnoreCase(type)) {
             ProductOrder order = createProductOrder(userId, request);
             result.put("type", "SHOP");
@@ -86,25 +86,25 @@ public class OrderController {
     ) {
         Integer userId = getCurrentClientId(token);
 
-        List<CourseOrderVO> courseOrders = courseOrderService.getOrdersByUserId(userId);
+        List<PackageOrderVO> packageOrders = packageOrderService.getOrdersByUserId(userId);
         List<ProductOrderVO> productOrders = productOrderService.getOrdersByUserId(userId);
 
         Map<String, Object> result = new HashMap<>();
-        result.put("courseOrders", courseOrders);
+        result.put("packageOrders", packageOrders);
         result.put("productOrders", productOrders);
         return result;
     }
 
     @GetMapping("/course/{id}")
     @Operation(summary = "获取套餐订单详情", description = "根据订单ID获取当前用户的套餐订单详情")
-    public CourseOrderVO getCourseOrder(
+    public PackageOrderVO getPackageOrder(
             @Parameter(description = "订单ID", example = "1")
             @PathVariable Long id,
             @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
             @RequestHeader("Authorization") String token
     ) {
         Integer userId = getCurrentClientId(token);
-        CourseOrderVO vo = courseOrderService.getOrderById(id)
+        PackageOrderVO vo = packageOrderService.getOrderById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "订单不存在"));
         if (!vo.getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "无权查看该订单");
@@ -131,7 +131,7 @@ public class OrderController {
 
     @PostMapping("/course/{id}/refund")
     @Operation(summary = "套餐订单退款", description = "申请套餐订单退款，将状态设为退款中")
-    public CourseOrderVO refundCourseOrder(
+    public PackageOrderVO refundPackageOrder(
             @Parameter(description = "订单ID", example = "1")
             @PathVariable Long id,
             @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
@@ -139,17 +139,17 @@ public class OrderController {
             @RequestBody(required = false) Map<String, String> body
     ) {
         Integer userId = getCurrentClientId(token);
-        CourseOrderVO vo = courseOrderService.getOrderById(id)
+        PackageOrderVO vo = packageOrderService.getOrderById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "订单不存在"));
         if (!vo.getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "无权操作该订单");
         }
-        if (vo.getStatus() != CourseOrderStatus.ACTIVE) {
+        if (vo.getStatus() != PackageOrderStatus.ACTIVE) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "当前状态不允许退款");
         }
         String reason = body != null ? body.getOrDefault("reason", "用户申请退款") : "用户申请退款";
-        courseOrderService.refundOrder(id, reason);
-        return courseOrderService.getOrderById(id).orElse(null);
+        packageOrderService.refundOrder(id, reason);
+        return packageOrderService.getOrderById(id).orElse(null);
     }
 
     @PostMapping("/product/{id}/refund")
@@ -175,7 +175,7 @@ public class OrderController {
         return productOrderService.getOrderById(id).orElse(null);
     }
 
-    private CourseOrder createCourseOrder(Integer userId, ClientOrderRequest request) {
+    private PackageOrder createPackageOrder(Integer userId, ClientOrderRequest request) {
         Integer packageId = request.getPackageId();
         if (packageId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "套餐ID不能为空");
@@ -206,7 +206,7 @@ public class OrderController {
         LocalDate now = LocalDate.now();
         LocalDate endDate = now.plusDays(pkg.getValidDays());
 
-        CourseOrder order = new CourseOrder();
+        PackageOrder order = new PackageOrder();
         order.setUserId(userId);
         order.setPackageId(pkg.getId());
         order.setPackageName(pkg.getName());
@@ -222,9 +222,9 @@ public class OrderController {
         order.setPointsUsed(pointsUsed);
         order.setActualPay(actualPay);
         order.setPointsReward(pkg.getPointsReward());
-        order.setStatus(CourseOrderStatus.ACTIVE);
+        order.setStatus(PackageOrderStatus.ACTIVE);
 
-        CourseOrder savedOrder = courseOrderService.createOrder(order);
+        PackageOrder savedOrder = packageOrderService.createOrder(order);
 
         if (pkg.getPointsReward() != null && pkg.getPointsReward() > 0) {
             client = clientService.existUserByUserId(userId);

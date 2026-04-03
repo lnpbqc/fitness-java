@@ -6,18 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "CourseOrder")
-@Schema(description = "课程订单")
+@Entity(name = "PackageOrder")
+@Schema(description = "套餐订单")
 @EqualsAndHashCode(callSuper = true)
-public class CourseOrder extends BaseEntity {
+public class PackageOrder extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -51,5 +47,5 @@ public class CourseOrder extends BaseEntity {
     private Integer pointsReward;
 
     @Enumerated(EnumType.STRING)
-    private CourseOrderStatus status;
+    private PackageOrderStatus status;
 }

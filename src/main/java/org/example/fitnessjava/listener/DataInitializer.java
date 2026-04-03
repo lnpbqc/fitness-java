@@ -4,8 +4,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.*;
 import org.example.fitnessjava.pojo.*;
-import org.example.fitnessjava.pojo.CourseOrder;
-import org.example.fitnessjava.pojo.CourseOrderStatus;
+import org.example.fitnessjava.pojo.PackageOrder;
+import org.example.fitnessjava.pojo.PackageOrderStatus;
 import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.ProductOrder;
 import org.example.fitnessjava.pojo.ProductOrderItem;
@@ -44,7 +44,7 @@ public class DataInitializer {
     private ProductRepository productRepository;
 
     @Resource
-    private CourseOrderRepository courseOrderRepository;
+    private PackageOrderRepository packageOrderRepository;
 
     @Resource
     private ProductOrderRepository productOrderRepository;
@@ -72,7 +72,7 @@ public class DataInitializer {
         initBanners();
         initPackageData();
         initProductData();
-        initCourseOrderData();
+        initPackageOrderData();
         initProductOrderData();
         initHealthSurveyData();
         initCoachScheduleSlotData();
@@ -172,16 +172,16 @@ public class DataInitializer {
         }
     }
 
-    private void initCourseOrderData() {
-        long count = courseOrderRepository.count();
+    private void initPackageOrderData() {
+        long count = packageOrderRepository.count();
         if (count == 0) {
-            createCourseOrder(1, 2, "20 次私教课", PackageType.SESSION_CARD, 20, 8, 90, "2026-03-01", "2026-05-30", "2026-03-01", 3999.0, 0, 3999.0, 400, CourseOrderStatus.ACTIVE);
-            createCourseOrder(2, 1, "月度健身卡", PackageType.TIME_CARD, 0, 0, 30, "2026-03-15", "2026-04-14", "2026-03-15", 599.0, 100, 499.0, 60, CourseOrderStatus.ACTIVE);
-            createCourseOrder(1, 4, "季度健身卡", PackageType.TIME_CARD, 0, 0, 90, "2026-02-01", "2026-05-01", "2026-02-01", 1599.0, 0, 1599.0, 160, CourseOrderStatus.ACTIVE);
-            createCourseOrder(3, 3, "体测评估服务", PackageType.ASSESSMENT, 1, 1, 7, "2026-03-20", "2026-03-27", "2026-03-20", 199.0, 50, 149.0, 20, CourseOrderStatus.COMPLETED);
-            createCourseOrder(4, 5, "体验课程", PackageType.EXPERIENCE, 1, 0, 7, "2026-03-25", "2026-04-01", "2026-03-25", 9.9, 0, 9.9, 1, CourseOrderStatus.ACTIVE);
-            createCourseOrder(5, 2, "20 次私教课", PackageType.SESSION_CARD, 20, 15, 90, "2026-01-15", "2026-04-15", "2026-01-15", 3999.0, 200, 3799.0, 400, CourseOrderStatus.REFUNDING);
-            System.out.println("测试课程订单数据已创建：6 个订单");
+            createPackageOrder(1, 2, "20 次私教课", PackageType.SESSION_CARD, 20, 8, 90, "2026-03-01", "2026-05-30", "2026-03-01", 3999.0, 0, 3999.0, 400, PackageOrderStatus.ACTIVE);
+            createPackageOrder(2, 1, "月度健身卡", PackageType.TIME_CARD, 0, 0, 30, "2026-03-15", "2026-04-14", "2026-03-15", 599.0, 100, 499.0, 60, PackageOrderStatus.ACTIVE);
+            createPackageOrder(1, 4, "季度健身卡", PackageType.TIME_CARD, 0, 0, 90, "2026-02-01", "2026-05-01", "2026-02-01", 1599.0, 0, 1599.0, 160, PackageOrderStatus.ACTIVE);
+            createPackageOrder(3, 3, "体测评估服务", PackageType.ASSESSMENT, 1, 1, 7, "2026-03-20", "2026-03-27", "2026-03-20", 199.0, 50, 149.0, 20, PackageOrderStatus.COMPLETED);
+            createPackageOrder(4, 5, "体验课程", PackageType.EXPERIENCE, 1, 0, 7, "2026-03-25", "2026-04-01", "2026-03-25", 9.9, 0, 9.9, 1, PackageOrderStatus.ACTIVE);
+            createPackageOrder(5, 2, "20 次私教课", PackageType.SESSION_CARD, 20, 15, 90, "2026-01-15", "2026-04-15", "2026-01-15", 3999.0, 200, 3799.0, 400, PackageOrderStatus.REFUNDING);
+            System.out.println("测试套餐订单数据已创建：6 个订单");
         }
     }
 
@@ -434,8 +434,8 @@ public class DataInitializer {
         productRepository.save(p);
     }
 
-    private void createCourseOrder(int userId, int packageId, String packageName, PackageType type, int totalSessions, int usedSessions, int validDays, String startDate, String endDate, String purchaseDate, double price, int pointsUsed, double actualPay, int pointsReward, CourseOrderStatus status) {
-        CourseOrder o = new CourseOrder();
+    private void createPackageOrder(int userId, int packageId, String packageName, PackageType type, int totalSessions, int usedSessions, int validDays, String startDate, String endDate, String purchaseDate, double price, int pointsUsed, double actualPay, int pointsReward, PackageOrderStatus status) {
+        PackageOrder o = new PackageOrder();
         o.setUserId(userId);
         o.setPackageId(packageId);
         o.setPackageName(packageName);
@@ -452,7 +452,7 @@ public class DataInitializer {
         o.setActualPay(actualPay);
         o.setPointsReward(pointsReward);
         o.setStatus(status);
-        courseOrderRepository.save(o);
+        packageOrderRepository.save(o);
     }
 
     private void createProductOrder(int userId, double totalAmount, int pointsUsed, int pointsReward, double actualPay, String orderDate, ProductOrderStatus status, String statusText, String trackingNumber, String estimatedDelivery, ProductOrderItem... items) {

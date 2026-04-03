@@ -2,10 +2,10 @@ package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.BodyAssessmentRecordRepository;
-import org.example.fitnessjava.dao.CourseOrderRepository;
+import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.BodyAssessmentRecord;
-import org.example.fitnessjava.pojo.CourseOrder;
-import org.example.fitnessjava.pojo.CourseOrderStatus;
+import org.example.fitnessjava.pojo.PackageOrder;
+import org.example.fitnessjava.pojo.PackageOrderStatus;
 import org.example.fitnessjava.pojo.dto.TrainingMetricItem;
 import org.example.fitnessjava.pojo.vo.TrainingStatsResponse;
 import org.example.fitnessjava.service.TrainingStatsService;
@@ -26,7 +26,7 @@ public class TrainingStatsServiceImpl implements TrainingStatsService {
     private BodyAssessmentRecordRepository bodyAssessmentRecordRepository;
 
     @Resource
-    private CourseOrderRepository courseOrderRepository;
+    private PackageOrderRepository packageOrderRepository;
 
     @Override
     public TrainingStatsResponse getTrainingStats(Integer userId) {
@@ -152,10 +152,10 @@ public class TrainingStatsServiceImpl implements TrainingStatsService {
         LocalDate now = LocalDate.now();
         String currentMonth = now.getYear() + "-" + String.format("%02d", now.getMonthValue());
 
-        List<CourseOrder> orders = courseOrderRepository.findByUserId(userId);
+        List<PackageOrder> orders = packageOrderRepository.findByUserId(userId);
         int count = 0;
-        for (CourseOrder order : orders) {
-            if (order.getStatus() == CourseOrderStatus.ACTIVE || order.getStatus() == CourseOrderStatus.COMPLETED) {
+        for (PackageOrder order : orders) {
+            if (order.getStatus() == PackageOrderStatus.ACTIVE || order.getStatus() == PackageOrderStatus.COMPLETED) {
                 if (order.getUsedSessions() != null) {
                     count += order.getUsedSessions();
                 }
