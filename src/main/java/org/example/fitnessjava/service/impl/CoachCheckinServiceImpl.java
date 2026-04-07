@@ -41,8 +41,14 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
             throw new IllegalArgumentException("二维码内容不能为空");
         }
 
-        CheckinTicket ticket = checkinTicketRepository.findByQrCode(qrCode)
-                .orElseThrow(() -> new IllegalArgumentException("无效的二维码"));
+        if (!qrCode.startsWith("MEMBER_QR:")) {
+            throw new IllegalArgumentException("无效的二维码格式");
+        }
+
+        Integer memberId = Integer.parseInt(qrCode.substring(10));
+
+        CheckinTicket ticket = checkinTicketRepository.findFirstByMemberIdAndStatusOrderByScheduledTimeAsc(memberId, TicketStatus.UNUSED)
+                .orElseThrow(() -> new IllegalArgumentException("无可核销的预约"));
 
         if (ticket.getStatus() == TicketStatus.USED) {
             throw new IllegalArgumentException("该核销码已被使用");

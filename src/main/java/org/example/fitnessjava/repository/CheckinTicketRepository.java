@@ -24,4 +24,7 @@ public interface CheckinTicketRepository extends JpaRepository<CheckinTicket, In
                                            @Param("memberId") Integer memberId);
 
     Optional<CheckinTicket> findByQrCode(String qrCode);
+
+    @Query("SELECT ct FROM CheckinTicket ct WHERE ct.memberId = :memberId AND ct.status = :status ORDER BY ct.scheduledTime ASC LIMIT 1")
+    Optional<CheckinTicket> findFirstByMemberIdAndStatusOrderByScheduledTimeAsc(@Param("memberId") Integer memberId, @Param("status") TicketStatus status);
 }

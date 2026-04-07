@@ -17,11 +17,16 @@ import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
 import org.example.fitnessjava.pojo.Booking;
 import org.example.fitnessjava.pojo.BookingSource;
 import org.example.fitnessjava.pojo.BookingStatus;
+import org.example.fitnessjava.pojo.CheckinTicket;
 import org.example.fitnessjava.pojo.CoachScheduleSlot;
+import org.example.fitnessjava.pojo.TicketStatus;
 import org.example.fitnessjava.pojo.vo.BookingVO;
+import org.example.fitnessjava.repository.CheckinTicketRepository;
 import org.example.fitnessjava.service.BookingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.format.DateTimeFormatter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -51,6 +56,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Resource
     private ClientRepository clientRepository;
+
+    @Resource
+    private CheckinTicketRepository checkinTicketRepository;
 
     // ==================== 管理后台接口实现 ====================
 
@@ -215,8 +223,30 @@ public class BookingServiceImpl implements BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
         occupyScheduleSlot(scheduleSlot, savedBooking.getId());
+
+        createCheckinTicket(savedBooking, packageOrder);
+
         log.error("savedBooking: {}", savedBooking);
         return savedBooking;
+    }
+
+    private void createCheckinTicket(Booking booking, PackageOrder packageOrder) {
+        Client client = clientRepository.findById((long) booking.getUserId()).orElse(null);
+        if (client == null) {
+            return;
+        }
+
+        CheckinTicket ticket = new CheckinTicket();
+        ticket.setBookingId(booking.getId());
+        ticket.setQrCode("USER:" + client.getId());
+        ticket.setMemberId(client.getId());
+        ticket.setMemberName(client.getNickname() != null ? client.getNickname() : "");
+        ticket.setMemberAvatar(client.getAvatar() != null ? client.getAvatar() : "");
+        ticket.setClassType(booking.getBookingDate());
+        ticket.setScheduledTime(booking.getBookingDate() + " " + booking.getStartTime());
+        ticket.setSessionsLeft(packageOrder.getRemainingSessions());
+        ticket.setStatus(TicketStatus.UNUSED);
+        checkinTicketRepository.save(ticket);
     }
 
     @Override
