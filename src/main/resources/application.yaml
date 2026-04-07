@@ -32,8 +32,10 @@ springdoc: # 生产记的关闭
 
 wx:
   miniapp: # todo 后续更改
-    app-id: "wxdc02d8b2987dc20d"
-    app-secret: "fa468b64ccf3a8ec5b2f8f539f13c5a2"
+    # app-id: "wxdc02d8b2987dc20d"
+    # app-secret: "fa468b64ccf3a8ec5b2f8f539f13c5a2"
+    app-id: "wxe68f2a925e5831ab"
+    app-secret: "1e284db5ab7abbcaf17ee8a1b76965a7"
 
 jwt:
   secret: fitness-admin-secret-key-2026-change-in-production
