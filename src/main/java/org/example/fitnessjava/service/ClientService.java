@@ -18,4 +18,5 @@ public interface ClientService {
     UserVO convertToUserVO(Client user);
     Client updateClient(Client client);
     Client existUserByUserId(Integer userId);
+    int getIdByToken(String token);
 }

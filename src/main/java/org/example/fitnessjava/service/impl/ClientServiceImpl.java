@@ -9,6 +9,7 @@ import org.example.fitnessjava.pojo.CoachWithUser;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.vo.UserVO;
 import org.example.fitnessjava.service.ClientService;
+import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class ClientServiceImpl implements ClientService {
     private CoachRepository coachRepository;
     @Resource
     private CoachWithUserRepository coachWithUserRepository;
+    @Resource
+    private JwtUtil jwtUtil;
 
     @Override
     public Boolean addUser(Client user) {
@@ -136,5 +139,12 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public Client existUserByUserId(Integer userId) {
         return clientRepository.findById(Long.valueOf(userId)).orElse(null);
+    }
+
+    @Override
+    public int getIdByToken(String token) {
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        Client client = clientRepository.findByOpenid(openid);
+        return client.getId();
     }
 }

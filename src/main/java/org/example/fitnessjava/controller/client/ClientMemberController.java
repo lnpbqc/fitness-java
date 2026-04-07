@@ -1,10 +1,17 @@
 package org.example.fitnessjava.controller.client;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
@@ -16,8 +23,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/client/member")
@@ -36,6 +47,39 @@ public class ClientMemberController {
 
     @Resource
     private CoachWithUserRepository coachWithUserRepository;
+
+    @GetMapping("/qr")
+    @Operation(summary = "获取当前用户会员的二维码", description = "根据 Authorization token 形成二维码")
+    public String getMyProfileQRCode(
+            @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
+            @RequestHeader("Authorization") String token
+    ) {
+        String openid = getCurrentOpenid(token);
+        Client client = clientService.existUser(openid);
+        if (client == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "用户不存在");
+        }
+        Integer userId = client.getId();
+        String qrContent = "MEMBER_QR:" + userId;
+
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            HashMap<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(EncodeHintType.MARGIN, 1);
+
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, 200, 200, hints);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+            byte[] imageBytes = outputStream.toByteArray();
+
+            return "data:image/png;base64," + Base64.encodeBase64String(imageBytes);
+        } catch (WriterException | IOException e) {
+            log.error("生成二维码失败", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "生成二维码失败");
+        }
+    }
 
     @GetMapping
     @Operation(summary = "获取当前用户会员档案", description = "根据 Authorization token 获取当前登录用户的会员信息")
