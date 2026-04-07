@@ -1,0 +1,19 @@
+serverAddr = "165.99.42.158"
+serverPort = 4210
+user ="XqLFk559jDUC"
+loginFailExit = false
+#上面是认证信息，不要修改
+#下面的是一个完整连接的结构，其他协议请自行搜索frpc配置
+
+[[proxies]]
+type = "https"
+#每个连接一个名称，不能修改
+name="HpLSzEFck3Gy"
+localIP = "127.0.0.1"
+#请填写需要远程访问的本地端口
+localPort = 8081
+# http/https 协议特有配置
+customDomains = ["tr.788890.xyz"]
+#启动报错时尝试删除下面两行
+transport.useEncryption = true
+transport.useCompression = true
