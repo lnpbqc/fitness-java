@@ -34,9 +34,9 @@ public class WXAConfig {
     @Bean("clientWXMaService")
     public WxMaService clientWXMaService() {
         WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
-        config.setAppid(clientAppSecret);
+        config.setAppid(clientAppId);
         config.setSecret(clientAppSecret);
-        log.error("ClientAppId:{}", clientAppSecret);
+        log.error("ClientAppId:{}", clientAppId);
         log.error("ClientAppSecret:{}", clientAppSecret);
 
         WxMaService service = new WxMaServiceImpl();
