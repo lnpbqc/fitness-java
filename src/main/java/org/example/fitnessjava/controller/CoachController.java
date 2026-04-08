@@ -12,6 +12,8 @@ import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.dto.WxLoginRequest;
 import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +32,9 @@ public class CoachController {
     private CoachService coachService;
     @Resource
     private JwtUtil jwtUtil;
-    @Resource
+
+    @Autowired
+    @Qualifier("coachWXMaService")
     private WxMaService wxMaService;
 
     @GetMapping("/recommended")

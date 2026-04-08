@@ -14,15 +14,30 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Slf4j
 public class WXAConfig {
-    public String appId;
-    public String appSecret;
-    @Bean
-    public WxMaService wxMaService() {
+    public String clientAppId;
+    public String clientAppSecret;
+    public String coachAppId;
+    public String coachAppSecret;
+    @Bean("coachWXMaService")
+    public WxMaService coachWXMaService() {
         WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
-        config.setAppid(appId);
-        config.setSecret(appSecret);
-        log.error("appId:{}", appId);
-        log.error("appSecret:{}", appSecret);
+        config.setAppid(coachAppId);
+        config.setSecret(coachAppSecret);
+        log.error("CoachAppId:{}", coachAppId);
+        log.error("CoachAppSecret:{}", coachAppSecret);
+
+        WxMaService service = new WxMaServiceImpl();
+        service.setWxMaConfig(config);
+        return service;
+    }
+
+    @Bean("clientWXMaService")
+    public WxMaService clientWXMaService() {
+        WxMaDefaultConfigImpl config = new WxMaDefaultConfigImpl();
+        config.setAppid(clientAppSecret);
+        config.setSecret(clientAppSecret);
+        log.error("ClientAppId:{}", clientAppSecret);
+        log.error("ClientAppSecret:{}", clientAppSecret);
 
         WxMaService service = new WxMaServiceImpl();
         service.setWxMaConfig(config);

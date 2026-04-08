@@ -14,6 +14,8 @@ import org.example.fitnessjava.pojo.dto.WxLoginRequest;
 import org.example.fitnessjava.pojo.vo.UserVO;
 import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +31,9 @@ public class UserController {
     private ClientService clientService;
     @Resource
     private JwtUtil jwtUtil;
-    @Resource
+
+    @Autowired
+    @Qualifier("clientWXMaService")
     private WxMaService wxMaService;
 
     @PostMapping("/login")

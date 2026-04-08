@@ -6,12 +6,12 @@ spring:
 #    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
 #    username: root
 #    password: X7#k9P$m2@qL!vWc
+#    url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+#    username: root
+#    password: 123456
     url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: 123456
-    # url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
-    # username: root
-    # password: lnpbqc
+    password: lnpbqc
   jpa:
     show-sql: true
     database: mysql
@@ -32,10 +32,10 @@ springdoc: # 生产记的关闭
 
 wx:
   miniapp: # todo 后续更改
-    # app-id: "wxdc02d8b2987dc20d"
-    # app-secret: "fa468b64ccf3a8ec5b2f8f539f13c5a2"
-    app-id: "wxe68f2a925e5831ab"
-    app-secret: "1e284db5ab7abbcaf17ee8a1b76965a7"
+    client-app-id: "wxdc02d8b2987dc20d"
+    client-app-secret: "fa468b64ccf3a8ec5b2f8f539f13c5a2"
+    coach-app-id: "wxe68f2a925e5831ab"
+    coach-app-secret: "1e284db5ab7abbcaf17ee8a1b76965a7"
 
 jwt:
   secret: fitness-admin-secret-key-2026-change-in-production
@@ -55,4 +55,5 @@ server:
     key-alias: tomcat
 
 upload:
-  path: /home/zfxt/formyself/fitness-admin-all/fitness-java/uploads
+#  path: /home/zfxt/formyself/fitness-admin-all/fitness-java/uploads # 我不是linux
+  path: classpath:uploads
