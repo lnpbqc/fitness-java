@@ -32,6 +32,7 @@ public class Coach extends BaseEntity {
     private Integer classCount;
     private java.util.List<String> tags;
     private Boolean featured;
+    private Boolean verified;
     @Enumerated(EnumType.STRING)
     private Status status;
     public enum Status {

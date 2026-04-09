@@ -27,6 +27,13 @@ public class AdminCoachController {
         return ResponseEntity.ok(coaches);
     }
 
+    @GetMapping("/unverified")
+    @Operation(summary = "获取未校验教练列表")
+    public ResponseEntity<List<Coach>> getUnverifiedCoaches() {
+        List<Coach> unverified = coachService.getUnverifiedCoaches();
+        return ResponseEntity.ok(unverified);
+    }
+
     @PostMapping
     @Operation(summary = "创建教练")
     public ResponseEntity<Coach> createCoach(@RequestBody Coach request) {
@@ -76,5 +83,14 @@ public class AdminCoachController {
     public ResponseEntity<Void> deleteCoach(@PathVariable Long id) {
         coachService.deleteCoach(id);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/verify")
+    @Operation(summary = "设置教练校验状态")
+    public ResponseEntity<Coach> updateCoachVerify(@PathVariable Long id, @RequestBody Map<String, Boolean> request) {
+        Boolean verified = request.get("verified");
+        return coachService.updateCoachVerified(id, verified)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -44,6 +44,11 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
+    public ArrayList<Coach> getAllVisibleCoaches() {
+        return new ArrayList<>(coachRepository.findByVerified(true));
+    }
+
+    @Override
     public Coach createCoach(Coach coach) {
         if (coach.getRating() == null || coach.getRating() == 0) {
             coach.setRating(5.0);
@@ -56,6 +61,9 @@ public class CoachServiceImpl implements CoachService {
         }
         if (coach.getStatus() == null) {
             coach.setStatus(Coach.Status.ONLINE);
+        }
+        if (coach.getVerified() == null) {
+            coach.setVerified(false);
         }
         if (coach.getTags() == null) {
             coach.setTags(new java.util.ArrayList<>());
@@ -186,5 +194,22 @@ public class CoachServiceImpl implements CoachService {
             client.ifPresent(clients::add);
         }
         return clients;
+    }
+
+    @Override
+    public ArrayList<Coach> getUnverifiedCoaches() {
+        List<Coach> list = coachRepository.findByVerified(false);
+        return new ArrayList<>(list);
+    }
+
+    @Override
+    public Optional<Coach> updateCoachVerified(Long id, Boolean verified) {
+        Optional<Coach> optional = coachRepository.findById(id);
+        if (optional.isEmpty()) {
+            return Optional.empty();
+        }
+        Coach coach = optional.get();
+        coach.setVerified(verified);
+        return Optional.of(coachRepository.save(coach));
     }
 }

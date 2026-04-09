@@ -83,7 +83,7 @@ public class CoachController {
                 return coachService.getCoachesOfUser(openid);
             case "all":
             default:
-                return coachService.getAllCoaches();
+                return coachService.getAllVisibleCoaches();
         }
     }
 
@@ -117,13 +117,25 @@ public class CoachController {
             }
 
             Optional<Coach> optional = coachService.getCoachByOpenid(openid);
-
-            if (optional.isEmpty()) {
+            if (optional.isPresent()) {
+                Coach existing = optional.get();
+                Boolean verified = existing.getVerified();
+                if (verified == null || !verified) {
+                    res.put("error", "coach_not_verified");
+                    res.put("message", "教练账号尚未通过审核，请联系管理员完成认证。");
+                    return res;
+                }
+            } else {
+                // 新注册的教练，标记为未校验，返回提示信息，不发放 token
                 Coach coach = new Coach();
                 coach.setNickname(req.getNickname());
                 coach.setAvatar(req.getAvatar());
                 coach.setOpenid(openid);
+                coach.setVerified(false);
                 coachService.createCoach(coach);
+                res.put("error", "coach_not_verified");
+                res.put("message", "您的教练账号尚未通过审核，请等待管理员完成认证后再尝试登录。");
+                return res;
             }
 
             String token = jwtUtil.generateToken(openid, "user");

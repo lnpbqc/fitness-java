@@ -8,10 +8,8 @@ spring:
 #    password: X7#k9P$m2@qL!vWc
     url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     username: root
-    password: 123456
-    # url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
-    # username: root
-    # password: lnpbqc
+#    password: 123456
+    password: lnpbqc
   jpa:
     show-sql: true
     database: mysql

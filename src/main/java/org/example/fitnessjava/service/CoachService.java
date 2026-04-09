@@ -10,6 +10,8 @@ public interface CoachService {
     ArrayList<Coach> getCoachesByFeatured();
     
     ArrayList<Coach> getAllCoaches();
+
+    ArrayList<Coach> getAllVisibleCoaches();
     
     Optional<Coach> getCoachById(Long id);
     
@@ -30,4 +32,8 @@ public interface CoachService {
     ArrayList<Client> getClientsByCoachId(int coachId);
 
     Optional<Coach> getCoachByOpenid(String openid);
+
+    ArrayList<Coach> getUnverifiedCoaches();
+
+    Optional<Coach> updateCoachVerified(Long id, Boolean verified);
 }

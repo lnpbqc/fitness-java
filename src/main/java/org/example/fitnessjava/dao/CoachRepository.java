@@ -13,4 +13,5 @@ public interface CoachRepository extends JpaRepository<Coach, Long> {
     List<Coach> findByFeatured(Boolean isFeatured);
     Optional<Coach> findByOpenid(String openid);
     List<Coach> findByStatus(Coach.Status status);
+    List<Coach> findByVerified(Boolean verified);
 }
