@@ -29,7 +29,7 @@ springdoc: # 生产记的关闭
     enabled: true
 
 wx:
-  miniapp: # todo 后续更改
+  miniapp:
     client-app-id: "wxdc02d8b2987dc20d"
     client-app-secret: "fa468b64ccf3a8ec5b2f8f539f13c5a2"
     coach-app-id: "wxe68f2a925e5831ab"
@@ -45,12 +45,12 @@ server:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  ssl:
-    enabled: true
-    key-store: classpath:ssl/keystore.p12
-    key-store-password: changeit
-    key-store-type: PKCS12
-    key-alias: tomcat
+#  ssl:
+#    enabled: true
+#    key-store: classpath:ssl/keystore.p12
+#    key-store-password: changeit
+#    key-store-type: PKCS12
+#    key-alias: tomcat
 
 upload:
 #  path: /home/zfxt/formyself/fitness-admin-all/fitness-java/uploads # 我不是linux

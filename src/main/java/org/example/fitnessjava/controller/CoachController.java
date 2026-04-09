@@ -90,9 +90,8 @@ public class CoachController {
     @PostMapping("/login")
     @Operation(summary = "教练小程序登录", description = "通过微信 code 登录，首次登录自动创建教练账号")
     public Map<String, String> login(@RequestBody WxLoginRequest req) {
-
+        log.info("CoachController: login:{}",req);
         Map<String, String> res = new HashMap<>();
-        log.info(req.toString());
 
         if (req.getCode() == null || req.getCode().isEmpty()) {
             res.put("error", "code is empty");
@@ -119,11 +118,10 @@ public class CoachController {
             Optional<Coach> optional = coachService.getCoachByOpenid(openid);
             if (optional.isPresent()) {
                 Coach existing = optional.get();
+                log.info("CoachController: coach:{}",existing);
                 Boolean verified = existing.getVerified();
                 if (verified == null || !verified) {
-                    res.put("error", "coach_not_verified");
-                    res.put("message", "教练账号尚未通过审核，请联系管理员完成认证。");
-                    return res;
+                    throw new RuntimeException("请联系系统管理员");
                 }
             } else {
                 // 新注册的教练，标记为未校验，返回提示信息，不发放 token
@@ -149,6 +147,8 @@ public class CoachController {
             log.error("微信登录失败: {}", e.getMessage(), e);
             res.put("error", e.getMessage());
             return res;
+        }finally {
+            log.info("CoachController: res:{}",res);
         }
     }
 
@@ -164,6 +164,7 @@ public class CoachController {
             return new Coach();
         }
         Optional<Coach> coachByOpenid = coachService.getCoachByOpenid(openid);
+        log.info("CoachController: coachByOpenid:{}",coachByOpenid);
         return coachByOpenid.orElse(new Coach());
     }
 }
