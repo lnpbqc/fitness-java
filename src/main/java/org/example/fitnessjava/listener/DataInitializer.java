@@ -16,8 +16,10 @@ import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
 import org.example.fitnessjava.service.NotificationService;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +66,9 @@ public class DataInitializer {
     @Resource
     private BodyAssessmentRecordRepository bodyAssessmentRecordRepository;
 
+    @Resource
+    private JdbcTemplate jdbcTemplate;
+
     @PostConstruct
     public void init() {
         initAdminUser();
@@ -76,6 +81,7 @@ public class DataInitializer {
         initProductOrderData();
         initHealthSurveyData();
         initCoachScheduleSlotData();
+        ensureCoachScheduleSlotsBySql();
         initBookingData();
         initNotifications();
         initBodyAssessmentData();
@@ -135,7 +141,7 @@ public class DataInitializer {
     private void initCoachData() {
         long count = coachRepository.count();
         if (count == 0) {
-            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", true, Coach.Status.ONLINE, "o9Nev67lfstCOQ0ZN63B_LcrAngA");
+            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", true, Coach.Status.ONLINE, "obd5Z13rKpana_izTdNO3y7PtMG4");
             createCoach("王教练", "wangcoach", "瑜伽与普拉提资深教练，注重身心平衡，帮助学员改善体态。", "瑜伽·普拉提", "RYT-500 瑜伽教练，普拉提认证教练", 4.8, 4, 189, Arrays.asList("瑜伽", "普拉提", "体态矫正"), "13900139456", true, Coach.Status.ONLINE, null);
             createCoach("张教练", "zhangcoach", "专注减脂塑形领域，科学制定饮食与训练计划，效果显著。", "减脂塑形", "AASFP 私人教练，运动康复师", 4.7, 4, 156, Arrays.asList("减脂", "塑形", "营养指导"), "13600136789", false, Coach.Status.BUSY, null);
             createCoach("刘教练", "liucoach", "功能训练专家，帮助学员提升运动表现和日常活动能力。", "功能训练", "FMS 功能性训练认证，NASM-CPT", 4.6, 3, 98, Arrays.asList("功能训练", "运动康复", "体能提升"), "13700137321", false, Coach.Status.ONLINE, null);
@@ -310,6 +316,57 @@ public class DataInitializer {
 
             System.out.println("排班数据已创建：37 个排班时段");
         }
+    }
+
+    /**
+     * 使用原生 SQL 在启动时兜底补齐教练可预约时段，避免联调时因无时段导致写流程无法推进。
+     */
+    private void ensureCoachScheduleSlotsBySql() {
+        final String coachOpenid = "obd5Z13rKpana_izTdNO3y7PtMG4";
+        Integer coachId = jdbcTemplate.query(
+                "SELECT id FROM coach WHERE openid = ? LIMIT 1",
+                rs -> rs.next() ? rs.getInt("id") : null,
+                coachOpenid
+        );
+        if (coachId == null) {
+            System.out.println("SQL排班补齐跳过：未找到目标教练 openid=" + coachOpenid);
+            return;
+        }
+
+        Integer freeSlots = jdbcTemplate.query(
+                "SELECT COALESCE(SUM(CASE WHEN available = b'1' AND booking_id IS NULL THEN 1 ELSE 0 END), 0) AS free_slots " +
+                        "FROM coach_schedule_slot WHERE coach_id = ?",
+                rs -> rs.next() ? rs.getInt("free_slots") : 0,
+                coachId
+        );
+
+        if (freeSlots != null && freeSlots >= 2) {
+            System.out.println("SQL排班补齐跳过：coachId=" + coachId + " 已有可用时段=" + freeSlots);
+            return;
+        }
+
+        String date = LocalDate.now().plusDays(1).toString();
+        insertSlotBySql(coachId, date, "09:00", "10:00", "A1 训练室");
+        insertSlotBySql(coachId, date, "10:30", "11:30", "A1 训练室");
+        insertSlotBySql(coachId, date, "15:00", "16:00", "A2 训练室");
+
+        Integer latestFreeSlots = jdbcTemplate.query(
+                "SELECT COALESCE(SUM(CASE WHEN available = b'1' AND booking_id IS NULL THEN 1 ELSE 0 END), 0) AS free_slots " +
+                        "FROM coach_schedule_slot WHERE coach_id = ?",
+                rs -> rs.next() ? rs.getInt("free_slots") : 0,
+                coachId
+        );
+        System.out.println("SQL排班补齐完成：coachId=" + coachId + " 可用时段=" + latestFreeSlots);
+    }
+
+    private void insertSlotBySql(Integer coachId, String date, String startTime, String endTime, String roomName) {
+        String sql = "INSERT INTO coach_schedule_slot " +
+                "(create_time, update_time, available, booking_id, coach_id, date, start_time, end_time, room_name) " +
+                "SELECT NOW(6), NOW(6), b'1', NULL, ?, ?, ?, ?, ? FROM DUAL " +
+                "WHERE NOT EXISTS (" +
+                "SELECT 1 FROM coach_schedule_slot WHERE coach_id = ? AND date = ? AND start_time = ?" +
+                ")";
+        jdbcTemplate.update(sql, coachId, date, startTime, endTime, roomName, coachId, date, startTime);
     }
 
     private void initBookingData() {

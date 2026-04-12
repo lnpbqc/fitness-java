@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class CheckinTicket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingId;
     private String qrCode;
     private Integer memberId;

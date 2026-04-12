@@ -15,7 +15,9 @@ import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +92,7 @@ public class CoachController {
     @PostMapping("/login")
     @Operation(summary = "教练小程序登录", description = "通过微信 code 登录，首次登录自动创建教练账号")
     public Map<String, String> login(@RequestBody WxLoginRequest req) {
-        log.info("CoachController: login:{}",req);
+        log.info("Coach miniapp login request received.");
         Map<String, String> res = new HashMap<>();
 
         if (req.getCode() == null || req.getCode().isEmpty()) {
@@ -136,7 +138,7 @@ public class CoachController {
                 return res;
             }
 
-            String token = jwtUtil.generateToken(openid, "user");
+            String token = jwtUtil.generateToken(openid, "coach");
 
             res.put("token", token);
             res.put("openid", openid);
@@ -147,8 +149,12 @@ public class CoachController {
             log.error("微信登录失败: {}", e.getMessage(), e);
             res.put("error", e.getMessage());
             return res;
-        }finally {
-            log.info("CoachController: res:{}",res);
+        } finally {
+            if (res.containsKey("error")) {
+                log.warn("Coach login finished with error: {}", res.get("error"));
+            } else {
+                log.info("Coach login succeeded for openid={}", res.get("openid"));
+            }
         }
     }
 
@@ -161,10 +167,13 @@ public class CoachController {
     ) {
         String openid = jwtUtil.getSubjectFromAuthorization(token);
         if (openid == null) {
-            return new Coach();
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
         }
         Optional<Coach> coachByOpenid = coachService.getCoachByOpenid(openid);
-        log.info("CoachController: coachByOpenid:{}",coachByOpenid);
-        return coachByOpenid.orElse(new Coach());
+        if (coachByOpenid.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any coach account");
+        }
+        log.info("CoachController: coachByOpenid:{}", coachByOpenid);
+        return coachByOpenid.get();
     }
 }

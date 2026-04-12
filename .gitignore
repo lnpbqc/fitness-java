@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+/.m2repo/
+/.mvn-settings.xml
+/.mvn-settings-test.xml
+/.m2repo-test/
+/scripts/

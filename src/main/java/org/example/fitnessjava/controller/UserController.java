@@ -17,7 +17,9 @@ import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +43,7 @@ public class UserController {
     public Map<String, String> login(@RequestBody WxLoginRequest req) {
 
         Map<String, String> res = new HashMap<>();
-        log.info(req.toString());
+        log.info("Client miniapp login request received.");
 
         if (req.getCode() == null || req.getCode().isEmpty()) {
             res.put("error", "code is empty");
@@ -98,11 +100,11 @@ public class UserController {
     ) {
         String openid = jwtUtil.getSubjectFromAuthorization(token);
         if (openid == null) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
         }
         Client client = clientService.existUser(openid);
         if (client == null) {
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any client account");
         }
         return clientService.convertToUserVO(client);
     }

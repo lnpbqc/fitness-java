@@ -32,23 +32,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // 静态资源必须在 /api/** 之前，否则会被拦截
+                // static and docs
                 .requestMatchers("/uploads/**", "/api/uploads/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                // admin area (kept as current project behavior)
                 .requestMatchers("/api/admin/auth/**").permitAll()
                 .requestMatchers("/api/admin/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/client/user/login","/api/client/home").permitAll()
-                .requestMatchers("/api/client/booking/schedule").permitAll()
-                .requestMatchers("/api/coach/**").permitAll()
-                .requestMatchers("/api/client/package/**").permitAll()
-                .requestMatchers("/api/product/all","/api/product/categories").permitAll()
-                .requestMatchers("/api/client/member/**").permitAll()
-                .requestMatchers("/api/client/notifications/**").permitAll()
-                .requestMatchers("/api/client/orders/**").permitAll()
+
+                // client public endpoints
+                .requestMatchers(HttpMethod.POST, "/api/client/user/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/client/home").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/client/booking/schedule").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/client/package/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/product/all", "/api/product/categories", "/api/product/{id}").permitAll()
+
+                // coach public endpoints
+                .requestMatchers(HttpMethod.POST, "/api/coach/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/coach", "/api/coach/recommended", "/api/coach/{id}").permitAll()
+
+                // all other APIs require authentication
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
@@ -57,7 +64,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 跨域问题
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();

@@ -226,7 +226,8 @@ public class BookingServiceImpl implements BookingService {
 
         createCheckinTicket(savedBooking, packageOrder);
 
-        log.error("savedBooking: {}", savedBooking);
+        log.info("Booking created: id={}, userId={}, coachId={}",
+                savedBooking.getId(), savedBooking.getUserId(), savedBooking.getCoachId());
         return savedBooking;
     }
 
@@ -238,7 +239,7 @@ public class BookingServiceImpl implements BookingService {
 
         CheckinTicket ticket = new CheckinTicket();
         ticket.setBookingId(booking.getId());
-        ticket.setQrCode("USER:" + client.getId());
+        ticket.setQrCode("MEMBER_QR:" + client.getId());
         ticket.setMemberId(client.getId());
         ticket.setMemberName(client.getNickname() != null ? client.getNickname() : "");
         ticket.setMemberAvatar(client.getAvatar() != null ? client.getAvatar() : "");
