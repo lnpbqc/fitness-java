@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class DataInitializer {
@@ -57,6 +58,9 @@ public class DataInitializer {
     private CoachScheduleSlotRepository coachScheduleSlotRepository;
 
     @Resource
+    private CoachWithUserRepository coachWithUserRepository;
+
+    @Resource
     private BookingRepository bookingRepository;
 
     @Resource
@@ -70,20 +74,21 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
-//        initAdminUser();
-//        initTestData();
-//        initCoachData();
-//        initBanners();
-//        initPackageData();
-//        initProductData();
-//        initPackageOrderData();
-//        initProductOrderData();
-//        initHealthSurveyData();
-//        initCoachScheduleSlotData();
-//        ensureCoachScheduleSlotsBySql();
-//        initBookingData();
-//        initNotifications();
-//        initBodyAssessmentData();
+        initAdminUser();
+        initTestData();
+        initCoachData();
+        initBanners();
+        initPackageData();
+        initProductData();
+        initPackageOrderData();
+        initProductOrderData();
+        initHealthSurveyData();
+        initCoachScheduleSlotData();
+        ensureCoachScheduleSlots();
+        initCoachWithUserData();
+        initBookingData();
+        initNotifications();
+        initBodyAssessmentData();
     }
 
     private final List<String> banners = Arrays.asList(
@@ -305,81 +310,41 @@ public class DataInitializer {
     }
 
     /**
-     * 使用原生 SQL 在启动时兜底补齐教练可预约时段，避免联调时因无时段导致写流程无法推进。
+     * Ensure default coach schedule slots via repository-based operations (avoid raw SQL).
      */
-    private void ensureCoachScheduleSlotsBySql() {
+    private void ensureCoachScheduleSlots() {
         final String coachOpenid = "obd5Z13rKpana_izTdNO3y7PtMG4";
 
-        Integer coachId = jdbcTemplate.query(
-                "SELECT id FROM coach WHERE openid = ? LIMIT 1",
-                rs -> rs.next() ? rs.getInt("id") : null,
-                coachOpenid
-        );
-
+        Optional<Coach> coachOpt = coachRepository.findByOpenid(coachOpenid);
+        Integer coachId = null;
+        if (coachOpt.isPresent()) {
+            coachId = coachOpt.get().getId();
+        }
         if (coachId == null) {
-            System.out.println("SQL排班补齐跳过：未找到目标教练 openid=" + coachOpenid);
+            System.out.println("排班兜底跳过：未找到目标教练 openid=" + coachOpenid);
             return;
         }
 
-        // ✅ 改：用容量判断
-        Integer freeSlots = jdbcTemplate.query(
-                "SELECT COALESCE(SUM(CASE WHEN actual < expected THEN 1 ELSE 0 END), 0) FROM coach_schedule_slot WHERE coach_id = ?",
-                rs -> rs.next() ? rs.getInt(1) : 0,
-                coachId
-        );
-
-        if (freeSlots != null && freeSlots >= 2) {
-            System.out.println("SQL排班补齐跳过：coachId=" + coachId + " 已有可用时段=" + freeSlots);
+        String tomorrow = LocalDate.now().plusDays(1).toString();
+        boolean hasTomorrow = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId)
+                .stream().anyMatch(s -> tomorrow.equals(s.getDate()));
+        if (hasTomorrow) {
+            System.out.println("排班兜底跳过：coachId=" + coachId + " 已有可用时段于日期 " + tomorrow);
             return;
         }
-
-        String date = LocalDate.now().plusDays(1).toString();
 
         // 私教
-        insertSlotBySql(coachId, date, "09:00", "10:00", "A1 训练室",
-                "PRIVATE", 1);
-
+        saveSlot(coachId, tomorrow, "09:00", "10:00", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
         // 团课
-        insertSlotBySql(coachId, date, "10:30", "11:30", "A1 训练室",
-                "TEAM", 8);
-
+        saveSlot(coachId, tomorrow, "10:30", "11:30", "A1 训练室", CoachScheduleSlot.ScheduleType.TEAM, 8);
         // 禁用
-        insertSlotBySql(coachId, date, "15:00", "16:00", "A2 训练室",
-                "PRIVATE", 0);
+        saveSlot(coachId, tomorrow, "15:00", "16:00", "A2 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 0);
 
-        Integer latestFreeSlots = jdbcTemplate.query(
-                "SELECT COALESCE(SUM(CASE WHEN actual < expected THEN 1 ELSE 0 END), 0) FROM coach_schedule_slot WHERE coach_id = ?",
-                rs -> rs.next() ? rs.getInt(1) : 0,
-                coachId
-        );
-
-        System.out.println("SQL排班补齐完成：coachId=" + coachId + " 可用时段=" + latestFreeSlots);
-    }
-
-    private void insertSlotBySql(Integer coachId,
-                                 String date,
-                                 String startTime,
-                                 String endTime,
-                                 String roomName,
-                                 String type,
-                                 int expected) {
-
-        String sql = "INSERT INTO coach_schedule_slot " +
-                "(create_time, update_time, available, booking_id, coach_id, date, start_time, end_time, room_name, type, expected, actual) " +
-                "SELECT NOW(6), NOW(6), ?, NULL, ?, ?, ?, ?, ?, ?, ?, 0 FROM DUAL " +
-                "WHERE NOT EXISTS (" +
-                "SELECT 1 FROM coach_schedule_slot WHERE coach_id = ? AND date = ? AND start_time = ?" +
-                ")";
-
-        // ✅ 兼容你旧字段
-        boolean available = expected > 0;
-
-        jdbcTemplate.update(sql,
-                available,
-                coachId, date, startTime, endTime, roomName,
-                type, expected,
-                coachId, date, startTime
-        );
+        int latestFreeSlots = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId)
+                .stream()
+                .mapToInt(s -> (s.getActual() == null ? 0 : s.getActual()) < (s.getExpected() == null ? 0 : s.getExpected()) ? 1 : 0)
+                .sum();
+        System.out.println("排班兜底完成：coachId=" + coachId + " 可用时段=" + latestFreeSlots);
     }
 
     private void initBookingData() {
@@ -433,6 +398,24 @@ public class DataInitializer {
             createBodyAssessment(2, 2, "2026-03-25", 163.0, 58.5, 26.5, 35.5, 22.0, 5.5, null, 68.0, 88.0, null, null, null, null, null, null, "体重下降，体态改善");
             createBodyAssessment(7, 2, "2026-03-10", 165.0, 55.0, 20.0, 38.0, 20.2, 4.0, null, 65.0, 88.0, null, null, null, null, null, null, "体态矫正评估");
             System.out.println("体测数据已创建：6 条记录");
+        }
+    }
+
+    private void initCoachWithUserData() {
+        long count = coachWithUserRepository != null ? coachWithUserRepository.count() : 0;
+        if (count == 0 && coachRepository.count() > 0) {
+            // 建立简单的一对一或多对多映射示例，便于后续查询和权限测试
+            CoachWithUser cw1 = new CoachWithUser();
+            cw1.setCoachId(1);
+            cw1.setClientId(1);
+            coachWithUserRepository.save(cw1);
+
+            CoachWithUser cw2 = new CoachWithUser();
+            cw2.setCoachId(2);
+            cw2.setClientId(2);
+            coachWithUserRepository.save(cw2);
+
+            System.out.println("初始化教练-用户关系数据完成：2 条记录");
         }
     }
 

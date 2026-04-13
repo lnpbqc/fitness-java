@@ -1,4 +1,4 @@
-package org.example.fitnessjava.repository;
+package org.example.fitnessjava.dao;
 
 import org.example.fitnessjava.pojo.CheckinTicket;
 import org.example.fitnessjava.pojo.TicketStatus;
