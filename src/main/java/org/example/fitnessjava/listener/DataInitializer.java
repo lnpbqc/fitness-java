@@ -20,7 +20,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -141,11 +140,11 @@ public class DataInitializer {
     private void initCoachData() {
         long count = coachRepository.count();
         if (count == 0) {
-            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", true, Coach.Status.ONLINE, "obd5Z13rKpana_izTdNO3y7PtMG4");
-            createCoach("王教练", "wangcoach", "瑜伽与普拉提资深教练，注重身心平衡，帮助学员改善体态。", "瑜伽·普拉提", "RYT-500 瑜伽教练，普拉提认证教练", 4.8, 4, 189, Arrays.asList("瑜伽", "普拉提", "体态矫正"), "13900139456", true, Coach.Status.ONLINE, null);
+            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", false, Coach.Status.ONLINE, "obd5Z13rKpana_izTdNO3y7PtMG4");
+            createCoach("王教练", "wangcoach", "瑜伽与普拉提资深教练，注重身心平衡，帮助学员改善体态。", "瑜伽·普拉提", "RYT-500 瑜伽教练，普拉提认证教练", 4.8, 4, 189, Arrays.asList("瑜伽", "普拉提", "体态矫正"), "13900139456", false, Coach.Status.ONLINE, null);
             createCoach("张教练", "zhangcoach", "专注减脂塑形领域，科学制定饮食与训练计划，效果显著。", "减脂塑形", "AASFP 私人教练，运动康复师", 4.7, 4, 156, Arrays.asList("减脂", "塑形", "营养指导"), "13600136789", false, Coach.Status.BUSY, null);
             createCoach("刘教练", "liucoach", "功能训练专家，帮助学员提升运动表现和日常活动能力。", "功能训练", "FMS 功能性训练认证，NASM-CPT", 4.6, 3, 98, Arrays.asList("功能训练", "运动康复", "体能提升"), "13700137321", false, Coach.Status.ONLINE, null);
-            createCoach("陈教练", "chencoach", "拳击专业教练，结合有氧训练帮助学员快速燃脂和提升体能。", "拳击", "国家拳击二级运动员，Boxfit 认证教练", 4.8, 4, 145, Arrays.asList("拳击", "有氧", "燃脂"), "13500135654", true, Coach.Status.OFFLINE, null);
+            createCoach("陈教练", "chencoach", "拳击专业教练，结合有氧训练帮助学员快速燃脂和提升体能。", "拳击", "国家拳击二级运动员，Boxfit 认证教练", 4.8, 4, 145, Arrays.asList("拳击", "有氧", "燃脂"), "13500135654", false, Coach.Status.OFFLINE, null);
             createCoach("赵教练", "zhaocoach", "有氧与核心训练教练，注重体能全面提升和心肺功能改善。", "有氧训练", "ACE-CPT 认证教练，心肺康复训练师", 4.5, 3, 72, Arrays.asList("有氧", "核心训练", "体能"), "13700137003", false, Coach.Status.ONLINE, "oCoach001");
             System.out.println("测试教练数据已创建：6 名教练");
         }
@@ -271,48 +270,48 @@ public class DataInitializer {
     private void initCoachScheduleSlotData() {
         long count = coachScheduleSlotRepository.count();
         if (count == 0) {
-            saveSlot(1, "2026-04-01", "09:00", "10:00", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-01", "10:30", "11:30", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-01", "14:00", "15:00", false, "A2 训练室", null);
-            saveSlot(1, "2026-04-01", "16:00", "17:00", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-02", "09:00", "10:00", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-02", "10:30", "11:30", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-02", "15:00", "16:00", true, "A2 训练室", null);
-            saveSlot(1, "2026-04-03", "09:00", "10:00", false, "A1 训练室", null);
-            saveSlot(1, "2026-04-03", "14:00", "15:00", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-04", "09:00", "10:00", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-04", "10:30", "11:30", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-05", "09:00", "10:00", true, "A1 训练室", null);
-            saveSlot(1, "2026-04-07", "10:00", "11:00", true, "A1 训练室", null);
+            saveSlot(1, "2026-04-01", "09:00", "10:00", true, "A1 训练室");
+            saveSlot(1, "2026-04-01", "10:30", "11:30", true, "A1 训练室");
+            saveSlot(1, "2026-04-01", "14:00", "15:00", false, "A2 训练室");
+            saveSlot(1, "2026-04-01", "16:00", "17:00", true, "A1 训练室");
+            saveSlot(1, "2026-04-02", "09:00", "10:00", true, "A1 训练室");
+            saveSlot(1, "2026-04-02", "10:30", "11:30", true, "A1 训练室");
+            saveSlot(1, "2026-04-02", "15:00", "16:00", true, "A2 训练室");
+            saveSlot(1, "2026-04-03", "09:00", "10:00", false, "A1 训练室");
+            saveSlot(1, "2026-04-03", "14:00", "15:00", true, "A1 训练室");
+            saveSlot(1, "2026-04-04", "09:00", "10:00", true, "A1 训练室");
+            saveSlot(1, "2026-04-04", "10:30", "11:30", true, "A1 训练室");
+            saveSlot(1, "2026-04-05", "09:00", "10:00", true, "A1 训练室");
+            saveSlot(1, "2026-04-07", "10:00", "11:00", true, "A1 训练室");
 
-            saveSlot(2, "2026-04-01", "08:00", "09:00", true, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-01", "10:00", "11:00", true, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-01", "15:00", "16:00", false, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-02", "08:00", "09:00", true, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-02", "10:00", "11:00", true, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-03", "08:00", "09:00", true, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-03", "15:00", "16:00", true, "B2 普拉提室", null);
-            saveSlot(2, "2026-04-04", "08:00", "09:00", true, "B1 瑜伽室", null);
-            saveSlot(2, "2026-04-04", "10:00", "11:00", false, "B1 瑜伽室", null);
+            saveSlot(2, "2026-04-01", "08:00", "09:00", true, "B1 瑜伽室");
+            saveSlot(2, "2026-04-01", "10:00", "11:00", true, "B1 瑜伽室");
+            saveSlot(2, "2026-04-01", "15:00", "16:00", false, "B1 瑜伽室");
+            saveSlot(2, "2026-04-02", "08:00", "09:00", true, "B1 瑜伽室");
+            saveSlot(2, "2026-04-02", "10:00", "11:00", true, "B1 瑜伽室");
+            saveSlot(2, "2026-04-03", "08:00", "09:00", true, "B1 瑜伽室");
+            saveSlot(2, "2026-04-03", "15:00", "16:00", true, "B2 普拉提室");
+            saveSlot(2, "2026-04-04", "08:00", "09:00", true, "B1 瑜伽室");
+            saveSlot(2, "2026-04-04", "10:00", "11:00", false, "B1 瑜伽室");
 
-            saveSlot(3, "2026-04-01", "09:00", "10:00", true, "C1 有氧区", null);
-            saveSlot(3, "2026-04-01", "11:00", "12:00", true, "C1 有氧区", null);
-            saveSlot(3, "2026-04-02", "09:00", "10:00", false, "C1 有氧区", null);
-            saveSlot(3, "2026-04-02", "14:00", "15:00", true, "C1 有氧区", null);
-            saveSlot(3, "2026-04-03", "09:00", "10:00", true, "C1 有氧区", null);
-            saveSlot(3, "2026-04-05", "09:00", "10:00", true, "C1 有氧区", null);
+            saveSlot(3, "2026-04-01", "09:00", "10:00", true, "C1 有氧区");
+            saveSlot(3, "2026-04-01", "11:00", "12:00", true, "C1 有氧区");
+            saveSlot(3, "2026-04-02", "09:00", "10:00", false, "C1 有氧区");
+            saveSlot(3, "2026-04-02", "14:00", "15:00", true, "C1 有氧区");
+            saveSlot(3, "2026-04-03", "09:00", "10:00", true, "C1 有氧区");
+            saveSlot(3, "2026-04-05", "09:00", "10:00", true, "C1 有氧区");
 
-            saveSlot(4, "2026-04-01", "10:00", "11:00", true, "D1 功能区", null);
-            saveSlot(4, "2026-04-01", "14:00", "15:00", true, "D1 功能区", null);
-            saveSlot(4, "2026-04-02", "10:00", "11:00", true, "D1 功能区", null);
-            saveSlot(4, "2026-04-03", "10:00", "11:00", false, "D1 功能区", null);
-            saveSlot(4, "2026-04-04", "10:00", "11:00", true, "D1 功能区", null);
+            saveSlot(4, "2026-04-01", "10:00", "11:00", true, "D1 功能区");
+            saveSlot(4, "2026-04-01", "14:00", "15:00", true, "D1 功能区");
+            saveSlot(4, "2026-04-02", "10:00", "11:00", true, "D1 功能区");
+            saveSlot(4, "2026-04-03", "10:00", "11:00", false, "D1 功能区");
+            saveSlot(4, "2026-04-04", "10:00", "11:00", true, "D1 功能区");
 
-            saveSlot(6, "2026-04-01", "07:00", "08:00", true, "E1 有氧教室", null);
-            saveSlot(6, "2026-04-01", "18:00", "19:00", true, "E1 有氧教室", null);
-            saveSlot(6, "2026-04-02", "07:00", "08:00", true, "E1 有氧教室", null);
-            saveSlot(6, "2026-04-03", "07:00", "08:00", true, "E1 有氧教室", null);
-            saveSlot(6, "2026-04-03", "18:00", "19:00", false, "E1 有氧教室", null);
+            saveSlot(6, "2026-04-01", "07:00", "08:00", true, "E1 有氧教室");
+            saveSlot(6, "2026-04-01", "18:00", "19:00", true, "E1 有氧教室");
+            saveSlot(6, "2026-04-02", "07:00", "08:00", true, "E1 有氧教室");
+            saveSlot(6, "2026-04-03", "07:00", "08:00", true, "E1 有氧教室");
+            saveSlot(6, "2026-04-03", "18:00", "19:00", false, "E1 有氧教室");
 
             System.out.println("排班数据已创建：37 个排班时段");
         }
@@ -383,14 +382,14 @@ public class DataInitializer {
             createBooking(11, 3, "2026-04-05", "09:00", "10:00", "C1 有氧区", BookingStatus.CONFIRMED, "已确认", BookingSource.COACH_PROXY, "2");
             createBooking(12, 4, "2026-03-29", "14:00", "15:00", "D1 功能区", BookingStatus.COMPLETED, "已完成", BookingSource.CLIENT, "2");
 
-            updateSlotBooking(1, "2026-04-01", "14:00", 1);
-            updateSlotBooking(2, "2026-04-01", "15:00", 2);
-            updateSlotBooking(3, "2026-04-02", "09:00", 3);
-            updateSlotBooking(4, "2026-03-28", "10:00", 4);
-            updateSlotBooking(1, "2026-04-03", "14:00", 5);
-            updateSlotBooking(2, "2026-04-01", "08:00", 6);
-            updateSlotBooking(6, "2026-04-01", "18:00", 7);
-            updateSlotBooking(6, "2026-04-05", "09:00", 9);
+            updateSlotBooking(1, "2026-04-01", "14:00");
+            updateSlotBooking(2, "2026-04-01", "15:00");
+            updateSlotBooking(3, "2026-04-02", "09:00");
+            updateSlotBooking(4, "2026-03-28", "10:00");
+            updateSlotBooking(1, "2026-04-03", "14:00");
+            updateSlotBooking(2, "2026-04-01", "08:00");
+            updateSlotBooking(6, "2026-04-01", "18:00");
+            updateSlotBooking(6, "2026-04-05", "09:00");
 
             System.out.println("预约数据已创建：10 条预约记录");
         }
@@ -460,6 +459,7 @@ public class DataInitializer {
         coach.setPhone(phone);
         coach.setFeatured(featured);
         coach.setStatus(status);
+        coach.setVerified(false);
         coachRepository.save(coach);
     }
 
@@ -604,7 +604,7 @@ public class DataInitializer {
         return item;
     }
 
-    private void saveSlot(int coachId, String date, String startTime, String endTime, boolean available, String roomName, Integer bookingId) {
+    private void saveSlot(int coachId, String date, String startTime, String endTime, boolean available, String roomName) {
         CoachScheduleSlot slot = new CoachScheduleSlot();
         slot.setCoachId(coachId);
         slot.setDate(date);
@@ -612,16 +612,14 @@ public class DataInitializer {
         slot.setEndTime(endTime);
         slot.setAvailable(available);
         slot.setRoomName(roomName);
-        slot.setBookingId(bookingId);
         coachScheduleSlotRepository.save(slot);
     }
 
-    private void updateSlotBooking(int coachId, String date, String startTime, int bookingId) {
+    private void updateSlotBooking(int coachId, String date, String startTime) {
         List<CoachScheduleSlot> slots = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId);
         for (CoachScheduleSlot slot : slots) {
             if (slot.getDate().equals(date) && slot.getStartTime().equals(startTime)) {
                 slot.setAvailable(false);
-                slot.setBookingId(bookingId);
                 coachScheduleSlotRepository.save(slot);
                 break;
             }

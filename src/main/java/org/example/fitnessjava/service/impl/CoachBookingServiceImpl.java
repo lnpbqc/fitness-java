@@ -85,12 +85,14 @@ public class CoachBookingServiceImpl implements CoachBookingService {
         CoachScheduleSlot targetSlot = coachScheduleSlotRepository.findById(request.getScheduleSlotId())
                 .orElseThrow(() -> new IllegalArgumentException("目标排班时段不存在"));
 
-        if (!targetSlot.isAvailable() || targetSlot.getBookingId() != null) {
+        if (!targetSlot.isAvailable()) {
             throw new IllegalArgumentException("目标时段已被占用");
         }
 
+        if(currentSlot.getType() == CoachScheduleSlot.ScheduleType.TEAM) {
+            currentSlot.setActual(currentSlot.getActual()-1);
+        }
         currentSlot.setAvailable(true);
-        currentSlot.setBookingId(null);
         coachScheduleSlotRepository.save(currentSlot);
 
         booking.setCoachId(targetSlot.getCoachId());
@@ -101,8 +103,14 @@ public class CoachBookingServiceImpl implements CoachBookingService {
         booking.setStatusText("待确认" + (request.getReason() != null ? "（教练改期：" + request.getReason() + "）" : ""));
         Booking savedBooking = bookingRepository.save(booking);
 
-        targetSlot.setAvailable(false);
-        targetSlot.setBookingId(savedBooking.getId());
+        if(targetSlot.getType() == CoachScheduleSlot.ScheduleType.PRIVATE) {
+            targetSlot.setAvailable(false);
+        }else{
+            targetSlot.setActual(targetSlot.getActual()+1);
+            if(targetSlot.getExpected()==targetSlot.getActual()) {
+                targetSlot.setAvailable(false);
+            }
+        }
         coachScheduleSlotRepository.save(targetSlot);
 
         return savedBooking;
@@ -124,7 +132,7 @@ public class CoachBookingServiceImpl implements CoachBookingService {
         CoachScheduleSlot scheduleSlot = coachScheduleSlotRepository.findById(request.getScheduleSlotId())
                 .orElseThrow(() -> new IllegalArgumentException("排班时段不存在"));
 
-        if (!scheduleSlot.isAvailable() || scheduleSlot.getBookingId() != null) {
+        if (!scheduleSlot.isAvailable()) {
             throw new IllegalArgumentException("当前排班时段已被预约");
         }
 
@@ -152,8 +160,14 @@ public class CoachBookingServiceImpl implements CoachBookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        scheduleSlot.setAvailable(false);
-        scheduleSlot.setBookingId(savedBooking.getId());
+        if(scheduleSlot.getType() == CoachScheduleSlot.ScheduleType.PRIVATE) {
+            scheduleSlot.setAvailable(false);
+        }else{
+            scheduleSlot.setActual(scheduleSlot.getActual()+1);
+            if(scheduleSlot.getExpected()==scheduleSlot.getActual()) {
+                scheduleSlot.setAvailable(false);
+            }
+        }
         coachScheduleSlotRepository.save(scheduleSlot);
 
         return savedBooking;

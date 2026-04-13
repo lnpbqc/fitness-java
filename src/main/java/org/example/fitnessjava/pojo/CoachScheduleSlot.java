@@ -21,5 +21,11 @@ public class CoachScheduleSlot extends BaseEntity {
     private String endTime;        // Expected format: "HH:mm"
     private boolean available;
     private String roomName;       // Optional – may be null
-    private Integer bookingId;     // Optional – may be null
+    private ScheduleType type;
+    public enum ScheduleType {
+        PRIVATE, //  直接修改available
+        TEAM     //  加actual,如果和expected一样再改available
+    }
+    private Integer expected;       // 开放预约人数
+    private Integer actual;         // 实际预约
 }

@@ -26,8 +26,6 @@ import org.example.fitnessjava.service.BookingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.format.DateTimeFormatter;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -222,7 +220,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setPackageOrderId(String.valueOf(packageOrder.getId()));
 
         Booking savedBooking = bookingRepository.save(booking);
-        occupyScheduleSlot(scheduleSlot, savedBooking.getId());
+        occupyScheduleSlot(scheduleSlot);
 
         createCheckinTicket(savedBooking, packageOrder);
 
@@ -271,7 +269,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (currentSlot != null && currentSlot.getId() != targetSlot.getId()) {
             releaseScheduleSlot(currentSlot);
-            occupyScheduleSlot(targetSlot, booking.getId());
+            occupyScheduleSlot(targetSlot);
         }
 
         boolean slotChanged = currentSlot == null || currentSlot.getId() != targetSlot.getId();
@@ -309,7 +307,7 @@ public class BookingServiceImpl implements BookingService {
     private CoachScheduleSlot getAvailableScheduleSlot(Integer scheduleSlotId) {
         CoachScheduleSlot scheduleSlot = coachScheduleSlotRepository.findById(scheduleSlotId)
                 .orElseThrow(() -> new IllegalArgumentException("排班时段不存在"));
-        if (!scheduleSlot.isAvailable() || scheduleSlot.getBookingId() != null) {
+        if (!scheduleSlot.isAvailable()) {
             throw new IllegalArgumentException("当前排班时段已被预约");
         }
         return scheduleSlot;
@@ -350,15 +348,25 @@ public class BookingServiceImpl implements BookingService {
         booking.setLocation(location != null && !location.isBlank() ? location : scheduleSlot.getRoomName());
     }
 
-    private void occupyScheduleSlot(CoachScheduleSlot scheduleSlot, Integer bookingId) {
-        scheduleSlot.setAvailable(false);
-        scheduleSlot.setBookingId(bookingId);
+    private void occupyScheduleSlot(CoachScheduleSlot scheduleSlot) {
+        if(scheduleSlot.isAvailable()){
+            if(scheduleSlot.getType()== CoachScheduleSlot.ScheduleType.PRIVATE){
+                scheduleSlot.setAvailable(false);
+            }else {
+                scheduleSlot.setActual(scheduleSlot.getActual()+1);
+                if(scheduleSlot.getExpected()==scheduleSlot.getActual()){
+                    scheduleSlot.setAvailable(false);
+                }
+            }
+        }
         coachScheduleSlotRepository.save(scheduleSlot);
     }
 
     private void releaseScheduleSlot(CoachScheduleSlot scheduleSlot) {
+        if(scheduleSlot.getType()== CoachScheduleSlot.ScheduleType.TEAM){
+            scheduleSlot.setActual(scheduleSlot.getActual()-1);
+        }
         scheduleSlot.setAvailable(true);
-        scheduleSlot.setBookingId(null);
         coachScheduleSlotRepository.save(scheduleSlot);
     }
 
