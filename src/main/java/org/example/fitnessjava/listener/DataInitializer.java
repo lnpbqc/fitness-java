@@ -4,424 +4,433 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.*;
 import org.example.fitnessjava.pojo.*;
-import org.example.fitnessjava.pojo.PackageOrder;
-import org.example.fitnessjava.pojo.PackageOrderStatus;
-import org.example.fitnessjava.pojo.PackageType;
-import org.example.fitnessjava.pojo.ProductOrder;
-import org.example.fitnessjava.pojo.ProductOrderItem;
-import org.example.fitnessjava.pojo.ProductOrderStatus;
-import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.pojo.Package;
-import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
 import org.example.fitnessjava.service.NotificationService;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class DataInitializer {
 
+    private static final String DEMO_CLIENT_OPENID = "o9Nev67lfstCOQ0ZN63B_LcrAngA";
+    private static final String DEMO_COACH_OPENID = "obd5Z13rKpana_izTdNO3y7PtMG4";
+
     @Resource
     private AdminUserService adminUserService;
-
     @Resource
     private ClientRepository clientRepository;
-
     @Resource
     private CoachRepository coachRepository;
-
     @Resource
     private BannerService bannerService;
-
     @Resource
     private PackageProductRepository packageProductRepository;
-
     @Resource
     private ProductRepository productRepository;
-
     @Resource
     private PackageOrderRepository packageOrderRepository;
-
     @Resource
     private ProductOrderRepository productOrderRepository;
-
     @Resource
     private HealthSurveyRepository healthSurveyRepository;
-
     @Resource
     private CoachScheduleSlotRepository coachScheduleSlotRepository;
-
     @Resource
     private CoachWithUserRepository coachWithUserRepository;
-
     @Resource
     private BookingRepository bookingRepository;
-
+    @Resource
+    private BookingCoachScheduleSlotRepository bookingCoachScheduleSlotRepository;
+    @Resource
+    private CheckinTicketRepository checkinTicketRepository;
     @Resource
     private NotificationService notificationService;
-
     @Resource
     private BodyAssessmentRecordRepository bodyAssessmentRecordRepository;
-
     @Resource
-    private JdbcTemplate jdbcTemplate;
+    private TrainingRecordRepository trainingRecordRepository;
 
     @PostConstruct
     public void init() {
         initAdminUser();
-        initTestData();
-        initCoachData();
+
+        Map<String, Client> clients = initClients();
+        Map<String, Coach> coaches = initCoaches();
+
         initBanners();
-        initPackageData();
-        initProductData();
-        initPackageOrderData();
-        initProductOrderData();
-        initHealthSurveyData();
-        initCoachScheduleSlotData();
-        ensureCoachScheduleSlots();
-        initCoachWithUserData();
-        initBookingData();
-        initNotifications();
-        initBodyAssessmentData();
-    }
+        Map<String, Package> packages = initPackages();
+        Map<String, Product> products = initProducts();
 
-    private final List<String> banners = Arrays.asList(
-            "https://images.unsplash.com/photo-1659081442183-38e43365d911?w=800",
-            "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",
-            "https://images.unsplash.com/photo-1761971975769-97e598bf526b?w=800"
-    );
+        initCoachWithUser(clients, coaches);
+        Map<String, PackageOrder> packageOrders = initPackageOrders(clients, packages);
+        initProductOrders(clients, products);
+        initHealthSurveys(clients);
 
-    private void initBanners() {
-        if (bannerService.getBanners().isEmpty()) {
-            for (String b : banners) {
-                Banner banner = new Banner();
-                banner.setImage(b);
-                bannerService.addBanner(banner);
-            }
-        }
+        Map<String, CoachScheduleSlot> slotIndex = initCoachScheduleSlots(coaches);
+        List<Booking> bookings = initBookings(clients, coaches, packageOrders);
+        initBookingSlotRelations(bookings, slotIndex);
+        syncSlotUsage(slotIndex);
+
+        initCheckinTickets(bookings, clients, packageOrders);
+        initBodyAssessments(clients, coaches);
+        initTrainingRecords(clients, coaches);
+        initNotifications(clients.get("demo"));
     }
 
     private void initAdminUser() {
-        if (!adminUserService.existsByUsername("admin")) {
-            AdminUser superAdmin = new AdminUser();
-            superAdmin.setUsername("admin");
-            superAdmin.setPassword("admin123");
-            superAdmin.setNickname("超级管理员");
-            superAdmin.setRole(AdminRole.SUPER_ADMIN);
-            superAdmin.setEnabled(true);
-            adminUserService.createUser(superAdmin);
-            System.out.println("默认超级管理员账号已创建：admin / admin123");
-        }
-    }
-
-    private void initTestData() {
-        long count = clientRepository.count();
-        if (count == 0) {
-            createClient("o9Nev67lfstCOQ0ZN63B_LcrAngA", "lnpbqc", "zhangsan", "13800138001", "M2026001", "金卡会员", 1200, 3, 45, "2026-12-31", "男", 28, "2025-06-15", Arrays.asList("增肌", "力量训练", "高活跃"));
-            createClient("oTest002", "李四", "lisi", "13900139002", "M2026002", "银卡会员", 650, 1, 23, "2026-06-30", "女", 25, "2025-09-20", Arrays.asList("减脂", "瑜伽"));
-            createClient("oTest003", "王五", "wangwu", "13600136003", "M2026003", "普通会员", 320, 0, 8, "2026-04-30", "男", 32, "2026-01-10", Arrays.asList("减脂"));
-            createClient("oTest004", "赵六", "zhaoliu", "13500135004", "M2026004", "银卡会员", 780, 2, 31, "2026-08-31", "男", 29, "2025-08-05", Arrays.asList("综合训练", "体能"));
-            createClient("oTest005", "李明", "liming", "13400134005", "M2026005", "金卡会员", 1580, 4, 56, "2026-12-31", "男", 26, "2025-04-12", Arrays.asList("力量训练", "增肌", "高活跃"));
-            createClient("oTest006", "刘强", "liuqiang", "13300133006", "M2026006", "普通会员", 150, 0, 3, "2026-05-31", "男", 24, "2026-02-20", List.of());
-            createClient("oTest007", "陈静", "chenjing", "13200132007", "M2026007", "钻石会员", 2580, 6, 89, "2027-03-31", "女", 30, "2024-11-01", Arrays.asList("瑜伽", "普拉提", "体态矫正", "高活跃"));
-            createClient("oTest008", "周杰", "zhoujie", "13100131008", "M2026008", "银卡会员", 520, 1, 15, "2026-07-31", "男", 27, "2025-10-15", Arrays.asList("有氧", "减脂"));
-            createClient("oTest009", "吴梅", "wumei", "13000130009", "M2026009", "金卡会员", 1350, 3, 42, "2026-11-30", "女", 31, "2025-05-18", Arrays.asList("塑形", "营养指导"));
-            createClient("oTest010", "郑浩", "zhenghao", "13700137010", "M2026010", "普通会员", 280, 0, 6, "2026-05-15", "男", 22, "2026-01-25", Arrays.asList("增肌"));
-            createClient("oTest011", "孙丽", "sunli", "13800138011", "M2026011", "银卡会员", 890, 2, 28, "2026-09-30", "女", 26, "2025-07-22", Arrays.asList("瑜伽", "拉伸"));
-            createClient("oTest012", "王伟", "wangwei", "13900139012", "M2026012", "金卡会员", 1680, 5, 67, "2027-01-31", "男", 33, "2025-03-08", Arrays.asList("力量训练", "体能提升"));
-            createClient("oTest013", "冯敏", "fengmin", "13600136013", "M2026013", "钻石会员", 3200, 8, 120, "2027-06-30", "男", 35, "2024-06-20", Arrays.asList("功能训练", "体能提升", "高活跃"));
-            createClient("oTest014", "陈晨", "chenchen", "13500135014", "M2026014", "普通会员", 95, 0, 2, "2026-04-15", "男", 20, "2026-03-01", List.of());
-            createClient("oTest015", "褚雪", "chuxue", "13400134015", "M2026015", "银卡会员", 720, 2, 25, "2026-08-15", "女", 28, "2025-08-12", Arrays.asList("减脂", "有氧"));
-            System.out.println("测试用户数据已创建：15 名用户");
-        }
-    }
-
-    private void initCoachData() {
-        long count = coachRepository.count();
-        if (count == 0) {
-            createCoach("李教练", "licoach", "专注力量训练 8 年，擅长制定个性化训练计划，帮助学员突破瓶颈期。", "力量训练", "国家一级健身教练，NSCA-CPT 认证，运动营养师", 4.9, 5, 234, Arrays.asList("力量训练", "增肌", "塑形"), "13800138123", false, Coach.Status.ONLINE, "obd5Z13rKpana_izTdNO3y7PtMG4");
-            createCoach("王教练", "wangcoach", "瑜伽与普拉提资深教练，注重身心平衡，帮助学员改善体态。", "瑜伽·普拉提", "RYT-500 瑜伽教练，普拉提认证教练", 4.8, 4, 189, Arrays.asList("瑜伽", "普拉提", "体态矫正"), "13900139456", false, Coach.Status.ONLINE, null);
-            createCoach("张教练", "zhangcoach", "专注减脂塑形领域，科学制定饮食与训练计划，效果显著。", "减脂塑形", "AASFP 私人教练，运动康复师", 4.7, 4, 156, Arrays.asList("减脂", "塑形", "营养指导"), "13600136789", false, Coach.Status.BUSY, null);
-            createCoach("刘教练", "liucoach", "功能训练专家，帮助学员提升运动表现和日常活动能力。", "功能训练", "FMS 功能性训练认证，NASM-CPT", 4.6, 3, 98, Arrays.asList("功能训练", "运动康复", "体能提升"), "13700137321", false, Coach.Status.ONLINE, null);
-            createCoach("陈教练", "chencoach", "拳击专业教练，结合有氧训练帮助学员快速燃脂和提升体能。", "拳击", "国家拳击二级运动员，Boxfit 认证教练", 4.8, 4, 145, Arrays.asList("拳击", "有氧", "燃脂"), "13500135654", false, Coach.Status.OFFLINE, null);
-            createCoach("赵教练", "zhaocoach", "有氧与核心训练教练，注重体能全面提升和心肺功能改善。", "有氧训练", "ACE-CPT 认证教练，心肺康复训练师", 4.5, 3, 72, Arrays.asList("有氧", "核心训练", "体能"), "13700137003", false, Coach.Status.ONLINE, "oCoach001");
-            System.out.println("测试教练数据已创建：6 名教练");
-        }
-    }
-
-    private void initPackageData() {
-        long count = packageProductRepository.count();
-        if (count == 0) {
-            createPackage("月度健身卡", PackageType.TIME_CARD, 0, 30, 599.0, 699.0, 60, "适合有固定锻炼习惯的会员，畅享 30 天不限次数训练", SaleStatus.ON_SALE);
-            createPackage("20 次私教课", PackageType.SESSION_CARD, 20, 90, 3999.0, 4999.0, 400, "专业私教一对一指导，定制化训练方案", SaleStatus.ON_SALE);
-            createPackage("体测评估服务", PackageType.ASSESSMENT, 1, 7, 199.0, null, 20, "专业体测设备，全方位了解身体状况", SaleStatus.ON_SALE);
-            createPackage("季度健身卡", PackageType.TIME_CARD, 0, 90, 1599.0, 1999.0, 160, "更长周期，更优价格，适合长期健身的会员", SaleStatus.ON_SALE);
-            createPackage("体验课程", PackageType.EXPERIENCE, 1, 7, 9.9, null, 1, "新用户专享，超值体验价", SaleStatus.OFF_SALE);
-            System.out.println("测试套餐数据已创建：5 个套餐");
-        }
-    }
-
-    private void initProductData() {
-        long count = productRepository.count();
-        if (count == 0) {
-            createProduct("蛋白粉 - 巧克力味", "营养补剂", 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400", 2990, 30, "高品质乳清蛋白，增肌必备，每份含 25g 蛋白质", 156, SaleStatus.ON_SALE);
-            createProduct("运动毛巾", "运动配件", 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400", 590, 6, "速干吸水，柔软舒适，运动必备", 89, SaleStatus.ON_SALE);
-            createProduct("运动水杯", "运动配件", 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400", 890, 9, "便携大容量，食品级材质，安全健康", 234, SaleStatus.ON_SALE);
-            createProduct("BCAA 氨基酸", "营养补剂", 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400", 1990, 20, "支链氨基酸，帮助肌肉恢复，减少疲劳", 67, SaleStatus.ON_SALE);
-            createProduct("健身手套", "运动配件", 79.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400", 790, 8, "防滑耐磨，保护手掌，提升训练体验", 0, SaleStatus.OFF_SALE);
-            createProduct("瑜伽垫", "运动器材", 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400", 1990, 20, "加厚防滑，环保材质，瑜伽练习必备", 45, SaleStatus.ON_SALE);
-            createProduct("弹力带套装", "运动器材", 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400", 1290, 13, "多阻力级别，适合不同训练强度", 78, SaleStatus.ON_SALE);
-            createProduct("左旋肉碱", "营养补剂", 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400", 2590, 26, "帮助脂肪代谢，配合运动效果更佳", 92, SaleStatus.ON_SALE);
-            System.out.println("测试商品数据已创建：8 个商品");
-        }
-    }
-
-    private void initPackageOrderData() {
-        long count = packageOrderRepository.count();
-        if (count == 0) {
-            createPackageOrder(1, 2, "20 次私教课", PackageType.SESSION_CARD, 20, 8, 90, "2026-03-01", "2026-05-30", "2026-03-01", 3999.0, 0, 3999.0, 400, PackageOrderStatus.ACTIVE);
-            createPackageOrder(2, 1, "月度健身卡", PackageType.TIME_CARD, 0, 0, 30, "2026-03-15", "2026-04-14", "2026-03-15", 599.0, 100, 499.0, 60, PackageOrderStatus.ACTIVE);
-            createPackageOrder(1, 4, "季度健身卡", PackageType.TIME_CARD, 0, 0, 90, "2026-02-01", "2026-05-01", "2026-02-01", 1599.0, 0, 1599.0, 160, PackageOrderStatus.ACTIVE);
-            createPackageOrder(3, 3, "体测评估服务", PackageType.ASSESSMENT, 1, 1, 7, "2026-03-20", "2026-03-27", "2026-03-20", 199.0, 50, 149.0, 20, PackageOrderStatus.COMPLETED);
-            createPackageOrder(4, 5, "体验课程", PackageType.EXPERIENCE, 1, 0, 7, "2026-03-25", "2026-04-01", "2026-03-25", 9.9, 0, 9.9, 1, PackageOrderStatus.ACTIVE);
-            createPackageOrder(5, 2, "20 次私教课", PackageType.SESSION_CARD, 20, 15, 90, "2026-01-15", "2026-04-15", "2026-01-15", 3999.0, 200, 3799.0, 400, PackageOrderStatus.REFUNDING);
-            System.out.println("测试套餐订单数据已创建：6 个订单");
-        }
-    }
-
-    private void initProductOrderData() {
-        long count = productOrderRepository.count();
-        if (count == 0) {
-            createProductOrder(1, 687.0, 0, 69, 687.0, "2026-03-26", ProductOrderStatus.PAID, "已付款", null, null,
-                    orderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 2, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
-                    orderItem(3, "运动水杯", "500ml 蓝色", 1, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"));
-
-            createProductOrder(2, 177.0, 100, 18, 167.0, "2026-03-25", ProductOrderStatus.SHIPPED, "已发货", "SF1234567890", "2026-03-28",
-                    orderItem(2, "运动毛巾", "灰色 L 码", 3, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400"));
-
-            createProductOrder(3, 457.0, 200, 46, 437.0, "2026-03-24", ProductOrderStatus.DELIVERED, "已送达", "SF1234567891", "2026-03-27",
-                    orderItem(6, "瑜伽垫", "紫色 10mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
-                    orderItem(7, "弹力带套装", "阻力组合装", 2, 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"));
-
-            createProductOrder(4, 199.0, 0, 20, 199.0, "2026-03-23", ProductOrderStatus.CANCELLED, "已退款：用户申请退款", null, null,
-                    orderItem(4, "BCAA 氨基酸", "300g 柠檬味", 1, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"));
-
-            createProductOrder(5, 558.0, 0, 56, 558.0, "2026-03-22", ProductOrderStatus.PAID, "已付款", null, null,
-                    orderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 1, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
-                    orderItem(8, "左旋肉碱", "60 粒装", 1, 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"));
-
-            createProductOrder(6, 296.0, 150, 30, 146.0, "2026-03-21", ProductOrderStatus.SHIPPED, "已发货", "SF1234567892", "2026-03-24",
-                    orderItem(3, "运动水杯", "750ml 黑色", 2, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"),
-                    orderItem(2, "运动毛巾", "蓝色 M 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400"));
-
-            createProductOrder(7, 446.0, 0, 45, 446.0, "2026-03-20", ProductOrderStatus.DELIVERED, "已送达", "SF1234567893", "2026-03-23",
-                    orderItem(6, "瑜伽垫", "粉色 8mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
-                    orderItem(7, "弹力带套装", "轻量级", 1, 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"),
-                    orderItem(2, "运动毛巾", "粉色 S 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400"));
-
-            createProductOrder(8, 398.0, 0, 40, 398.0, "2026-03-19", ProductOrderStatus.PENDING, "待付款", null, null,
-                    orderItem(4, "BCAA 氨基酸", "300g 葡萄味", 2, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"));
-
-            createProductOrder(9, 498.0, 300, 50, 468.0, "2026-03-18", ProductOrderStatus.DELIVERED, "已送达", "SF1234567894", "2026-03-21",
-                    orderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 1, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
-                    orderItem(6, "瑜伽垫", "绿色 10mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"));
-
-            createProductOrder(10, 267.0, 0, 27, 267.0, "2026-03-17", ProductOrderStatus.PAID, "已付款", null, null,
-                    orderItem(3, "运动水杯", "500ml 白色", 3, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"));
-
-            createProductOrder(11, 247.0, 50, 25, 242.0, "2026-03-16", ProductOrderStatus.SHIPPED, "已发货", "SF1234567895", "2026-03-19",
-                    orderItem(7, "弹力带套装", "阻力组合装", 1, 129.0, "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400"),
-                    orderItem(2, "运动毛巾", "紫色 L 码", 2, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400"));
-
-            createProductOrder(12, 717.0, 0, 72, 717.0, "2026-03-15", ProductOrderStatus.DELIVERED, "已送达", "SF1234567896", "2026-03-18",
-                    orderItem(8, "左旋肉碱", "60 粒装", 2, 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"),
-                    orderItem(4, "BCAA 氨基酸", "300g 柠檬味", 1, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"));
-
-            createProductOrder(13, 1813.0, 500, 182, 1763.0, "2026-03-14", ProductOrderStatus.DELIVERED, "已送达", "SF1234567897", "2026-03-17",
-                    orderItem(1, "蛋白粉 - 巧克力味", "2kg 装", 3, 299.0, "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400"),
-                    orderItem(8, "左旋肉碱", "60 粒装", 2, 259.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"),
-                    orderItem(4, "BCAA 氨基酸", "300g 柠檬味", 2, 199.0, "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400"));
-
-            createProductOrder(14, 59.0, 0, 6, 59.0, "2026-03-13", ProductOrderStatus.PENDING, "待付款", null, null,
-                    orderItem(2, "运动毛巾", "灰色 M 码", 1, 59.0, "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400"));
-
-            createProductOrder(15, 288.0, 100, 29, 188.0, "2026-03-12", ProductOrderStatus.PAID, "已付款", null, null,
-                    orderItem(6, "瑜伽垫", "蓝色 8mm", 1, 199.0, "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400"),
-                    orderItem(3, "运动水杯", "750ml 粉色", 1, 89.0, "https://images.unsplash.com/photo-1602143407151-01114192003f?w=400"));
-
-            System.out.println("测试商品订单数据已创建：15 个订单");
-        }
-    }
-
-    private void initHealthSurveyData() {
-        long count = healthSurveyRepository.count();
-        if (count == 0) {
-            createHealthSurvey(1, "张三", "男", 28, 178.0, 75.0, "增肌塑形", "每周 4-5 次", List.of(), "有 2 年健身基础，希望增加肌肉量");
-            createHealthSurvey(2, "李四", "女", 25, 163.0, 60.0, "减脂瘦身", "每周 3 次", Arrays.asList("膝盖旧伤"), "膝盖有旧伤，需要避免高强度跳跃动作");
-            createHealthSurvey(3, "王五", "男", 32, 172.0, 80.0, "减脂增肌", "每周 2 次", Arrays.asList("轻度脂肪肝"), "刚开始健身，需要从基础开始");
-            createHealthSurvey(7, "陈静", "女", 30, 165.0, 55.0, "体态矫正", "每周 5 次", List.of(), "长期伏案工作，肩颈酸痛，希望改善体态");
-            createHealthSurvey(13, "冯敏", "男", 35, 180.0, 85.0, "体能提升", "每周 5-6 次", List.of(), "运动爱好者，希望全面提升综合体能");
-            createHealthSurvey(10, "郑浩", "男", 22, 175.0, 68.0, "增肌", "每周 3 次", List.of(), "大学生，预算有限，希望性价比高的训练方案");
-            System.out.println("健康问卷数据已创建：6 份");
-        }
-    }
-
-    private void initCoachScheduleSlotData() {
-        long count = coachScheduleSlotRepository.count();
-        if (count == 0) {
-            // coach 1（力量训练 → 私教为主，不动）
-            saveSlot(1, "2026-04-01", "09:00", "10:00", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
-            saveSlot(1, "2026-04-01", "10:30", "11:30", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
-            saveSlot(1, "2026-04-01", "14:00", "15:00", "A2 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 0);
-            saveSlot(1, "2026-04-01", "16:00", "17:00", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
-
-// coach 2（瑜伽 → 改成团课🔥）
-            saveSlot(2, "2026-04-01", "08:00", "09:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 8);
-            saveSlot(2, "2026-04-01", "10:00", "11:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 10);
-            saveSlot(2, "2026-04-01", "15:00", "16:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 0);
-            saveSlot(2, "2026-04-02", "08:00", "09:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 8);
-            saveSlot(2, "2026-04-02", "10:00", "11:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 10);
-            saveSlot(2, "2026-04-03", "15:00", "16:00", "B2 普拉提室", CoachScheduleSlot.ScheduleType.TEAM, 6);
-
-// coach 3（有氧 → 团课🔥）
-            saveSlot(3, "2026-04-01", "09:00", "10:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 12);
-            saveSlot(3, "2026-04-01", "11:00", "12:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 12);
-            saveSlot(3, "2026-04-02", "09:00", "10:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 0);
-            saveSlot(3, "2026-04-02", "14:00", "15:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 10);
-
-// coach 4（功能训练 → 可团可私，这里混合🔥）
-            saveSlot(4, "2026-04-01", "10:00", "11:00", "D1 功能区", CoachScheduleSlot.ScheduleType.TEAM, 5);
-            saveSlot(4, "2026-04-01", "14:00", "15:00", "D1 功能区", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
-            saveSlot(4, "2026-04-02", "10:00", "11:00", "D1 功能区", CoachScheduleSlot.ScheduleType.TEAM, 6);
-
-// coach 6（有氧 → 团课🔥）
-            saveSlot(6, "2026-04-01", "07:00", "08:00", "E1 有氧教室", CoachScheduleSlot.ScheduleType.TEAM, 15);
-            saveSlot(6, "2026-04-01", "18:00", "19:00", "E1 有氧教室", CoachScheduleSlot.ScheduleType.TEAM, 20);
-            saveSlot(6, "2026-04-03", "18:00", "19:00", "E1 有氧教室", CoachScheduleSlot.ScheduleType.TEAM, 0);
-
-            System.out.println("排班数据已创建：37 个排班时段");
-        }
-    }
-
-    /**
-     * Ensure default coach schedule slots via repository-based operations (avoid raw SQL).
-     */
-    private void ensureCoachScheduleSlots() {
-        final String coachOpenid = "obd5Z13rKpana_izTdNO3y7PtMG4";
-
-        Optional<Coach> coachOpt = coachRepository.findByOpenid(coachOpenid);
-        Integer coachId = null;
-        if (coachOpt.isPresent()) {
-            coachId = coachOpt.get().getId();
-        }
-        if (coachId == null) {
-            System.out.println("排班兜底跳过：未找到目标教练 openid=" + coachOpenid);
+        if (adminUserService.existsByUsername("admin")) {
             return;
         }
+        AdminUser superAdmin = new AdminUser();
+        superAdmin.setUsername("admin");
+        superAdmin.setPassword("admin123");
+        superAdmin.setNickname("SuperAdmin");
+        superAdmin.setRole(AdminRole.SUPER_ADMIN);
+        superAdmin.setEnabled(true);
+        adminUserService.createUser(superAdmin);
+    }
 
-        String tomorrow = LocalDate.now().plusDays(1).toString();
-        boolean hasTomorrow = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId)
-                .stream().anyMatch(s -> tomorrow.equals(s.getDate()));
-        if (hasTomorrow) {
-            System.out.println("排班兜底跳过：coachId=" + coachId + " 已有可用时段于日期 " + tomorrow);
+    private Map<String, Client> initClients() {
+        Map<String, Client> clients = new HashMap<>();
+        clients.put("demo", ensureClient(
+                DEMO_CLIENT_OPENID, "lnpbqc", "zhangsan", "13800138001",
+                "M2026001", "GOLD", 1280, 3, 52,
+                LocalDate.now().plusMonths(8).toString(), "MALE", 28,
+                "2025-06-15", Arrays.asList("muscle-gain", "strength", "active")));
+        clients.put("alice", ensureClient(
+                "oTestAlice", "Alice", "alice", "13900010001",
+                "M2026002", "SILVER", 720, 1, 24,
+                LocalDate.now().plusMonths(4).toString(), "FEMALE", 26,
+                "2025-09-20", Arrays.asList("fat-loss", "pilates")));
+        clients.put("bob", ensureClient(
+                "oTestBob", "Bob", "bob", "13900010002",
+                "M2026003", "NORMAL", 260, 0, 8,
+                LocalDate.now().plusMonths(2).toString(), "MALE", 31,
+                "2026-01-10", Collections.singletonList("fitness")));
+        clients.put("cathy", ensureClient(
+                "oTestCathy", "Cathy", "cathy", "13900010003",
+                "M2026004", "DIAMOND", 2320, 5, 86,
+                LocalDate.now().plusMonths(12).toString(), "FEMALE", 30,
+                "2024-11-01", Arrays.asList("yoga", "posture")));
+        return clients;
+    }
+
+    private Map<String, Coach> initCoaches() {
+        Map<String, Coach> coaches = new HashMap<>();
+        coaches.put("demoCoach", ensureCoach(
+                DEMO_COACH_OPENID, "Coach Li", "licoach", "13800138123",
+                "Strength and hypertrophy coach", "Strength", "NSCA-CPT, 8 years experience",
+                4.9, 5, 260, Arrays.asList("strength", "hypertrophy", "shape"),
+                true, true, Coach.Status.ONLINE));
+        coaches.put("yogaCoach", ensureCoach(
+                null, "Coach Wang", "wangcoach", "13900139456",
+                "Yoga and posture specialist", "Yoga & Pilates", "RYT-500 and rehab background",
+                4.8, 4, 188, Arrays.asList("yoga", "pilates", "posture"),
+                true, true, Coach.Status.ONLINE));
+        coaches.put("fatLossCoach", ensureCoach(
+                null, "Coach Zhang", "zhangcoach", "13600136789",
+                "Fat-loss and nutrition planning", "Fat-loss", "AASFP certification",
+                4.7, 4, 156, Arrays.asList("fat-loss", "nutrition"),
+                false, true, Coach.Status.BUSY));
+        return coaches;
+    }
+
+    private void initBanners() {
+        if (!bannerService.getBanners().isEmpty()) {
             return;
         }
-
-        // 私教
-        saveSlot(coachId, tomorrow, "09:00", "10:00", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
-        // 团课
-        saveSlot(coachId, tomorrow, "10:30", "11:30", "A1 训练室", CoachScheduleSlot.ScheduleType.TEAM, 8);
-        // 禁用
-        saveSlot(coachId, tomorrow, "15:00", "16:00", "A2 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 0);
-
-        int latestFreeSlots = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId)
-                .stream()
-                .mapToInt(s -> (s.getActual() == null ? 0 : s.getActual()) < (s.getExpected() == null ? 0 : s.getExpected()) ? 1 : 0)
-                .sum();
-        System.out.println("排班兜底完成：coachId=" + coachId + " 可用时段=" + latestFreeSlots);
-    }
-
-    private void initBookingData() {
-        long count = bookingRepository.count();
-        if (count == 0) {
-            createBooking(1, 1, "2026-04-01", "14:00", "15:00", "A2 训练室", BookingStatus.CONFIRMED, "已确认", BookingSource.CLIENT, "2");
-            createBooking(2, 2, "2026-04-01", "15:00", "16:00", "B1 瑜伽室", BookingStatus.CONFIRMED, "已确认", BookingSource.CLIENT, "2");
-            createBooking(3, 3, "2026-04-02", "09:00", "10:00", "C1 有氧区", BookingStatus.PENDING, "待确认", BookingSource.CLIENT, "5");
-            createBooking(1, 4, "2026-03-28", "10:00", "11:00", "D1 功能区", BookingStatus.COMPLETED, "已完成", BookingSource.CLIENT, "2");
-            createBooking(4, 1, "2026-04-03", "14:00", "15:00", "A1 训练室", BookingStatus.CONFIRMED, "已确认", BookingSource.CLIENT, "2");
-            createBooking(5, 2, "2026-04-01", "08:00", "09:00", "B1 瑜伽室", BookingStatus.CHECKED_IN, "已签到", BookingSource.CLIENT, "6");
-            createBooking(7, 6, "2026-04-01", "18:00", "19:00", "E1 有氧教室", BookingStatus.CONFIRMED, "已确认", BookingSource.CLIENT, "2");
-            createBooking(13, 1, "2026-03-30", "09:00", "10:00", "A1 训练室", BookingStatus.CANCELLED, "已取消", BookingSource.CLIENT, "2");
-            createBooking(11, 3, "2026-04-05", "09:00", "10:00", "C1 有氧区", BookingStatus.CONFIRMED, "已确认", BookingSource.COACH_PROXY, "2");
-            createBooking(12, 4, "2026-03-29", "14:00", "15:00", "D1 功能区", BookingStatus.COMPLETED, "已完成", BookingSource.CLIENT, "2");
-
-            updateSlotBooking(1, "2026-04-01", "14:00");
-            updateSlotBooking(2, "2026-04-01", "15:00");
-            updateSlotBooking(3, "2026-04-02", "09:00");
-            updateSlotBooking(4, "2026-03-28", "10:00");
-            updateSlotBooking(1, "2026-04-03", "14:00");
-            updateSlotBooking(2, "2026-04-01", "08:00");
-            updateSlotBooking(6, "2026-04-01", "18:00");
-            updateSlotBooking(6, "2026-04-05", "09:00");
-
-            System.out.println("预约数据已创建：10 条预约记录");
+        List<String> banners = Arrays.asList(
+                "https://images.unsplash.com/photo-1659081442183-38e43365d911?w=800",
+                "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800",
+                "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=800"
+        );
+        for (String image : banners) {
+            Banner banner = new Banner();
+            banner.setImage(image);
+            bannerService.addBanner(banner);
         }
     }
 
-    private void initNotifications() {
-        try {
-            List<NotificationItem> existing = notificationService.getAllNotifications();
-            if (existing.isEmpty()) {
-                createNotification(null, NotificationType.SYSTEM, "系统维护通知", "系统将于今晚 23:00 进行例行维护，预计持续 2 小时。", false, "");
-                createNotification(1, NotificationType.MEMBER, "会员等级提升", "恭喜您升级为黄金会员，享受更多专属权益！", false, null);
-                createNotification(2, NotificationType.BOOKING, "预约确认", "您的预约已成功确认，请按时到达。", true, null);
-                System.out.println("通知数据已创建：3 条测试通知");
+    private Map<String, Package> initPackages() {
+        Map<String, Package> packages = new HashMap<>();
+        packages.put("monthlyCard", ensurePackage("Monthly Pass", PackageType.TIME_CARD, 0, 30, 599.0, 699.0, 60,
+                "30 days unlimited", SaleStatus.ON_SALE));
+        packages.put("session20", ensurePackage("20 PT Sessions", PackageType.SESSION_CARD, 20, 90, 3999.0, 4999.0, 400,
+                "One-on-one PT package", SaleStatus.ON_SALE));
+        packages.put("assessment", ensurePackage("Body Assessment", PackageType.ASSESSMENT, 1, 7, 199.0, null, 20,
+                "Initial assessment", SaleStatus.ON_SALE));
+        packages.put("seasonCard", ensurePackage("Quarter Pass", PackageType.TIME_CARD, 0, 90, 1599.0, 1999.0, 160,
+                "90 days unlimited", SaleStatus.ON_SALE));
+        return packages;
+    }
+
+    private Map<String, Product> initProducts() {
+        Map<String, Product> products = new HashMap<>();
+        products.put("whey", ensureProduct("Whey Protein Chocolate", "Supplement", 299.0,
+                "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400",
+                2990, 30, "25g protein per serving", 180, SaleStatus.ON_SALE));
+        products.put("towel", ensureProduct("Sport Towel", "Accessory", 59.0,
+                "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400",
+                590, 6, "Quick dry towel", 120, SaleStatus.ON_SALE));
+        products.put("mat", ensureProduct("Yoga Mat", "Equipment", 199.0,
+                "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400",
+                1990, 20, "Anti-slip and thick", 68, SaleStatus.ON_SALE));
+        return products;
+    }
+
+    private void initCoachWithUser(Map<String, Client> clients, Map<String, Coach> coaches) {
+        ensureCoachBinding(coaches.get("demoCoach"), clients.get("demo"));
+        ensureCoachBinding(coaches.get("demoCoach"), clients.get("alice"));
+        ensureCoachBinding(coaches.get("yogaCoach"), clients.get("cathy"));
+        ensureCoachBinding(coaches.get("fatLossCoach"), clients.get("bob"));
+    }
+
+    private Map<String, PackageOrder> initPackageOrders(Map<String, Client> clients, Map<String, Package> packages) {
+        Map<String, PackageOrder> orders = new HashMap<>();
+        LocalDate today = LocalDate.now();
+
+        Client demo = clients.get("demo");
+        Package session20 = packages.get("session20");
+        orders.put("demoSession", ensurePackageOrder(
+                demo.getId(), session20, today.minusDays(15), today.plusDays(75), today.minusDays(15),
+                20, 6, 120, PackageOrderStatus.ACTIVE));
+
+        Client alice = clients.get("alice");
+        Package monthly = packages.get("monthlyCard");
+        orders.put("aliceTime", ensurePackageOrder(
+                alice.getId(), monthly, today.minusDays(10), today.plusDays(20), today.minusDays(10),
+                0, 0, 80, PackageOrderStatus.ACTIVE));
+
+        Client cathy = clients.get("cathy");
+        Package assessment = packages.get("assessment");
+        orders.put("cathyAssessment", ensurePackageOrder(
+                cathy.getId(), assessment, today.minusDays(20), today.minusDays(13), today.minusDays(20),
+                1, 1, 30, PackageOrderStatus.COMPLETED));
+
+        return orders;
+    }
+
+    private void initProductOrders(Map<String, Client> clients, Map<String, Product> products) {
+        LocalDate today = LocalDate.now();
+        Client demo = clients.get("demo");
+        ensureProductOrder(
+                demo.getId(), today.minusDays(2).toString(), ProductOrderStatus.PAID, "PAID", null, null, 100,
+                Arrays.asList(
+                        buildOrderItem(products.get("whey"), "2kg", 1),
+                        buildOrderItem(products.get("towel"), "gray", 2)
+                )
+        );
+        ensureProductOrder(
+                clients.get("alice").getId(), today.minusDays(5).toString(), ProductOrderStatus.DELIVERED, "DELIVERED",
+                "SF1234567001", today.minusDays(2).toString(), 0,
+                Collections.singletonList(buildOrderItem(products.get("mat"), "purple 10mm", 1))
+        );
+    }
+
+    private void initHealthSurveys(Map<String, Client> clients) {
+        ensureHealthSurvey(clients.get("demo"), "MALE", 28, 178.0, 75.0,
+                "muscle gain", "4-5 times/week", Collections.emptyList(), "Has one year basic training");
+        ensureHealthSurvey(clients.get("alice"), "FEMALE", 26, 164.0, 58.0,
+                "fat loss", "3 times/week", Collections.singletonList("mild knee issue"), "Avoid high impact jumps");
+        ensureHealthSurvey(clients.get("cathy"), "FEMALE", 30, 166.0, 54.0,
+                "posture improvement", "5 times/week", Collections.emptyList(), "Long desk-work schedule");
+    }
+
+    private Map<String, CoachScheduleSlot> initCoachScheduleSlots(Map<String, Coach> coaches) {
+        LocalDate today = LocalDate.now();
+        String todayStr = today.toString();
+        String tomorrowStr = today.plusDays(1).toString();
+        String twoDaysLaterStr = today.plusDays(2).toString();
+        String yesterdayStr = today.minusDays(1).toString();
+
+        Coach demoCoach = coaches.get("demoCoach");
+        Coach yogaCoach = coaches.get("yogaCoach");
+        Coach fatLossCoach = coaches.get("fatLossCoach");
+
+        ensureSlot(demoCoach.getId(), tomorrowStr, "09:00", "10:00", "A1", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+        ensureSlot(demoCoach.getId(), tomorrowStr, "14:00", "15:00", "A1", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+        ensureSlot(demoCoach.getId(), yesterdayStr, "10:00", "11:00", "A2", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+
+        ensureSlot(yogaCoach.getId(), todayStr, "08:00", "09:00", "B1", CoachScheduleSlot.ScheduleType.TEAM, 8);
+        ensureSlot(yogaCoach.getId(), tomorrowStr, "10:00", "11:00", "B1", CoachScheduleSlot.ScheduleType.TEAM, 10);
+        ensureSlot(yogaCoach.getId(), twoDaysLaterStr, "15:00", "16:00", "B2", CoachScheduleSlot.ScheduleType.TEAM, 6);
+
+        ensureSlot(fatLossCoach.getId(), tomorrowStr, "18:00", "19:00", "C1", CoachScheduleSlot.ScheduleType.TEAM, 12);
+
+        return buildSlotIndex();
+    }
+
+    private List<Booking> initBookings(Map<String, Client> clients,
+                                       Map<String, Coach> coaches,
+                                       Map<String, PackageOrder> packageOrders) {
+        LocalDate today = LocalDate.now();
+
+        Client demo = clients.get("demo");
+        Coach demoCoach = coaches.get("demoCoach");
+        Coach yogaCoach = coaches.get("yogaCoach");
+
+        List<Booking> created = new ArrayList<>();
+        created.add(ensureBooking(
+                demo.getId(), demoCoach.getId(),
+                today.plusDays(1).toString(), "14:00", "15:00", "A1",
+                BookingStatus.CONFIRMED, BookingSource.CLIENT, packageOrders.get("demoSession")));
+
+        created.add(ensureBooking(
+                demo.getId(), demoCoach.getId(),
+                today.minusDays(1).toString(), "10:00", "11:00", "A2",
+                BookingStatus.CHECKED_IN, BookingSource.CLIENT, packageOrders.get("demoSession")));
+
+        created.add(ensureBooking(
+                clients.get("alice").getId(), yogaCoach.getId(),
+                today.plusDays(1).toString(), "10:00", "11:00", "B1",
+                BookingStatus.PENDING, BookingSource.CLIENT, packageOrders.get("aliceTime")));
+
+        return created;
+    }
+
+    private void initBookingSlotRelations(List<Booking> bookings, Map<String, CoachScheduleSlot> slotIndex) {
+        for (Booking booking : bookings) {
+            String key = slotKey(booking.getCoachId(), booking.getBookingDate(), booking.getStartTime());
+            CoachScheduleSlot slot = slotIndex.get(key);
+            if (slot == null) {
+                continue;
             }
-        } catch (Exception e) {
-            System.err.println("初始化通知数据失败：" + e.getMessage());
+            BookingCoachScheduleSlot mapping = bookingCoachScheduleSlotRepository.findByBookingId(booking.getId());
+            if (mapping == null) {
+                mapping = new BookingCoachScheduleSlot();
+                mapping.setBookingId(booking.getId());
+            }
+            mapping.setCoachScheduleSlotId(slot.getId());
+            bookingCoachScheduleSlotRepository.save(mapping);
         }
     }
 
-    private void initBodyAssessmentData() {
-        long count = bodyAssessmentRecordRepository.count();
-        if (count == 0) {
-            createBodyAssessment(1, 1, "2026-03-01", 178.0, 75.0, 22.0, 45.0, 23.7, 8.0, 95.0, 85.0, 98.0, 35.0, 35.5, 55.0, 55.5, 38.0, 38.5, "初始体测，目标减脂增肌");
-            createBodyAssessment(1, 1, "2026-03-15", 178.0, 74.0, 21.0, 45.5, 23.4, 7.5, 96.0, 83.0, 97.5, 35.5, 36.0, 55.5, 56.0, 38.5, 39.0, "两周后复测，体脂下降明显");
-            createBodyAssessment(1, 1, "2026-03-28", 178.0, 73.2, 20.0, 46.0, 23.1, 7.0, 97.0, 81.0, 97.0, 36.0, 36.5, 56.0, 56.5, 39.0, 39.5, "效果持续，继续保持");
-            createBodyAssessment(2, 2, "2026-03-05", 163.0, 60.0, 28.0, 35.0, 22.6, 6.0, null, 70.0, 90.0, null, null, null, null, null, null, "瑜伽减脂计划开始");
-            createBodyAssessment(2, 2, "2026-03-25", 163.0, 58.5, 26.5, 35.5, 22.0, 5.5, null, 68.0, 88.0, null, null, null, null, null, null, "体重下降，体态改善");
-            createBodyAssessment(7, 2, "2026-03-10", 165.0, 55.0, 20.0, 38.0, 20.2, 4.0, null, 65.0, 88.0, null, null, null, null, null, null, "体态矫正评估");
-            System.out.println("体测数据已创建：6 条记录");
+    private void syncSlotUsage(Map<String, CoachScheduleSlot> slotIndex) {
+        List<Booking> allBookings = bookingRepository.findAll();
+
+        for (CoachScheduleSlot slot : slotIndex.values()) {
+            slot.setActual(0);
+            int expected = slot.getExpected() == null ? 0 : slot.getExpected();
+            slot.setAvailable(expected > 0);
+        }
+
+        for (Booking booking : allBookings) {
+            if (booking.getStatus() == BookingStatus.CANCELLED) {
+                continue;
+            }
+            String key = slotKey(booking.getCoachId(), booking.getBookingDate(), booking.getStartTime());
+            CoachScheduleSlot slot = slotIndex.get(key);
+            if (slot == null) {
+                continue;
+            }
+            if (slot.getType() == CoachScheduleSlot.ScheduleType.PRIVATE) {
+                slot.setAvailable(false);
+                continue;
+            }
+            int actual = slot.getActual() == null ? 0 : slot.getActual();
+            int expected = slot.getExpected() == null ? 0 : slot.getExpected();
+            actual++;
+            slot.setActual(actual);
+            slot.setAvailable(actual < expected);
+        }
+
+        coachScheduleSlotRepository.saveAll(slotIndex.values());
+    }
+
+    private void initCheckinTickets(List<Booking> bookings,
+                                    Map<String, Client> clients,
+                                    Map<String, PackageOrder> packageOrders) {
+        Map<Integer, Client> clientById = clients.values().stream()
+                .collect(Collectors.toMap(Client::getId, c -> c));
+        Map<Integer, PackageOrder> packageOrderById = packageOrders.values().stream()
+                .collect(Collectors.toMap(PackageOrder::getId, o -> o, (a, b) -> a));
+
+        for (Booking booking : bookings) {
+            if (checkinTicketRepository.findById(booking.getId()).isPresent()) {
+                continue;
+            }
+
+            Client client = clientById.get(booking.getUserId());
+            if (client == null) {
+                continue;
+            }
+
+            PackageOrder order = parseOrderId(booking.getPackageOrderId())
+                    .map(packageOrderById::get)
+                    .orElse(null);
+
+            CheckinTicket ticket = new CheckinTicket();
+            ticket.setBookingId(booking.getId());
+            ticket.setQrCode("MEMBER_QR:" + client.getId());
+            ticket.setMemberId(client.getId());
+            ticket.setMemberName(client.getNickname());
+            ticket.setMemberAvatar(client.getAvatar());
+            ticket.setClassType("session");
+            ticket.setScheduledTime(booking.getBookingDate() + " " + booking.getStartTime());
+            ticket.setSessionsLeft(order == null ? 0 : nonNull(order.getRemainingSessions()));
+            ticket.setStatus((booking.getStatus() == BookingStatus.CHECKED_IN || booking.getStatus() == BookingStatus.COMPLETED)
+                    ? TicketStatus.USED : TicketStatus.UNUSED);
+            checkinTicketRepository.save(ticket);
         }
     }
 
-    private void initCoachWithUserData() {
-        long count = coachWithUserRepository != null ? coachWithUserRepository.count() : 0;
-        if (count == 0 && coachRepository.count() > 0) {
-            // 建立简单的一对一或多对多映射示例，便于后续查询和权限测试
-            CoachWithUser cw1 = new CoachWithUser();
-            cw1.setCoachId(1);
-            cw1.setClientId(1);
-            coachWithUserRepository.save(cw1);
+    private void initBodyAssessments(Map<String, Client> clients, Map<String, Coach> coaches) {
+        Client demo = clients.get("demo");
+        Coach demoCoach = coaches.get("demoCoach");
+        LocalDate today = LocalDate.now();
 
-            CoachWithUser cw2 = new CoachWithUser();
-            cw2.setCoachId(2);
-            cw2.setClientId(2);
-            coachWithUserRepository.save(cw2);
-
-            System.out.println("初始化教练-用户关系数据完成：2 条记录");
-        }
+        ensureBodyAssessment(demo.getId(), demoCoach.getId(), today.minusDays(30).toString(),
+                178.0, 76.0, 22.5, 44.8, 24.0, 8.0, 95.0, 84.0, 97.0,
+                35.2, 35.6, 55.0, 55.4, 38.0, 38.2, "month-1 baseline");
+        ensureBodyAssessment(demo.getId(), demoCoach.getId(), today.minusDays(15).toString(),
+                178.0, 74.8, 21.4, 45.4, 23.6, 7.4, 95.8, 82.8, 96.4,
+                35.8, 36.1, 55.5, 55.8, 38.4, 38.7, "mid check");
+        ensureBodyAssessment(demo.getId(), demoCoach.getId(), today.minusDays(3).toString(),
+                178.0, 73.9, 20.8, 46.0, 23.3, 7.0, 96.2, 81.9, 95.9,
+                36.1, 36.4, 56.0, 56.2, 38.8, 39.0, "latest check");
     }
 
-    // ==================== Helper Methods ====================
+    private void initTrainingRecords(Map<String, Client> clients, Map<String, Coach> coaches) {
+        Client demo = clients.get("demo");
+        Coach demoCoach = coaches.get("demoCoach");
+        LocalDate today = LocalDate.now();
 
-    private void createClient(String openid, String nickname, String avatarSeed, String phone, String memberNumber, String memberLevel, int points, int coupons, int trainingCount, String expireDate, String gender, int age, String joinDate, List<String> tags) {
+        ensureTrainingRecord(demo.getId(), demoCoach.getId(), today.minusDays(7).toString(),
+                "Upper Strength", 60, "COMPLETED", "Bench + Row + Press", "Stable form");
+        ensureTrainingRecord(demo.getId(), demoCoach.getId(), today.minusDays(4).toString(),
+                "Lower Strength", 70, "COMPLETED", "Squat + Deadlift + Lunge", "Good core control");
+        ensureTrainingRecord(demo.getId(), demoCoach.getId(), today.minusDays(1).toString(),
+                "Core and Cardio", 50, "COMPLETED", "Circuit + Core", "Need more sleep recovery");
+    }
+
+    private void initNotifications(Client demoClient) {
+        if (demoClient == null) {
+            return;
+        }
+        List<NotificationItem> existing = notificationService.getAllNotifications();
+
+        ensureNotification(existing, null, NotificationType.SYSTEM,
+                "System Notice", "Maintenance this Saturday at 22:30 for 30 minutes.", false, "");
+        ensureNotification(existing, demoClient.getId(), NotificationType.BOOKING,
+                "Booking Confirmed", "Your 14:00 session tomorrow has been confirmed.", false, null);
+        ensureNotification(existing, demoClient.getId(), NotificationType.MEMBER,
+                "Progress Notice", "Your body fat is lower than last month. Keep going.", true, null);
+    }
+
+    private Client ensureClient(String openid, String nickname, String avatarSeed, String phone,
+                                String memberNumber, String memberLevel, int points, int coupons,
+                                int trainingCount, String expireDate, String gender, int age,
+                                String joinDate, List<String> tags) {
+        Client existing = clientRepository.findByOpenid(openid);
+        if (existing != null) {
+            return existing;
+        }
+
         Client client = new Client();
         client.setOpenid(openid);
         client.setNickname(nickname);
@@ -437,15 +446,32 @@ public class DataInitializer {
         client.setAge(age);
         client.setJoinDate(joinDate);
         client.setTags(tags);
-        clientRepository.save(client);
-        System.out.println("测试用户已创建：" + nickname + " (" + memberLevel + ")");
+        return clientRepository.save(client);
     }
 
-    private void createCoach(String nickname, String avatarSeed, String intro, String specialty, String description, double rating, int level, int classCount, List<String> tags, String phone, boolean featured, Coach.Status status, String openid) {
+    private Coach ensureCoach(String openid, String nickname, String avatarSeed, String phone,
+                              String intro, String specialty, String description, double rating,
+                              int level, int classCount, List<String> tags, boolean featured,
+                              boolean verified, Coach.Status status) {
+        Coach existing = null;
+        if (openid != null && !openid.isBlank()) {
+            existing = coachRepository.findByOpenid(openid).orElse(null);
+        }
+        if (existing == null) {
+            existing = coachRepository.findAll().stream()
+                    .filter(c -> Objects.equals(c.getNickname(), nickname))
+                    .findFirst()
+                    .orElse(null);
+        }
+        if (existing != null) {
+            return existing;
+        }
+
         Coach coach = new Coach();
         coach.setOpenid(openid);
         coach.setNickname(nickname);
         coach.setAvatar("https://api.dicebear.com/7.x/avataaars/svg?seed=" + avatarSeed);
+        coach.setPhone(phone);
         coach.setIntro(intro);
         coach.setSpecialty(specialty);
         coach.setDescription(description);
@@ -453,14 +479,23 @@ public class DataInitializer {
         coach.setLevel(level);
         coach.setClassCount(classCount);
         coach.setTags(tags);
-        coach.setPhone(phone);
         coach.setFeatured(featured);
+        coach.setVerified(verified);
         coach.setStatus(status);
-        coach.setVerified(false);
-        coachRepository.save(coach);
+        return coachRepository.save(coach);
     }
 
-    private void createPackage(String name, PackageType type, int sessions, int validDays, double price, Double originalPrice, int pointsReward, String description, SaleStatus saleStatus) {
+    private Package ensurePackage(String name, PackageType type, int sessions, int validDays,
+                                  double price, Double originalPrice, int pointsReward,
+                                  String description, SaleStatus saleStatus) {
+        Package existing = packageProductRepository.findAll().stream()
+                .filter(p -> Objects.equals(p.getName(), name))
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            return existing;
+        }
+
         Package p = new Package();
         p.setName(name);
         p.setType(type);
@@ -471,10 +506,20 @@ public class DataInitializer {
         p.setPointsReward(pointsReward);
         p.setDescription(description);
         p.setSaleStatus(saleStatus);
-        packageProductRepository.save(p);
+        return packageProductRepository.save(p);
     }
 
-    private void createProduct(String name, String category, double price, String image, int pointsPrice, int pointsReward, String desc, int stock, SaleStatus saleStatus) {
+    private Product ensureProduct(String name, String category, double price, String image,
+                                  int pointsPrice, int pointsReward, String desc, int stock,
+                                  SaleStatus saleStatus) {
+        Product existing = productRepository.findAll().stream()
+                .filter(p -> Objects.equals(p.getName(), name))
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            return existing;
+        }
+
         Product p = new Product();
         p.setName(name);
         p.setCategory(category);
@@ -485,148 +530,307 @@ public class DataInitializer {
         p.setDesc(desc);
         p.setStock(stock);
         p.setSaleStatus(saleStatus);
-        productRepository.save(p);
+        return productRepository.save(p);
     }
 
-    private void createPackageOrder(int userId, int packageId, String packageName, PackageType type, int totalSessions, int usedSessions, int validDays, String startDate, String endDate, String purchaseDate, double price, int pointsUsed, double actualPay, int pointsReward, PackageOrderStatus status) {
-        PackageOrder o = new PackageOrder();
-        o.setUserId(userId);
-        o.setPackageId(packageId);
-        o.setPackageName(packageName);
-        o.setType(type);
-        o.setTotalSessions(totalSessions);
-        o.setUsedSessions(usedSessions);
-        o.setRemainingSessions(totalSessions - usedSessions);
-        o.setValidDays(validDays);
-        o.setStartDate(startDate);
-        o.setEndDate(endDate);
-        o.setPurchaseDate(purchaseDate);
-        o.setPrice(price);
-        o.setPointsUsed(pointsUsed);
-        o.setActualPay(actualPay);
-        o.setPointsReward(pointsReward);
-        o.setStatus(status);
-        packageOrderRepository.save(o);
+    private void ensureCoachBinding(Coach coach, Client client) {
+        if (coach == null || client == null) {
+            return;
+        }
+        if (coachWithUserRepository.existsByCoachIdAndClientId(coach.getId(), client.getId())) {
+            return;
+        }
+        CoachWithUser relation = new CoachWithUser();
+        relation.setCoachId(coach.getId());
+        relation.setClientId(client.getId());
+        coachWithUserRepository.save(relation);
     }
 
-    private void createProductOrder(int userId, double totalAmount, int pointsUsed, int pointsReward, double actualPay, String orderDate, ProductOrderStatus status, String statusText, String trackingNumber, String estimatedDelivery, ProductOrderItem... items) {
-        ProductOrder o = new ProductOrder();
-        o.setUserId(userId);
-        o.setItems(List.of(items));
-        o.setTotalAmount(totalAmount);
-        o.setPointsUsed(pointsUsed);
-        o.setPointsReward(pointsReward);
-        o.setActualPay(actualPay);
-        o.setOrderDate(orderDate);
-        o.setStatus(status);
-        o.setStatusText(statusText);
-        o.setTrackingNumber(trackingNumber);
-        o.setEstimatedDelivery(estimatedDelivery);
-        productOrderRepository.save(o);
+    private PackageOrder ensurePackageOrder(Integer userId, Package pkg,
+                                            LocalDate startDate, LocalDate endDate,
+                                            LocalDate purchaseDate, int totalSessions, int usedSessions,
+                                            int pointsUsed, PackageOrderStatus status) {
+        if (userId == null || pkg == null) {
+            return null;
+        }
+
+        PackageOrder existing = packageOrderRepository.findByUserId(userId).stream()
+                .filter(o -> Objects.equals(o.getPackageId(), pkg.getId()))
+                .filter(o -> Objects.equals(o.getPurchaseDate(), purchaseDate.toString()))
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            return existing;
+        }
+
+        int remaining = Math.max(0, totalSessions - usedSessions);
+        double actualPay = Math.max(0, pkg.getPrice() - pointsUsed / 10.0);
+
+        PackageOrder order = new PackageOrder();
+        order.setUserId(userId);
+        order.setPackageId(pkg.getId());
+        order.setPackageName(pkg.getName());
+        order.setType(pkg.getType());
+        order.setTotalSessions(totalSessions);
+        order.setUsedSessions(usedSessions);
+        order.setRemainingSessions(remaining);
+        order.setValidDays(pkg.getValidDays());
+        order.setStartDate(startDate.toString());
+        order.setEndDate(endDate.toString());
+        order.setPurchaseDate(purchaseDate.toString());
+        order.setPrice(pkg.getPrice());
+        order.setPointsUsed(pointsUsed);
+        order.setActualPay(actualPay);
+        order.setPointsReward(pkg.getPointsReward());
+        order.setStatus(status);
+        return packageOrderRepository.save(order);
     }
 
-    private void createHealthSurvey(int userId, String name, String gender, int age, double height, double weight, String goal, String frequency, List<String> healthIssues, String notes) {
-        HealthSurvey s = new HealthSurvey();
-        s.setUserId(userId);
-        s.setName(name);
-        s.setGender(gender);
-        s.setAge(age);
-        s.setHeight(height);
-        s.setWeight(weight);
-        s.setGoal(goal);
-        s.setFrequency(frequency);
-        s.setHealthIssues(healthIssues);
-        s.setNotes(notes);
-        healthSurveyRepository.save(s);
-    }
-
-    private void createBooking(int userId, int coachId, String bookingDate, String startTime, String endTime, String location, BookingStatus status, String statusText, BookingSource source, String packageOrderId) {
-        Booking b = new Booking();
-        b.setUserId(userId);
-        b.setCoachId(coachId);
-        b.setBookingDate(bookingDate);
-        b.setStartTime(startTime);
-        b.setEndTime(endTime);
-        b.setLocation(location);
-        b.setStatus(status);
-        b.setStatusText(statusText);
-        b.setSource(source);
-        b.setPackageOrderId(packageOrderId);
-        bookingRepository.save(b);
-    }
-
-    private void createNotification(Integer receiverUserId, NotificationType type, String title, String content, boolean isRead, String actionLink) {
-        NotificationItem n = new NotificationItem();
-        n.setReceiverUserId(receiverUserId);
-        n.setType(type);
-        n.setTitle(title);
-        n.setContent(content);
-        n.setIsRead(isRead);
-        n.setActionLink(actionLink);
-        notificationService.createNotification(n);
-    }
-
-    private void createBodyAssessment(int userId, int coachId, String date, double height, double weight, double bodyFat, double muscleMass, double bmi, double visceralFat, Double chest, Double waist, Double hips, Double leftArm, Double rightArm, Double leftThigh, Double rightThigh, Double leftCalf, Double rightCalf, String notes) {
-        BodyAssessmentRecord r = new BodyAssessmentRecord();
-        r.setUserId(userId);
-        r.setCoachId(coachId);
-        r.setDate(date);
-        r.setHeight(height);
-        r.setWeight(weight);
-        r.setBodyFat(bodyFat);
-        r.setMuscleMass(muscleMass);
-        r.setBmi(bmi);
-        r.setVisceralFat(visceralFat);
-        r.setChest(chest);
-        r.setWaist(waist);
-        r.setHips(hips);
-        r.setLeftArm(leftArm);
-        r.setRightArm(rightArm);
-        r.setLeftThigh(leftThigh);
-        r.setRightThigh(rightThigh);
-        r.setLeftCalf(leftCalf);
-        r.setRightCalf(rightCalf);
-        r.setNotes(notes);
-        bodyAssessmentRecordRepository.save(r);
-    }
-
-    private ProductOrderItem orderItem(Integer productId, String name, String specs, Integer quantity, Double price, String image) {
+    private ProductOrderItem buildOrderItem(Product product, String specs, int quantity) {
         ProductOrderItem item = new ProductOrderItem();
-        item.setProductId(productId);
-        item.setName(name);
+        item.setProductId(product.getId());
+        item.setName(product.getName());
         item.setSpecs(specs);
         item.setQuantity(quantity);
-        item.setPrice(price);
-        item.setImage(image);
+        item.setPrice(product.getPrice());
+        item.setImage(product.getImage());
         return item;
     }
 
-    private void saveSlot(int coachId, String date, String startTime, String endTime, String roomName, CoachScheduleSlot.ScheduleType type, Integer expected) {
+    private ProductOrder ensureProductOrder(Integer userId, String orderDate, ProductOrderStatus status,
+                                            String statusText, String trackingNumber, String estimatedDelivery,
+                                            int pointsUsed, List<ProductOrderItem> items) {
+        if (userId == null || items == null || items.isEmpty()) {
+            return null;
+        }
+
+        double totalAmount = items.stream()
+                .mapToDouble(i -> (i.getPrice() == null ? 0 : i.getPrice()) * (i.getQuantity() == null ? 0 : i.getQuantity()))
+                .sum();
+        int pointsReward = items.stream()
+                .mapToInt(i -> {
+                    Product p = productRepository.findById(Long.valueOf(i.getProductId())).orElse(null);
+                    int reward = p == null || p.getPointsReward() == null ? 0 : p.getPointsReward();
+                    return reward * (i.getQuantity() == null ? 0 : i.getQuantity());
+                })
+                .sum();
+        double actualPay = Math.max(0, totalAmount - pointsUsed / 10.0);
+
+        ProductOrder existing = productOrderRepository.findByUserId(userId).stream()
+                .filter(o -> Objects.equals(o.getOrderDate(), orderDate))
+                .filter(o -> o.getStatus() == status)
+                .filter(o -> Math.abs((o.getTotalAmount() == null ? 0 : o.getTotalAmount()) - totalAmount) < 0.01)
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            return existing;
+        }
+
+        ProductOrder order = new ProductOrder();
+        order.setUserId(userId);
+        order.setItems(items);
+        order.setTotalAmount(totalAmount);
+        order.setPointsUsed(pointsUsed);
+        order.setPointsReward(pointsReward);
+        order.setActualPay(actualPay);
+        order.setOrderDate(orderDate);
+        order.setStatus(status);
+        order.setStatusText(statusText);
+        order.setTrackingNumber(trackingNumber);
+        order.setEstimatedDelivery(estimatedDelivery);
+        return productOrderRepository.save(order);
+    }
+
+    private void ensureHealthSurvey(Client client, String gender, int age, double height, double weight,
+                                    String goal, String frequency, List<String> healthIssues, String notes) {
+        if (client == null) {
+            return;
+        }
+        HealthSurvey existing = healthSurveyRepository.findByUserId(client.getId());
+        if (existing != null) {
+            return;
+        }
+
+        HealthSurvey survey = new HealthSurvey();
+        survey.setUserId(client.getId());
+        survey.setName(client.getNickname());
+        survey.setGender(gender);
+        survey.setAge(age);
+        survey.setHeight(height);
+        survey.setWeight(weight);
+        survey.setGoal(goal);
+        survey.setFrequency(frequency);
+        survey.setHealthIssues(healthIssues);
+        survey.setNotes(notes);
+        healthSurveyRepository.save(survey);
+    }
+
+    private CoachScheduleSlot ensureSlot(Integer coachId, String date, String startTime, String endTime,
+                                         String roomName, CoachScheduleSlot.ScheduleType type, int expected) {
+        List<CoachScheduleSlot> coachSlots = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId);
+        for (CoachScheduleSlot slot : coachSlots) {
+            if (Objects.equals(slot.getDate(), date) && Objects.equals(slot.getStartTime(), startTime)) {
+                return slot;
+            }
+        }
+
         CoachScheduleSlot slot = new CoachScheduleSlot();
         slot.setCoachId(coachId);
         slot.setDate(date);
         slot.setStartTime(startTime);
         slot.setEndTime(endTime);
         slot.setRoomName(roomName);
-
         slot.setType(type);
         slot.setExpected(expected);
         slot.setActual(0);
-
-        // 初始化 available
         slot.setAvailable(expected > 0);
-
-        coachScheduleSlotRepository.save(slot);
+        return coachScheduleSlotRepository.save(slot);
     }
 
-    private void updateSlotBooking(int coachId, String date, String startTime) {
-        List<CoachScheduleSlot> slots = coachScheduleSlotRepository.findAllByCoachIdOrderByDateAscStartTimeAsc(coachId);
-        for (CoachScheduleSlot slot : slots) {
-            if (slot.getDate().equals(date) && slot.getStartTime().equals(startTime)) {
-                slot.setAvailable(false);
-                coachScheduleSlotRepository.save(slot);
-                break;
+    private Map<String, CoachScheduleSlot> buildSlotIndex() {
+        Map<String, CoachScheduleSlot> map = new HashMap<>();
+        for (CoachScheduleSlot slot : coachScheduleSlotRepository.findAll()) {
+            map.put(slotKey(slot.getCoachId(), slot.getDate(), slot.getStartTime()), slot);
+        }
+        return map;
+    }
+
+    private String slotKey(Integer coachId, String date, String startTime) {
+        return coachId + "|" + date + "|" + startTime;
+    }
+
+    private Booking ensureBooking(Integer userId, Integer coachId, String bookingDate, String startTime, String endTime,
+                                  String location, BookingStatus status, BookingSource source, PackageOrder packageOrder) {
+        List<Booking> userBookings = bookingRepository.findAllByUserId(userId);
+        for (Booking b : userBookings) {
+            if (Objects.equals(b.getCoachId(), coachId)
+                    && Objects.equals(b.getBookingDate(), bookingDate)
+                    && Objects.equals(b.getStartTime(), startTime)) {
+                return b;
             }
         }
+
+        Booking booking = new Booking();
+        booking.setUserId(userId);
+        booking.setCoachId(coachId);
+        booking.setBookingDate(bookingDate);
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
+        booking.setLocation(location);
+        booking.setStatus(status);
+        booking.setStatusText(defaultStatusText(status));
+        booking.setSource(source);
+        booking.setPackageOrderId(packageOrder == null ? null : String.valueOf(packageOrder.getId()));
+        return bookingRepository.save(booking);
+    }
+
+    private String defaultStatusText(BookingStatus status) {
+        if (status == null) {
+            return "UNKNOWN";
+        }
+        switch (status) {
+            case PENDING:
+                return "PENDING";
+            case CONFIRMED:
+                return "CONFIRMED";
+            case CHECKED_IN:
+                return "CHECKED_IN";
+            case COMPLETED:
+                return "COMPLETED";
+            case CANCELLED:
+                return "CANCELLED";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    private Optional<Integer> parseOrderId(String packageOrderId) {
+        if (packageOrderId == null || packageOrderId.isBlank()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Integer.parseInt(packageOrderId));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    private int nonNull(Integer value) {
+        return value == null ? 0 : value;
+    }
+
+    private void ensureBodyAssessment(Integer userId, Integer coachId, String date, double height, double weight,
+                                      double bodyFat, double muscleMass, double bmi, double visceralFat,
+                                      Double chest, Double waist, Double hips, Double leftArm, Double rightArm,
+                                      Double leftThigh, Double rightThigh, Double leftCalf, Double rightCalf,
+                                      String notes) {
+        List<BodyAssessmentRecord> existing = bodyAssessmentRecordRepository.findByUserIdAndCoachId(userId, coachId);
+        boolean duplicated = existing.stream().anyMatch(r -> Objects.equals(r.getDate(), date));
+        if (duplicated) {
+            return;
+        }
+
+        BodyAssessmentRecord record = new BodyAssessmentRecord();
+        record.setUserId(userId);
+        record.setCoachId(coachId);
+        record.setDate(date);
+        record.setHeight(height);
+        record.setWeight(weight);
+        record.setBodyFat(bodyFat);
+        record.setMuscleMass(muscleMass);
+        record.setBmi(bmi);
+        record.setVisceralFat(visceralFat);
+        record.setChest(chest);
+        record.setWaist(waist);
+        record.setHips(hips);
+        record.setLeftArm(leftArm);
+        record.setRightArm(rightArm);
+        record.setLeftThigh(leftThigh);
+        record.setRightThigh(rightThigh);
+        record.setLeftCalf(leftCalf);
+        record.setRightCalf(rightCalf);
+        record.setNotes(notes);
+        bodyAssessmentRecordRepository.save(record);
+    }
+
+    private void ensureTrainingRecord(Integer clientId, Integer coachId, String date, String title,
+                                      Integer duration, String status, String content, String comment) {
+        List<TrainingRecord> existing = trainingRecordRepository.findByClientIdAndCoachId(clientId, coachId);
+        boolean duplicated = existing.stream()
+                .anyMatch(r -> Objects.equals(r.getDate(), date) && Objects.equals(r.getTitle(), title));
+        if (duplicated) {
+            return;
+        }
+
+        TrainingRecord record = new TrainingRecord();
+        record.setClientId(clientId);
+        record.setCoachId(coachId);
+        record.setDate(date);
+        record.setTitle(title);
+        record.setDuration(duration);
+        record.setStatus(status);
+        record.setContent(content);
+        record.setComment(comment);
+        trainingRecordRepository.save(record);
+    }
+
+    private void ensureNotification(List<NotificationItem> existing, Integer receiverUserId, NotificationType type,
+                                    String title, String content, boolean isRead, String actionLink) {
+        boolean duplicated = existing.stream()
+                .anyMatch(n -> Objects.equals(n.getReceiverUserId(), receiverUserId)
+                        && n.getType() == type
+                        && Objects.equals(n.getTitle(), title));
+        if (duplicated) {
+            return;
+        }
+
+        NotificationItem notification = new NotificationItem();
+        notification.setReceiverUserId(receiverUserId);
+        notification.setType(type);
+        notification.setTitle(title);
+        notification.setContent(content);
+        notification.setIsRead(isRead);
+        notification.setActionLink(actionLink);
+        notificationService.createNotification(notification);
     }
 }
