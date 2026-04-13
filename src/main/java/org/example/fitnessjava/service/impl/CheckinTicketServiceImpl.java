@@ -4,7 +4,7 @@ import jakarta.annotation.Resource;
 import org.example.fitnessjava.pojo.CheckinTicket;
 import org.example.fitnessjava.pojo.TicketStatus;
 import org.example.fitnessjava.pojo.vo.CheckinTicketVO;
-import org.example.fitnessjava.repository.CheckinTicketRepository;
+import org.example.fitnessjava.dao.CheckinTicketRepository;
 import org.example.fitnessjava.service.CheckinTicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

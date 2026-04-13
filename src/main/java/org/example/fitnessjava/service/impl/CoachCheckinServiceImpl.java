@@ -8,7 +8,7 @@ import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.vo.CoachCheckinResponse;
-import org.example.fitnessjava.repository.CheckinTicketRepository;
+import org.example.fitnessjava.dao.CheckinTicketRepository;
 import org.example.fitnessjava.service.CoachCheckinService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
