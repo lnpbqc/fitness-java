@@ -2,26 +2,12 @@ package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.example.fitnessjava.dao.BookingRepository;
-import org.example.fitnessjava.dao.ClientRepository;
-import org.example.fitnessjava.dao.CoachRepository;
-import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
-import org.example.fitnessjava.dao.PackageOrderRepository;
-import org.example.fitnessjava.pojo.Coach;
-import org.example.fitnessjava.pojo.Client;
-import org.example.fitnessjava.pojo.PackageOrder;
-import org.example.fitnessjava.pojo.PackageOrderStatus;
-import org.example.fitnessjava.pojo.PackageType;
+import org.example.fitnessjava.dao.*;
+import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
-import org.example.fitnessjava.pojo.Booking;
-import org.example.fitnessjava.pojo.BookingSource;
-import org.example.fitnessjava.pojo.BookingStatus;
-import org.example.fitnessjava.pojo.CheckinTicket;
-import org.example.fitnessjava.pojo.CoachScheduleSlot;
-import org.example.fitnessjava.pojo.TicketStatus;
 import org.example.fitnessjava.pojo.vo.BookingVO;
-import org.example.fitnessjava.repository.CheckinTicketRepository;
+import org.example.fitnessjava.dao.CheckinTicketRepository;
 import org.example.fitnessjava.service.BookingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +43,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Resource
     private CheckinTicketRepository checkinTicketRepository;
+
+    @Resource
+    private BookingCoachScheduleSlotRepository bookingCoachScheduleSlotRepository;
 
     // ==================== 管理后台接口实现 ====================
 
@@ -192,8 +181,43 @@ public class BookingServiceImpl implements BookingService {
         for (Booking booking : bookings) {
             bookingIds.add(booking.getId());
         }
+        ArrayList<CoachScheduleSlot> coachScheduleSlots = new ArrayList<>();
+        for(Integer bookingId : bookingIds) {
+            BookingCoachScheduleSlot byBookingId = bookingCoachScheduleSlotRepository.findByBookingId(bookingId);
+            if (byBookingId != null) {
+                coachScheduleSlotRepository.findById(byBookingId.getCoachScheduleSlotId()).ifPresent(coachScheduleSlot -> {
+                    coachScheduleSlots.add(coachScheduleSlot);
+                });
+            }
+        }
 
-        return coachScheduleSlotRepository.findAllByCoachIdEqualsOrderByDateAscStartTimeAsc(coachId);
+        return coachScheduleSlots;
+    }
+
+    @Override
+    public List<BookingCoachScheduleSlot> getBookingsForClient(int userId) {
+        List<Booking> bookings = bookingRepository.findAllByUserId(userId);
+        List<BookingCoachScheduleSlot> result = new ArrayList<>();
+        for (Booking booking : bookings) {
+            BookingCoachScheduleSlot mapping = bookingCoachScheduleSlotRepository.findByBookingId(booking.getId());
+            if (mapping != null) {
+                // 尝试填充展示字段
+                CoachScheduleSlot slot = coachScheduleSlotRepository.findById(mapping.getCoachScheduleSlotId()).orElse(null);
+                if (slot != null) {
+                    mapping.setDate(slot.getDate());
+                    mapping.setStartTime(slot.getStartTime());
+                    mapping.setEndTime(slot.getEndTime());
+                    mapping.setLocation(slot.getRoomName());
+                    // 教练信息
+                    coachRepository.findById((long) slot.getCoachId()).ifPresent(coach -> {
+                        mapping.setCoachName(coach.getNickname());
+                        mapping.setCoachAvatar(coach.getAvatar());
+                    });
+                }
+                result.add(mapping);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -220,6 +244,11 @@ public class BookingServiceImpl implements BookingService {
         occupyScheduleSlot(scheduleSlot);
 
         createCheckinTicket(savedBooking, packageOrder);
+
+        BookingCoachScheduleSlot bookingCoachScheduleSlot = new BookingCoachScheduleSlot();
+        bookingCoachScheduleSlot.setBookingId(booking.getId());
+        bookingCoachScheduleSlot.setCoachScheduleSlotId(scheduleSlot.getId());
+        bookingCoachScheduleSlotRepository.save(bookingCoachScheduleSlot);
 
         log.info("Booking created: id={}, userId={}, coachId={}",
                 savedBooking.getId(), savedBooking.getUserId(), savedBooking.getCoachId());

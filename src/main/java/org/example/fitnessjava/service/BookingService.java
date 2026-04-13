@@ -9,6 +9,7 @@ import org.example.fitnessjava.pojo.vo.BookingVO;
 
 import java.util.List;
 import java.util.Optional;
+import org.example.fitnessjava.pojo.BookingCoachScheduleSlot;
 
 public interface BookingService {
     
@@ -45,4 +46,7 @@ public interface BookingService {
     Booking updateBooking(Integer userId, Integer bookingId, BookingUpdateRequest request);
 
     Booking cancelBooking(Integer userId, Integer bookingId);
+
+    // 新增：根据客户端ID获取绑定的预约信息（整合视图 BookingCoachScheduleSlot）
+    List<BookingCoachScheduleSlot> getBookingsForClient(int userId);
 }

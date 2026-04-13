@@ -10,6 +10,7 @@ import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.dto.BookingCreateRequest;
 import org.example.fitnessjava.pojo.dto.BookingUpdateRequest;
 import org.example.fitnessjava.pojo.Booking;
+import org.example.fitnessjava.pojo.BookingCoachScheduleSlot;
 import org.example.fitnessjava.pojo.CoachScheduleSlot;
 import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.BookingService;
@@ -96,5 +97,15 @@ public class BookingController {
             throw new IllegalArgumentException("当前用户不存在");
         }
         return client.getId();
+    }
+
+    @GetMapping("/my")
+    @Operation(summary = "获取当前客户端的预约信息", description = "根据登录 token 获取该客户端的所有预约及相关排班信息")
+    public List<BookingCoachScheduleSlot> getMyBookings(
+            @Parameter(description = "客户端登录 token", example = "Bearer ...")
+            @RequestHeader("Authorization") String token
+    ) {
+        Integer clientId = getCurrentClientId(token);
+        return bookingService.getBookingsForClient(clientId);
     }
 }
