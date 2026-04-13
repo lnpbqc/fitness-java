@@ -1,6 +1,7 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.dao.ClientRepository;
 import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
@@ -19,7 +20,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class CoachServiceImpl implements CoachService {
     @Resource
@@ -131,7 +134,8 @@ public class CoachServiceImpl implements CoachService {
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         List<CoachScheduleSlot> todaySlots = coachScheduleSlotRepository.findAllByDateOrderByStartTimeAsc(today);
         if (todaySlots.isEmpty()) {
-            return getFallbackTodayCoaches();
+            // todo: 按理来说应该是不能返回兜底数据的
+//            return getFallbackTodayCoaches();
         }
 
         ArrayList<Coach> todayCoaches = new ArrayList<>();
@@ -150,12 +154,15 @@ public class CoachServiceImpl implements CoachService {
                 todayCoaches.add(coach);
             }
         }
-        return todayCoaches;
+        ArrayList<Coach> collect = todayCoaches.stream()
+                .filter(Coach::getVerified)
+                .collect(Collectors.toCollection(ArrayList::new));
+        return collect;
     }
 
     private ArrayList<Coach> getFallbackTodayCoaches() {
         ArrayList<Coach> todayCoaches = new ArrayList<>();
-        List<Coach> allCoaches = coachRepository.findAll();
+        List<Coach> allCoaches = coachRepository.findByVerified(true);
         // 当天尚未配置排班时，降级为返回非离线教练，避免列表直接为空。
         for (Coach coach : allCoaches) {
             if (coach.getStatus() == null || coach.getStatus() != Coach.Status.OFFLINE) {

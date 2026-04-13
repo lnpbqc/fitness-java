@@ -70,20 +70,20 @@ public class DataInitializer {
 
     @PostConstruct
     public void init() {
-        initAdminUser();
-        initTestData();
-        initCoachData();
-        initBanners();
-        initPackageData();
-        initProductData();
-        initPackageOrderData();
-        initProductOrderData();
-        initHealthSurveyData();
-        initCoachScheduleSlotData();
-        ensureCoachScheduleSlotsBySql();
-        initBookingData();
-        initNotifications();
-        initBodyAssessmentData();
+//        initAdminUser();
+//        initTestData();
+//        initCoachData();
+//        initBanners();
+//        initPackageData();
+//        initProductData();
+//        initPackageOrderData();
+//        initProductOrderData();
+//        initHealthSurveyData();
+//        initCoachScheduleSlotData();
+//        ensureCoachScheduleSlotsBySql();
+//        initBookingData();
+//        initNotifications();
+//        initBodyAssessmentData();
     }
 
     private final List<String> banners = Arrays.asList(
@@ -270,48 +270,35 @@ public class DataInitializer {
     private void initCoachScheduleSlotData() {
         long count = coachScheduleSlotRepository.count();
         if (count == 0) {
-            saveSlot(1, "2026-04-01", "09:00", "10:00", true, "A1 训练室");
-            saveSlot(1, "2026-04-01", "10:30", "11:30", true, "A1 训练室");
-            saveSlot(1, "2026-04-01", "14:00", "15:00", false, "A2 训练室");
-            saveSlot(1, "2026-04-01", "16:00", "17:00", true, "A1 训练室");
-            saveSlot(1, "2026-04-02", "09:00", "10:00", true, "A1 训练室");
-            saveSlot(1, "2026-04-02", "10:30", "11:30", true, "A1 训练室");
-            saveSlot(1, "2026-04-02", "15:00", "16:00", true, "A2 训练室");
-            saveSlot(1, "2026-04-03", "09:00", "10:00", false, "A1 训练室");
-            saveSlot(1, "2026-04-03", "14:00", "15:00", true, "A1 训练室");
-            saveSlot(1, "2026-04-04", "09:00", "10:00", true, "A1 训练室");
-            saveSlot(1, "2026-04-04", "10:30", "11:30", true, "A1 训练室");
-            saveSlot(1, "2026-04-05", "09:00", "10:00", true, "A1 训练室");
-            saveSlot(1, "2026-04-07", "10:00", "11:00", true, "A1 训练室");
+            // coach 1（力量训练 → 私教为主，不动）
+            saveSlot(1, "2026-04-01", "09:00", "10:00", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+            saveSlot(1, "2026-04-01", "10:30", "11:30", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+            saveSlot(1, "2026-04-01", "14:00", "15:00", "A2 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 0);
+            saveSlot(1, "2026-04-01", "16:00", "17:00", "A1 训练室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
 
-            saveSlot(2, "2026-04-01", "08:00", "09:00", true, "B1 瑜伽室");
-            saveSlot(2, "2026-04-01", "10:00", "11:00", true, "B1 瑜伽室");
-            saveSlot(2, "2026-04-01", "15:00", "16:00", false, "B1 瑜伽室");
-            saveSlot(2, "2026-04-02", "08:00", "09:00", true, "B1 瑜伽室");
-            saveSlot(2, "2026-04-02", "10:00", "11:00", true, "B1 瑜伽室");
-            saveSlot(2, "2026-04-03", "08:00", "09:00", true, "B1 瑜伽室");
-            saveSlot(2, "2026-04-03", "15:00", "16:00", true, "B2 普拉提室");
-            saveSlot(2, "2026-04-04", "08:00", "09:00", true, "B1 瑜伽室");
-            saveSlot(2, "2026-04-04", "10:00", "11:00", false, "B1 瑜伽室");
+// coach 2（瑜伽 → 改成团课🔥）
+            saveSlot(2, "2026-04-01", "08:00", "09:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 8);
+            saveSlot(2, "2026-04-01", "10:00", "11:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 10);
+            saveSlot(2, "2026-04-01", "15:00", "16:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 0);
+            saveSlot(2, "2026-04-02", "08:00", "09:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 8);
+            saveSlot(2, "2026-04-02", "10:00", "11:00", "B1 瑜伽室", CoachScheduleSlot.ScheduleType.TEAM, 10);
+            saveSlot(2, "2026-04-03", "15:00", "16:00", "B2 普拉提室", CoachScheduleSlot.ScheduleType.TEAM, 6);
 
-            saveSlot(3, "2026-04-01", "09:00", "10:00", true, "C1 有氧区");
-            saveSlot(3, "2026-04-01", "11:00", "12:00", true, "C1 有氧区");
-            saveSlot(3, "2026-04-02", "09:00", "10:00", false, "C1 有氧区");
-            saveSlot(3, "2026-04-02", "14:00", "15:00", true, "C1 有氧区");
-            saveSlot(3, "2026-04-03", "09:00", "10:00", true, "C1 有氧区");
-            saveSlot(3, "2026-04-05", "09:00", "10:00", true, "C1 有氧区");
+// coach 3（有氧 → 团课🔥）
+            saveSlot(3, "2026-04-01", "09:00", "10:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 12);
+            saveSlot(3, "2026-04-01", "11:00", "12:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 12);
+            saveSlot(3, "2026-04-02", "09:00", "10:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 0);
+            saveSlot(3, "2026-04-02", "14:00", "15:00", "C1 有氧区", CoachScheduleSlot.ScheduleType.TEAM, 10);
 
-            saveSlot(4, "2026-04-01", "10:00", "11:00", true, "D1 功能区");
-            saveSlot(4, "2026-04-01", "14:00", "15:00", true, "D1 功能区");
-            saveSlot(4, "2026-04-02", "10:00", "11:00", true, "D1 功能区");
-            saveSlot(4, "2026-04-03", "10:00", "11:00", false, "D1 功能区");
-            saveSlot(4, "2026-04-04", "10:00", "11:00", true, "D1 功能区");
+// coach 4（功能训练 → 可团可私，这里混合🔥）
+            saveSlot(4, "2026-04-01", "10:00", "11:00", "D1 功能区", CoachScheduleSlot.ScheduleType.TEAM, 5);
+            saveSlot(4, "2026-04-01", "14:00", "15:00", "D1 功能区", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+            saveSlot(4, "2026-04-02", "10:00", "11:00", "D1 功能区", CoachScheduleSlot.ScheduleType.TEAM, 6);
 
-            saveSlot(6, "2026-04-01", "07:00", "08:00", true, "E1 有氧教室");
-            saveSlot(6, "2026-04-01", "18:00", "19:00", true, "E1 有氧教室");
-            saveSlot(6, "2026-04-02", "07:00", "08:00", true, "E1 有氧教室");
-            saveSlot(6, "2026-04-03", "07:00", "08:00", true, "E1 有氧教室");
-            saveSlot(6, "2026-04-03", "18:00", "19:00", false, "E1 有氧教室");
+// coach 6（有氧 → 团课🔥）
+            saveSlot(6, "2026-04-01", "07:00", "08:00", "E1 有氧教室", CoachScheduleSlot.ScheduleType.TEAM, 15);
+            saveSlot(6, "2026-04-01", "18:00", "19:00", "E1 有氧教室", CoachScheduleSlot.ScheduleType.TEAM, 20);
+            saveSlot(6, "2026-04-03", "18:00", "19:00", "E1 有氧教室", CoachScheduleSlot.ScheduleType.TEAM, 0);
 
             System.out.println("排班数据已创建：37 个排班时段");
         }
@@ -322,20 +309,22 @@ public class DataInitializer {
      */
     private void ensureCoachScheduleSlotsBySql() {
         final String coachOpenid = "obd5Z13rKpana_izTdNO3y7PtMG4";
+
         Integer coachId = jdbcTemplate.query(
                 "SELECT id FROM coach WHERE openid = ? LIMIT 1",
                 rs -> rs.next() ? rs.getInt("id") : null,
                 coachOpenid
         );
+
         if (coachId == null) {
             System.out.println("SQL排班补齐跳过：未找到目标教练 openid=" + coachOpenid);
             return;
         }
 
+        // ✅ 改：用容量判断
         Integer freeSlots = jdbcTemplate.query(
-                "SELECT COALESCE(SUM(CASE WHEN available = b'1' AND booking_id IS NULL THEN 1 ELSE 0 END), 0) AS free_slots " +
-                        "FROM coach_schedule_slot WHERE coach_id = ?",
-                rs -> rs.next() ? rs.getInt("free_slots") : 0,
+                "SELECT COALESCE(SUM(CASE WHEN actual < expected THEN 1 ELSE 0 END), 0) FROM coach_schedule_slot WHERE coach_id = ?",
+                rs -> rs.next() ? rs.getInt(1) : 0,
                 coachId
         );
 
@@ -345,27 +334,52 @@ public class DataInitializer {
         }
 
         String date = LocalDate.now().plusDays(1).toString();
-        insertSlotBySql(coachId, date, "09:00", "10:00", "A1 训练室");
-        insertSlotBySql(coachId, date, "10:30", "11:30", "A1 训练室");
-        insertSlotBySql(coachId, date, "15:00", "16:00", "A2 训练室");
+
+        // 私教
+        insertSlotBySql(coachId, date, "09:00", "10:00", "A1 训练室",
+                "PRIVATE", 1);
+
+        // 团课
+        insertSlotBySql(coachId, date, "10:30", "11:30", "A1 训练室",
+                "TEAM", 8);
+
+        // 禁用
+        insertSlotBySql(coachId, date, "15:00", "16:00", "A2 训练室",
+                "PRIVATE", 0);
 
         Integer latestFreeSlots = jdbcTemplate.query(
-                "SELECT COALESCE(SUM(CASE WHEN available = b'1' AND booking_id IS NULL THEN 1 ELSE 0 END), 0) AS free_slots " +
-                        "FROM coach_schedule_slot WHERE coach_id = ?",
-                rs -> rs.next() ? rs.getInt("free_slots") : 0,
+                "SELECT COALESCE(SUM(CASE WHEN actual < expected THEN 1 ELSE 0 END), 0) FROM coach_schedule_slot WHERE coach_id = ?",
+                rs -> rs.next() ? rs.getInt(1) : 0,
                 coachId
         );
+
         System.out.println("SQL排班补齐完成：coachId=" + coachId + " 可用时段=" + latestFreeSlots);
     }
 
-    private void insertSlotBySql(Integer coachId, String date, String startTime, String endTime, String roomName) {
+    private void insertSlotBySql(Integer coachId,
+                                 String date,
+                                 String startTime,
+                                 String endTime,
+                                 String roomName,
+                                 String type,
+                                 int expected) {
+
         String sql = "INSERT INTO coach_schedule_slot " +
-                "(create_time, update_time, available, booking_id, coach_id, date, start_time, end_time, room_name) " +
-                "SELECT NOW(6), NOW(6), b'1', NULL, ?, ?, ?, ?, ? FROM DUAL " +
+                "(create_time, update_time, available, booking_id, coach_id, date, start_time, end_time, room_name, type, expected, actual) " +
+                "SELECT NOW(6), NOW(6), ?, NULL, ?, ?, ?, ?, ?, ?, ?, 0 FROM DUAL " +
                 "WHERE NOT EXISTS (" +
                 "SELECT 1 FROM coach_schedule_slot WHERE coach_id = ? AND date = ? AND start_time = ?" +
                 ")";
-        jdbcTemplate.update(sql, coachId, date, startTime, endTime, roomName, coachId, date, startTime);
+
+        // ✅ 兼容你旧字段
+        boolean available = expected > 0;
+
+        jdbcTemplate.update(sql,
+                available,
+                coachId, date, startTime, endTime, roomName,
+                type, expected,
+                coachId, date, startTime
+        );
     }
 
     private void initBookingData() {
@@ -604,14 +618,21 @@ public class DataInitializer {
         return item;
     }
 
-    private void saveSlot(int coachId, String date, String startTime, String endTime, boolean available, String roomName) {
+    private void saveSlot(int coachId, String date, String startTime, String endTime, String roomName, CoachScheduleSlot.ScheduleType type, Integer expected) {
         CoachScheduleSlot slot = new CoachScheduleSlot();
         slot.setCoachId(coachId);
         slot.setDate(date);
         slot.setStartTime(startTime);
         slot.setEndTime(endTime);
-        slot.setAvailable(available);
         slot.setRoomName(roomName);
+
+        slot.setType(type);
+        slot.setExpected(expected);
+        slot.setActual(0);
+
+        // 初始化 available
+        slot.setAvailable(expected > 0);
+
         coachScheduleSlotRepository.save(slot);
     }
 

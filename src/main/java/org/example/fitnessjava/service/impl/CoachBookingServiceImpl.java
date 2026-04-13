@@ -71,7 +71,7 @@ public class CoachBookingServiceImpl implements CoachBookingService {
             throw new IllegalArgumentException("当前预约状态不支持改期");
         }
 
-        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findByBookingId(booking.getId())
+        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findByCoachId(booking.getCoachId())
                 .orElseThrow(() -> new IllegalArgumentException("预约缺少排班时段"));
 
         if (request.getScheduleSlotId() == null) {

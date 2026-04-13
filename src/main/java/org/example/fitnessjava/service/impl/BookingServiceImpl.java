@@ -121,7 +121,7 @@ public class BookingServiceImpl implements BookingService {
     public Booking cancelBooking(Integer id, String reason) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("预约记录不存在"));
-        coachScheduleSlotRepository.findByBookingId(booking.getId()).ifPresent(this::releaseScheduleSlot);
+        coachScheduleSlotRepository.findByCoachId(booking.getCoachId()).ifPresent(this::releaseScheduleSlot);
         restorePackageOrderSessions(booking.getPackageOrderId());
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStatusText("已取消" + (reason != null ? "：" + reason : ""));
@@ -193,10 +193,7 @@ public class BookingServiceImpl implements BookingService {
             bookingIds.add(booking.getId());
         }
 
-        if (coachId == null) {
-            return coachScheduleSlotRepository.findAllByBookingIdInOrderByDateAscStartTimeAsc(bookingIds);
-        }
-        return coachScheduleSlotRepository.findAllByCoachIdAndBookingIdInOrderByDateAscStartTimeAsc(coachId, bookingIds);
+        return coachScheduleSlotRepository.findAllByCoachIdEqualsOrderByDateAscStartTimeAsc(coachId);
     }
 
     @Override
@@ -254,7 +251,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getUserBooking(userId, bookingId);
         validateEditableBooking(booking);
 
-        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findByBookingId(booking.getId()).orElse(null);
+        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findByCoachId(booking.getCoachId()).orElse(null);
         CoachScheduleSlot targetSlot = currentSlot;
         if (request != null && request.getScheduleSlotId() != null) {
             if (currentSlot == null || currentSlot.getId() != request.getScheduleSlotId()) {
@@ -290,7 +287,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getUserBooking(userId, bookingId);
         validateCancelableBooking(booking);
 
-        coachScheduleSlotRepository.findByBookingId(booking.getId()).ifPresent(this::releaseScheduleSlot);
+        coachScheduleSlotRepository.findByCoachId(booking.getCoachId()).ifPresent(this::releaseScheduleSlot);
         restorePackageOrderSessions(booking.getPackageOrderId());
 
         booking.setStatus(BookingStatus.CANCELLED);
@@ -349,6 +346,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void occupyScheduleSlot(CoachScheduleSlot scheduleSlot) {
+        log.info("schedule id:{}", scheduleSlot.getId());
         if(scheduleSlot.isAvailable()){
             if(scheduleSlot.getType()== CoachScheduleSlot.ScheduleType.PRIVATE){
                 scheduleSlot.setAvailable(false);

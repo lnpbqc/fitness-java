@@ -198,10 +198,9 @@ public class OrderController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "积分不足");
             }
             client.setPoints(client.getPoints() - pointsUsed);
-            clientService.updateClient(client);
         }
 
-        double actualPay = Math.max(pkg.getPrice() - pointsUsed, 0);
+        double actualPay = Math.max(pkg.getPrice() - pointsUsed / 10.0, 0);
 
         LocalDate now = LocalDate.now();
         LocalDate endDate = now.plusDays(pkg.getValidDays());
@@ -227,12 +226,9 @@ public class OrderController {
         PackageOrder savedOrder = packageOrderService.createOrder(order);
 
         if (pkg.getPointsReward() != null && pkg.getPointsReward() > 0) {
-            client = clientService.existUserByUserId(userId);
-            if (client != null) {
-                client.setPoints(client.getPoints() + pkg.getPointsReward());
-                clientService.updateClient(client);
-            }
+            client.setPoints(client.getPoints() + pkg.getPointsReward());
         }
+        clientService.updateClient(client);
 
         return savedOrder;
     }
@@ -287,7 +283,7 @@ public class OrderController {
             client.setPoints(client.getPoints() - pointsUsed);
             clientService.updateClient(client);
         }
-        double actualPay = Math.max(totalAmount - pointsUsed, 0);
+        double actualPay = Math.max(totalAmount - pointsUsed / 10.0, 0);
 
         LocalDate now = LocalDate.now();
 

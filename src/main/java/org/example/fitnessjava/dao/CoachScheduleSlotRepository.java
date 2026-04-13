@@ -16,9 +16,8 @@ public interface CoachScheduleSlotRepository extends JpaRepository<CoachSchedule
 
     List<CoachScheduleSlot> findAllByCoachIdOrderByDateAscStartTimeAsc(Integer coachId);
 
-    List<CoachScheduleSlot> findAllByBookingIdInOrderByDateAscStartTimeAsc(Collection<Integer> bookingIds);
 
-    List<CoachScheduleSlot> findAllByCoachIdAndBookingIdInOrderByDateAscStartTimeAsc(Integer coachId, Collection<Integer> bookingIds);
+    List<CoachScheduleSlot> findAllByCoachIdEqualsOrderByDateAscStartTimeAsc(Integer coachId);
 
-    Optional<CoachScheduleSlot> findByBookingId(Integer bookingId);
+    Optional<CoachScheduleSlot> findByCoachId(Integer coachId);
 }
