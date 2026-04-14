@@ -19,4 +19,6 @@ public interface PackageOrderService {
     void deleteOrder(Long id);
 
     List<PackageOrderVO> getOrdersOfMine(String openid);
+
+    List<PackageOrderVO> getAvailableOrdersOfMine(String openid);
 }

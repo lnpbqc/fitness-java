@@ -60,7 +60,7 @@ public class ClientMemberController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "用户不存在");
         }
         Integer userId = client.getId();
-        String qrContent = "MEMBER_QR:" + userId;
+        String qrContent = "MEMBER_QR:" + userId +"," + token;
 
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();

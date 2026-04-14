@@ -32,6 +32,8 @@ public class BookingCoachScheduleSlot extends BaseEntity {
     @Transient
     private String location;
     @Transient
+    private Integer coachId;
+    @Transient
     private String coachName;
     @Transient
     private String coachAvatar;

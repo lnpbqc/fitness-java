@@ -8,6 +8,7 @@ import org.example.fitnessjava.pojo.PackageOrder;
 import org.example.fitnessjava.pojo.vo.PackageOrderVO;
 import org.example.fitnessjava.service.PackageOrderService;
 import org.example.fitnessjava.util.JwtUtil;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,17 @@ public class PackageOrderController {
         List<PackageOrderVO> orders = packageOrderService.getOrdersOfMine(openid);
         log.info("orders: {}", orders);
         return orders;
+    }
+
+    @GetMapping("/me/available")
+    @Operation(summary = "获取当前用户的可用套餐订单列表")
+    @Cacheable(value = "availableOrdes",key = "#token")
+    public List<PackageOrderVO> getAvailableOrdersOfMine(@RequestHeader("Authorization") String token) {
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("请检查请求头");
+        }
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        return packageOrderService.getAvailableOrdersOfMine(openid);
     }
 
     @GetMapping("/{id}")

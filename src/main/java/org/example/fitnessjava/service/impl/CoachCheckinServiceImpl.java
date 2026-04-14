@@ -10,6 +10,8 @@ import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.vo.CoachCheckinResponse;
 import org.example.fitnessjava.dao.CheckinTicketRepository;
 import org.example.fitnessjava.service.CoachCheckinService;
+import org.example.fitnessjava.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +28,13 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
     private BookingRepository bookingRepository;
 
     @Resource
+    private PackageOrderRepository packageOrderRepository;
+
+    @Resource
     private ClientRepository clientRepository;
 
-    @Resource
-    private CoachRepository coachRepository;
-
-    @Resource
-    private PackageOrderRepository packageOrderRepository;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Override
     @Transactional
@@ -44,19 +46,31 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
         if (!qrCode.startsWith("MEMBER_QR:")) {
             throw new IllegalArgumentException("无效的二维码格式");
         }
-
-        Integer memberId = Integer.parseInt(qrCode.substring(10));
-
+        String content = qrCode.substring(10);
+        String[] split = content.split(",");
+        Integer memberId = Integer.parseInt(split[0]);
+        String memberOpenidFromToken = jwtUtil.getSubjectFromAuthorization(split[1]);
+        Client byOpenid = clientRepository.findByOpenid(memberOpenidFromToken);
+        if (byOpenid == null) {
+            throw new IllegalArgumentException("二维码有误");
+        }
+        Integer memberIdFromToken = byOpenid.getId();
+        if (!memberId.equals(memberIdFromToken)) {
+            throw new IllegalArgumentException("二维码有误");
+        }
+        // 到这里和客户的校验完成了
+        // 拿到核销的信息,最近的
         CheckinTicket ticket = checkinTicketRepository.findFirstByMemberIdAndStatusOrderByScheduledTimeAsc(memberId, TicketStatus.UNUSED)
                 .orElseThrow(() -> new IllegalArgumentException("无可核销的预约"));
 
         if (ticket.getStatus() == TicketStatus.USED) {
             throw new IllegalArgumentException("该核销码已被使用");
         }
+        // todo: 定时任务设置过期
         if (ticket.getStatus() == TicketStatus.EXPIRED) {
             throw new IllegalArgumentException("该核销码已过期");
         }
-
+        // 据此找到预约记录
         Booking booking = bookingRepository.findById(ticket.getBookingId())
                 .orElseThrow(() -> new IllegalArgumentException("关联预约记录不存在"));
 
@@ -67,6 +81,7 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
         Integer remainingBefore = ticket.getSessionsLeft() != null ? ticket.getSessionsLeft() : 0;
         int remainingAfter = Math.max(0, remainingBefore - 1);
 
+        // 这个似乎没什么用
         ticket.setSessionsLeft(remainingAfter);
         ticket.setStatus(TicketStatus.USED);
         checkinTicketRepository.save(ticket);
@@ -81,11 +96,12 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
                 Optional<PackageOrder> orderOpt = packageOrderRepository.findById(orderId);
                 if (orderOpt.isPresent()) {
                     PackageOrder order = orderOpt.get();
+                    // 不是月卡之类
                     if (order.getType() != PackageType.TIME_CARD) {
                         Integer used = order.getUsedSessions() != null ? order.getUsedSessions() : 0;
                         Integer remaining = order.getRemainingSessions() != null ? order.getRemainingSessions() : 0;
                         order.setUsedSessions(used + 1);
-                        order.setRemainingSessions(Math.max(0, remaining));
+                        order.setRemainingSessions(Math.max(0, remaining - 1));
                         packageOrderRepository.save(order);
                     }
                 }

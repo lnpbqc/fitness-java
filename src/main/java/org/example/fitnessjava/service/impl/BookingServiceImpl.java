@@ -210,6 +210,7 @@ public class BookingServiceImpl implements BookingService {
                     mapping.setLocation(slot.getRoomName());
                     // 教练信息
                     coachRepository.findById((long) slot.getCoachId()).ifPresent(coach -> {
+                        mapping.setCoachId(coach.getId());
                         mapping.setCoachName(coach.getNickname());
                         mapping.setCoachAvatar(coach.getAvatar());
                     });

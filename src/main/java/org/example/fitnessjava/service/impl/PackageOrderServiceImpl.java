@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -156,6 +157,27 @@ public class PackageOrderServiceImpl implements PackageOrderService {
         for (PackageOrder order : byUserId) {
             res.add(convertToVO(order));
         }
+        return res;
+    }
+
+    @Override
+    public List<PackageOrderVO> getAvailableOrdersOfMine(String openid) {
+        List<PackageOrderVO> res = new ArrayList<>();
+        getOrdersOfMine(openid).stream()
+                .filter(order -> order.getStatus() == PackageOrderStatus.ACTIVE)
+                .filter(order -> order.getRemainingSessions()>0)
+                .filter(order -> {
+//                    "2026-2-1"
+                    LocalDate today = LocalDate.now();
+                    LocalDate endDate = LocalDate.parse(order.getEndDate());
+
+                    if (today.isAfter(endDate)) {
+                        return false;
+                    }
+                    return true;
+                })
+                .forEach(res::add);
+
         return res;
     }
 }
