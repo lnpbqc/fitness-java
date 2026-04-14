@@ -11,7 +11,13 @@ import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.NotificationService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -39,8 +45,7 @@ public class ClientNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer userId = getCurrentClientId(token);
-        List<NotificationItem> notifications = notificationService.getNotificationsByUserId(userId);
-        return notifications;
+        return notificationService.getNotificationsByReceiver(userId, NotificationItem.ReceiverType.CLIENT);
     }
 
     @GetMapping("/unread")
@@ -50,7 +55,7 @@ public class ClientNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer userId = getCurrentClientId(token);
-        return notificationService.getUnreadNotificationsByUserId(userId);
+        return notificationService.getUnreadNotificationsByReceiver(userId, NotificationItem.ReceiverType.CLIENT);
     }
 
     @GetMapping("/unread/count")
@@ -60,7 +65,10 @@ public class ClientNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer userId = getCurrentClientId(token);
-        List<NotificationItem> unread = notificationService.getUnreadNotificationsByUserId(userId);
+        List<NotificationItem> unread = notificationService.getUnreadNotificationsByReceiver(
+                userId,
+                NotificationItem.ReceiverType.CLIENT
+        );
         return Map.of("count", unread.size());
     }
 
@@ -80,7 +88,7 @@ public class ClientNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer userId = getCurrentClientId(token);
-        notificationService.markAllAsRead(userId);
+        notificationService.markAllAsRead(userId, NotificationItem.ReceiverType.CLIENT);
         return Map.of("success", true, "message", "全部标记已读成功");
     }
 

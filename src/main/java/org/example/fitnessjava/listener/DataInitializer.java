@@ -414,11 +414,11 @@ public class DataInitializer {
         }
         List<NotificationItem> existing = notificationService.getAllNotifications();
 
-        ensureNotification(existing, null, NotificationType.SYSTEM,
+        ensureNotification(existing, null, NotificationItem.ReceiverType.ALL, NotificationType.SYSTEM,
                 "System Notice", "Maintenance this Saturday at 22:30 for 30 minutes.", false, "");
-        ensureNotification(existing, demoClient.getId(), NotificationType.BOOKING,
+        ensureNotification(existing, demoClient.getId(), NotificationItem.ReceiverType.CLIENT, NotificationType.BOOKING,
                 "Booking Confirmed", "Your 14:00 session tomorrow has been confirmed.", false, null);
-        ensureNotification(existing, demoClient.getId(), NotificationType.MEMBER,
+        ensureNotification(existing, demoClient.getId(), NotificationItem.ReceiverType.CLIENT, NotificationType.MEMBER,
                 "Progress Notice", "Your body fat is lower than last month. Keep going.", true, null);
     }
 
@@ -814,10 +814,14 @@ public class DataInitializer {
         trainingRecordRepository.save(record);
     }
 
-    private void ensureNotification(List<NotificationItem> existing, Integer receiverUserId, NotificationType type,
+    private void ensureNotification(List<NotificationItem> existing,
+                                    Integer receiverUserId,
+                                    NotificationItem.ReceiverType receiverType,
+                                    NotificationType type,
                                     String title, String content, boolean isRead, String actionLink) {
         boolean duplicated = existing.stream()
                 .anyMatch(n -> Objects.equals(n.getReceiverId(), receiverUserId)
+                        && normalizeReceiverType(n) == receiverType
                         && n.getType() == type
                         && Objects.equals(n.getTitle(), title));
         if (duplicated) {
@@ -826,11 +830,19 @@ public class DataInitializer {
 
         NotificationItem notification = new NotificationItem();
         notification.setReceiverId(receiverUserId);
+        notification.setReceiverType(receiverType);
         notification.setType(type);
         notification.setTitle(title);
         notification.setContent(content);
         notification.setIsRead(isRead);
         notification.setActionLink(actionLink);
         notificationService.createNotification(notification);
+    }
+
+    private NotificationItem.ReceiverType normalizeReceiverType(NotificationItem item) {
+        if (item.getReceiverType() != null) {
+            return item.getReceiverType();
+        }
+        return item.getReceiverId() == null ? NotificationItem.ReceiverType.ALL : NotificationItem.ReceiverType.CLIENT;
     }
 }

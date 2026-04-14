@@ -8,7 +8,24 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<NotificationItem, String> {
-    List<NotificationItem> findByReceiverUserId(Integer receiverUserId);
+
+    List<NotificationItem> findByReceiverIdAndReceiverTypeOrderByCreateTimeDesc(
+            Integer receiverId,
+            NotificationItem.ReceiverType receiverType
+    );
+
+    List<NotificationItem> findByReceiverIdAndReceiverTypeIsNullOrderByCreateTimeDesc(Integer receiverId);
+
     List<NotificationItem> findByIsRead(Boolean isRead);
-    List<NotificationItem> findByReceiverUserIdAndIsRead(Integer receiverUserId, Boolean isRead);
+
+    List<NotificationItem> findByReceiverIdAndReceiverTypeAndIsReadOrderByCreateTimeDesc(
+            Integer receiverId,
+            NotificationItem.ReceiverType receiverType,
+            Boolean isRead
+    );
+
+    List<NotificationItem> findByReceiverIdAndReceiverTypeIsNullAndIsReadOrderByCreateTimeDesc(
+            Integer receiverId,
+            Boolean isRead
+    );
 }

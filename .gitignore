@@ -36,3 +36,4 @@ build/
 /.mvn-settings-test.xml
 /.m2repo-test/
 /scripts/
+/.m2repo_tmp/

@@ -5,15 +5,19 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.NotificationItem;
-import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.service.NotificationService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -33,9 +37,6 @@ public class CoachNotificationController {
     @Resource
     private CoachService coachService;
 
-    @Resource
-    private ClientService clientService;
-
     @GetMapping
     @Operation(summary = "获取通知列表", description = "获取当前教练的通知列表")
     public ResponseEntity<List<NotificationItem>> getNotifications(
@@ -43,7 +44,10 @@ public class CoachNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer coachId = getCurrentCoachId(token);
-        List<NotificationItem> notifications = notificationService.getNotificationsByUserId(coachId);
+        List<NotificationItem> notifications = notificationService.getNotificationsByReceiver(
+                coachId,
+                NotificationItem.ReceiverType.COACH
+        );
         return ResponseEntity.ok(notifications);
     }
 
@@ -54,7 +58,10 @@ public class CoachNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer coachId = getCurrentCoachId(token);
-        List<NotificationItem> unread = notificationService.getUnreadNotificationsByUserId(coachId);
+        List<NotificationItem> unread = notificationService.getUnreadNotificationsByReceiver(
+                coachId,
+                NotificationItem.ReceiverType.COACH
+        );
         return ResponseEntity.ok(unread);
     }
 
@@ -65,7 +72,10 @@ public class CoachNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer coachId = getCurrentCoachId(token);
-        List<NotificationItem> unread = notificationService.getUnreadNotificationsByUserId(coachId);
+        List<NotificationItem> unread = notificationService.getUnreadNotificationsByReceiver(
+                coachId,
+                NotificationItem.ReceiverType.COACH
+        );
         return ResponseEntity.ok(Map.of("count", unread.size()));
     }
 
@@ -86,7 +96,7 @@ public class CoachNotificationController {
             @RequestHeader("Authorization") String token
     ) {
         Integer coachId = getCurrentCoachId(token);
-        notificationService.markAllAsRead(coachId);
+        notificationService.markAllAsRead(coachId, NotificationItem.ReceiverType.COACH);
         return ResponseEntity.ok(Map.of("success", true, "message", "全部标记已读成功"));
     }
 

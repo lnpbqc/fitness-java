@@ -1,6 +1,11 @@
 package org.example.fitnessjava.pojo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +23,9 @@ public class NotificationItem extends BaseEntity {
     private String id;
 
     private Integer receiverId;
-    private ReceiverType receiverType;  // 根据这个type来确定是哪个表的id
+
+    @Enumerated(EnumType.STRING)
+    private ReceiverType receiverType;
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;
@@ -29,6 +36,7 @@ public class NotificationItem extends BaseEntity {
     private Boolean isRead;
 
     private String actionLink;
+
     public enum ReceiverType {
         CLIENT,
         COACH,

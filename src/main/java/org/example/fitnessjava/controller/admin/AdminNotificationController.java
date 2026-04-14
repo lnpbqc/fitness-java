@@ -7,7 +7,15 @@ import org.example.fitnessjava.pojo.NotificationItem;
 import org.example.fitnessjava.pojo.NotificationType;
 import org.example.fitnessjava.service.NotificationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +55,7 @@ public class AdminNotificationController {
             if (request.getContent() == null || request.getContent().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "内容不能为空"));
             }
-            
+
             NotificationItem notification = notificationService.createNotification(request);
             return ResponseEntity.ok(notification);
         } catch (Exception e) {
@@ -66,7 +74,8 @@ public class AdminNotificationController {
             String title = (String) request.get("title");
             String content = (String) request.get("content");
             String typeStr = (String) request.get("type");
-            
+            String receiverTypeStr = (String) request.get("receiverType");
+
             if (userIds == null || userIds.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
@@ -85,14 +94,19 @@ public class AdminNotificationController {
                     "message", "内容不能为空"
                 ));
             }
+
             if (typeStr == null || typeStr.isEmpty()) {
                 typeStr = "SYSTEM";
             }
-            
+            if (receiverTypeStr == null || receiverTypeStr.isEmpty()) {
+                receiverTypeStr = "CLIENT";
+            }
+
             NotificationType type = NotificationType.valueOf(typeStr.toUpperCase());
-            
-            notificationService.sendBatchNotifications(userIds, title, content, type);
-            
+            NotificationItem.ReceiverType receiverType = NotificationItem.ReceiverType.valueOf(receiverTypeStr.toUpperCase());
+
+            notificationService.sendBatchNotifications(userIds, receiverType, title, content, type);
+
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "批量推送成功",
@@ -121,9 +135,20 @@ public class AdminNotificationController {
 
     @PostMapping("/user/{userId}/mark-all-read")
     @Operation(summary = "标记用户所有通知为已读")
-    public ResponseEntity<Void> markAllAsRead(@PathVariable Integer userId) {
-        notificationService.markAllAsRead(userId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, Object>> markAllAsRead(
+            @PathVariable Integer userId,
+            @RequestParam(defaultValue = "CLIENT") String receiverType
+    ) {
+        try {
+            NotificationItem.ReceiverType parsedReceiverType = NotificationItem.ReceiverType.valueOf(receiverType.toUpperCase());
+            notificationService.markAllAsRead(userId, parsedReceiverType);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "receiverType is invalid"
+            ));
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -3,17 +3,27 @@ package org.example.fitnessjava.service;
 import org.example.fitnessjava.pojo.NotificationItem;
 import org.example.fitnessjava.pojo.NotificationType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface NotificationService {
+
     List<NotificationItem> getAllNotifications();
-    List<NotificationItem> getNotificationsByUserId(Integer userId);
-    List<NotificationItem> getUnreadNotifications();
-    List<NotificationItem> getUnreadNotificationsByUserId(Integer userId);
+
+    List<NotificationItem> getNotificationsByReceiver(Integer receiverId, NotificationItem.ReceiverType receiverType);
+
+    List<NotificationItem> getUnreadNotificationsByReceiver(Integer receiverId, NotificationItem.ReceiverType receiverType);
+
     NotificationItem createNotification(NotificationItem notification);
+
     NotificationItem markAsRead(String id);
-    void markAllAsRead(Integer userId);
-    void sendBatchNotifications(List<Integer> userIds, String title, String content, NotificationType type);
+
+    void markAllAsRead(Integer receiverId, NotificationItem.ReceiverType receiverType);
+
+    void sendBatchNotifications(List<Integer> receiverIds,
+                                NotificationItem.ReceiverType receiverType,
+                                String title,
+                                String content,
+                                NotificationType type);
+
     void deleteNotification(String id);
 }
