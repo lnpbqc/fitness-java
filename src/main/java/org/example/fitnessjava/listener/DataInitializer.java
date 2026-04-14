@@ -817,7 +817,7 @@ public class DataInitializer {
     private void ensureNotification(List<NotificationItem> existing, Integer receiverUserId, NotificationType type,
                                     String title, String content, boolean isRead, String actionLink) {
         boolean duplicated = existing.stream()
-                .anyMatch(n -> Objects.equals(n.getReceiverUserId(), receiverUserId)
+                .anyMatch(n -> Objects.equals(n.getReceiverId(), receiverUserId)
                         && n.getType() == type
                         && Objects.equals(n.getTitle(), title));
         if (duplicated) {
@@ -825,7 +825,7 @@ public class DataInitializer {
         }
 
         NotificationItem notification = new NotificationItem();
-        notification.setReceiverUserId(receiverUserId);
+        notification.setReceiverId(receiverUserId);
         notification.setType(type);
         notification.setTitle(title);
         notification.setContent(content);

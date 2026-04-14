@@ -67,7 +67,7 @@ public class NotificationServiceImpl implements NotificationService {
         
         for (Integer userId : userIds) {
             NotificationItem notification = new NotificationItem();
-            notification.setReceiverUserId(userId);
+            notification.setReceiverId(userId);
             notification.setType(type);
             notification.setTitle(title);
             notification.setContent(content);

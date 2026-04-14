@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +17,8 @@ public class NotificationItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private Integer receiverUserId;
+    private Integer receiverId;
+    private ReceiverType receiverType;  // 根据这个type来确定是哪个表的id
 
     @Enumerated(EnumType.STRING)
     private NotificationType type;
@@ -29,4 +29,9 @@ public class NotificationItem extends BaseEntity {
     private Boolean isRead;
 
     private String actionLink;
+    public enum ReceiverType {
+        CLIENT,
+        COACH,
+        ALL
+    }
 }
