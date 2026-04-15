@@ -80,6 +80,8 @@ public class DataInitializer {
         initBodyAssessments(clients, coaches);
         initTrainingRecords(clients, coaches);
         initNotifications(clients.get("demo"));
+
+        initMiniProgramMockData(clients, coaches, packages, products, packageOrders);
     }
 
     private void initAdminUser() {
@@ -420,6 +422,229 @@ public class DataInitializer {
                 "Booking Confirmed", "Your 14:00 session tomorrow has been confirmed.", false, null);
         ensureNotification(existing, demoClient.getId(), NotificationItem.ReceiverType.CLIENT, NotificationType.MEMBER,
                 "Progress Notice", "Your body fat is lower than last month. Keep going.", true, null);
+    }
+
+    private void initMiniProgramMockData(Map<String, Client> clients,
+                                         Map<String, Coach> coaches,
+                                         Map<String, Package> packages,
+                                         Map<String, Product> products,
+                                         Map<String, PackageOrder> packageOrders) {
+        Client memberLinKe = ensureClient("oMockLinKe", "林可", "linke", "13800000001",
+                "M2026101", "GOLD", 980, 2, 18, "2026-09-30", "FEMALE", 27,
+                "2025-12-01", Arrays.asList("fat-loss", "stable"));
+        Client memberZhouRan = ensureClient("oMockZhouRan", "周冉", "zhouran", "13800000002",
+                "M2026102", "NORMAL", 620, 0, 8, "2026-08-31", "FEMALE", 29,
+                "2026-01-15", Arrays.asList("muscle-gain"));
+        Client memberChenMo = ensureClient("oMockChenMo", "陈默", "chenmo", "13800000003",
+                "M2026103", "DIAMOND", 1320, 3, 25, "2027-01-31", "MALE", 33,
+                "2025-11-11", Arrays.asList("posture", "functional"));
+        Client memberWangFei = ensureClient("oMockWangFei", "王菲", "wangfei", "13800008888",
+                "M2026104", "GOLD", 860, 1, 18, "2026-04-15", "FEMALE", 28,
+                "2025-11-01", Arrays.asList("fat-loss", "expiring"));
+        Client memberLiNa = ensureClient("oMockLiNa", "李娜", "lina", "13900009999",
+                "M2026105", "NORMAL", 540, 0, 11, "2026-06-20", "FEMALE", 32,
+                "2025-12-15", Arrays.asList("rehab", "knee"));
+        Client memberZhangWei = ensureClient("oMockZhangWei", "张伟", "zhangwei", "13600007777",
+                "M2026106", "DIAMOND", 1180, 2, 25, "2026-08-30", "MALE", 35,
+                "2026-01-10", Arrays.asList("muscle-gain"));
+        Client memberZhaoLi = ensureClient("oMockZhaoLi", "赵丽", "zhaoli", "13900006666",
+                "M2026107", "SILVER", 420, 1, 9, "2026-05-10", "FEMALE", 26,
+                "2026-01-20", Arrays.asList("rehab", "knee"));
+        Client memberLiuQiang = ensureClient("oMockLiuQiang", "刘强", "liuqiang", "13800006660",
+                "M2026108", "NORMAL", 500, 0, 13, "2026-07-15", "MALE", 40,
+                "2026-02-05", Arrays.asList("fat-loss"));
+        Client memberChenMei = ensureClient("oMockChenMei", "陈美", "chenmei", "13800006661",
+                "M2026109", "NORMAL", 360, 0, 7, "2026-04-05", "FEMALE", 29,
+                "2026-02-18", Arrays.asList("endurance", "knee"));
+
+        clients.put("linKe", memberLinKe);
+        clients.put("zhouRan", memberZhouRan);
+        clients.put("chenMo", memberChenMo);
+        clients.put("wangFei", memberWangFei);
+        clients.put("liNa", memberLiNa);
+        clients.put("zhangWei", memberZhangWei);
+        clients.put("zhaoLi", memberZhaoLi);
+        clients.put("liuQiang", memberLiuQiang);
+        clients.put("chenMei", memberChenMei);
+
+        Coach coachZhangMeiQi = ensureCoach(null, "张美琪", "zhangmeiqi", "400-888-0000",
+                "资深体能教练，专注减脂塑形与体态矫正。", "减脂塑形 · 体态矫正", "擅长从动作模式、饮食建议与训练周期三方面做完整陪跑。",
+                5.0, 5, 262, Arrays.asList("fat-loss", "posture"), true, true, Coach.Status.ONLINE);
+        Coach coachNa = ensureCoach(null, "娜教头", "najiaotou", "400-888-0000",
+                "国家认证私教，力量训练与增肌塑形方向经验丰富。", "力量训练 · 增肌塑形", "擅长新手力量入门、女性力量训练和专项提升。",
+                5.0, 5, 284, Arrays.asList("strength", "hypertrophy"), true, true, Coach.Status.ONLINE);
+        Coach coachLiZiNing = ensureCoach(null, "李梓宁", "lizining", "400-888-0000",
+                "瑜伽与普拉提双证导师，兼顾柔韧性与稳定性训练。", "瑜伽康复 · 普拉提", "适合长期久坐、肩颈腰背紧张和产后恢复人群。",
+                4.8, 4, 234, Arrays.asList("yoga", "pilates", "rehab"), true, true, Coach.Status.ONLINE);
+        Coach coachYeWenHan = ensureCoach(null, "叶文涵", "yewenhan", "400-888-0000",
+                "功能训练与运动康复教练，强调动作质量与恢复效率。", "功能训练 · 运动康复", "擅长基础体能重建、运动后恢复与小器械训练。",
+                4.9, 4, 198, Arrays.asList("functional", "rehab"), true, true, Coach.Status.BUSY);
+        Coach coachLi = ensureCoach(null, "李教练", "lijiolian", "13800138999",
+                "高级私人教练", "综合私教", "教练端 mock 的主教练账号", 4.9, 5, 256,
+                Arrays.asList("strength", "rehab", "coaching"), true, true, Coach.Status.ONLINE);
+
+        coaches.put("zhangMeiQi", coachZhangMeiQi);
+        coaches.put("na", coachNa);
+        coaches.put("liZiNing", coachLiZiNing);
+        coaches.put("yeWenHan", coachYeWenHan);
+        coaches.put("liCoach", coachLi);
+
+        ensureCoachBinding(coachLi, memberWangFei);
+        ensureCoachBinding(coachLi, memberLiNa);
+        ensureCoachBinding(coachLi, memberZhangWei);
+        ensureCoachBinding(coachLi, memberZhaoLi);
+        ensureCoachBinding(coachLi, memberLiuQiang);
+        ensureCoachBinding(coachLi, memberChenMei);
+
+        Package p7 = ensurePackage("PT 私教 7 节", PackageType.SESSION_CARD, 7, 40, 2026.0, 2240.0, 1200,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+        Package pAssess = ensurePackage("身体评估报告", PackageType.ASSESSMENT, 1, 7, 5.0, null, 50,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+        Package pTrial = ensurePackage("常规私教体验课", PackageType.EXPERIENCE, 1, 3, 60.0, null, 300,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+        Package pPilates = ensurePackage("普拉提器械体验课", PackageType.EXPERIENCE, 1, 5, 80.0, 399.0, 400,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+        Package pWeek = ensurePackage("自主训练周卡", PackageType.TIME_CARD, 7, 7, 68.0, null, 350,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+        Package p12 = ensurePackage("常规私教 12 节", PackageType.SESSION_CARD, 12, 60, 3600.0, null, 1800,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+        Package p24 = ensurePackage("常规私教 24 节", PackageType.SESSION_CARD, 24, 90, 6480.0, 7200.0, 3500,
+                "小程序客户端 mock 套餐", SaleStatus.ON_SALE);
+
+        packages.put("pt7", p7);
+        packages.put("assessmentMock", pAssess);
+        packages.put("trial", pTrial);
+        packages.put("pilatesTrial", pPilates);
+        packages.put("weekCard", pWeek);
+        packages.put("session12", p12);
+        packages.put("session24Mock", p24);
+
+        Product whey = ensureProduct("乳清蛋白粉", "运动补剂", 298.0,
+                "https://images.unsplash.com/photo-1693996045300-521e9d08cabc?w=400", 500, 50,
+                "香草口味 2lb，适合训练后补充蛋白。", 120, SaleStatus.ON_SALE);
+        Product dumbbell = ensureProduct("六角哑铃套装", "健身装备", 399.0,
+                "https://images.unsplash.com/photo-1770493895453-4f758c40d11d?w=400", 650, 65,
+                "家庭训练可用，防滚动设计。", 80, SaleStatus.ON_SALE);
+        Product bottle = ensureProduct("运动水壶", "周边商品", 89.0,
+                "https://images.unsplash.com/photo-1653527619751-9b5a6854a176?w=400", 150, 15,
+                "750ml 大容量，便携防漏。", 200, SaleStatus.ON_SALE);
+        Product yogaMat = ensureProduct("瑜伽垫", "健身装备", 159.0,
+                "https://images.unsplash.com/photo-1746796751590-a8c0f15d4900?w=400", 260, 26,
+                "加厚防滑，适合地面训练。", 160, SaleStatus.ON_SALE);
+        Product band = ensureProduct("阻力带套装", "健身装备", 128.0,
+                "https://images.unsplash.com/photo-1584827386916-b5351d3ba34b?w=400", 210, 21,
+                "多种阻力等级，适合热身与激活。", 140, SaleStatus.ON_SALE);
+        Product shake = ensureProduct("蛋白奶昔", "运动补剂", 45.0,
+                "https://images.unsplash.com/photo-1693996045346-d0a9b9470909?w=400", 75, 8,
+                "即饮低糖，课后补充更方便。", 300, SaleStatus.ON_SALE);
+        Product bcaa = ensureProduct("BCAA 支链氨基酸", "运动补剂", 158.0,
+                "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400", 260, 16,
+                "训练期补给", 90, SaleStatus.ON_SALE);
+        Product belt = ensureProduct("运动腰带", "周边商品", 168.0,
+                "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400", 280, 18,
+                "力量训练护具", 70, SaleStatus.ON_SALE);
+        Product creatine = ensureProduct("肌酸", "运动补剂", 128.0,
+                "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400", 210, 12,
+                "300g 袋装", 90, SaleStatus.ON_SALE);
+
+        products.put("wheyMock", whey);
+        products.put("dumbbell", dumbbell);
+        products.put("bottle", bottle);
+        products.put("yogaMatMock", yogaMat);
+        products.put("band", band);
+        products.put("shake", shake);
+        products.put("bcaa", bcaa);
+        products.put("belt", belt);
+        products.put("creatine", creatine);
+
+        PackageOrder wangFeiOrder = ensurePackageOrder(memberWangFei.getId(), p24,
+                LocalDate.parse("2026-03-01"), LocalDate.parse("2026-05-30"), LocalDate.parse("2026-03-01"),
+                24, 8, 0, PackageOrderStatus.ACTIVE);
+        PackageOrder liNaOrder = ensurePackageOrder(memberLiNa.getId(), p12,
+                LocalDate.parse("2026-03-15"), LocalDate.parse("2026-05-14"), LocalDate.parse("2026-03-15"),
+                20, 5, 0, PackageOrderStatus.ACTIVE);
+        PackageOrder zhangWeiOrder = ensurePackageOrder(memberZhangWei.getId(), p24,
+                LocalDate.parse("2026-02-10"), LocalDate.parse("2026-05-10"), LocalDate.parse("2026-02-10"),
+                30, 6, 0, PackageOrderStatus.ACTIVE);
+
+        packageOrders.put("wangFeiOrder", wangFeiOrder);
+        packageOrders.put("liNaOrder", liNaOrder);
+        packageOrders.put("zhangWeiOrder", zhangWeiOrder);
+
+        ensureProductOrder(memberWangFei.getId(), "2026-03-19 15:30", ProductOrderStatus.SHIPPED, "配送中",
+                "SF1234567890", "2026-03-21", 500,
+                Arrays.asList(buildOrderItem(whey, "香草味 / 2lb", 2), buildOrderItem(bcaa, "300g / 罐", 1)));
+        ensureProductOrder(memberLiNa.getId(), "2026-03-15 10:20", ProductOrderStatus.DELIVERED, "已完成",
+                "SF0987654321", "2026-03-17", 0,
+                Collections.singletonList(buildOrderItem(belt, "M 码", 1)));
+        ensureProductOrder(memberChenMo.getId(), "2026-03-05 09:15", ProductOrderStatus.PENDING, "待发货",
+                "", "2026-03-08", 0,
+                Collections.singletonList(buildOrderItem(creatine, "300g / 袋", 1)));
+
+        ensureSlot(coachZhangMeiQi.getId(), "2026-03-22", "14:00", "15:00", "私教区 A", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+        ensureSlot(coachNa.getId(), "2026-03-25", "10:00", "11:00", "私教区 B", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+        ensureSlot(coachLiZiNing.getId(), "2026-03-27", "16:00", "17:00", "普拉提室", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+        ensureSlot(coachYeWenHan.getId(), "2026-03-18", "09:00", "10:00", "训练区 C", CoachScheduleSlot.ScheduleType.PRIVATE, 1);
+
+        List<Booking> miniBookings = new ArrayList<>();
+        miniBookings.add(ensureBooking(memberLinKe.getId(), coachZhangMeiQi.getId(), "2026-03-22", "14:00", "15:00",
+                "私教区 A", BookingStatus.CONFIRMED, BookingSource.CLIENT, wangFeiOrder));
+        miniBookings.add(ensureBooking(memberZhouRan.getId(), coachNa.getId(), "2026-03-25", "10:00", "11:00",
+                "私教区 B", BookingStatus.CONFIRMED, BookingSource.CLIENT, liNaOrder));
+        miniBookings.add(ensureBooking(memberChenMo.getId(), coachLiZiNing.getId(), "2026-03-27", "16:00", "17:00",
+                "普拉提室", BookingStatus.PENDING, BookingSource.CLIENT, zhangWeiOrder));
+        miniBookings.add(ensureBooking(memberWangFei.getId(), coachYeWenHan.getId(), "2026-03-18", "09:00", "10:00",
+                "训练区 C", BookingStatus.COMPLETED, BookingSource.CLIENT, wangFeiOrder));
+
+        Map<String, CoachScheduleSlot> slotIndex = buildSlotIndex();
+        initBookingSlotRelations(miniBookings, slotIndex);
+        syncSlotUsage(slotIndex);
+        initCheckinTickets(miniBookings, clients, packageOrders);
+
+        ensureBodyAssessment(memberWangFei.getId(), coachLi.getId(), "2026-01-15",
+                169.0, 68.0, 25.5, 43.5, 23.8, 6.0, 92.0, 76.0, 97.0,
+                null, null, null, null, null, null, "初次体测，制定减脂目标。");
+        ensureBodyAssessment(memberWangFei.getId(), coachLi.getId(), "2026-02-15",
+                169.0, 67.5, 24.8, 44.2, 23.6, 5.8, 91.0, 75.0, 96.0,
+                null, null, null, null, null, null, "开始减脂训练计划。");
+        ensureBodyAssessment(memberWangFei.getId(), coachLi.getId(), "2026-03-15",
+                169.0, 65.2, 22.5, 45.8, 22.8, 5.2, 90.0, 72.0, 95.0,
+                null, null, null, null, null, null, "体脂率下降明显，继续保持当前训练强度。");
+        ensureBodyAssessment(memberLiNa.getId(), coachLi.getId(), "2026-02-08",
+                166.0, 59.2, 22.1, 39.7, 21.4, 5.0, 86.0, 70.0, 94.0,
+                null, null, null, null, null, null, "恢复期，先以稳定训练为主。");
+        ensureBodyAssessment(memberLiNa.getId(), coachLi.getId(), "2026-03-08",
+                166.0, 58.4, 21.2, 40.1, 21.1, 4.6, 86.0, 68.0, 93.0,
+                null, null, null, null, null, null, "膝部反馈稳定，可逐步增加负荷。");
+        ensureBodyAssessment(memberZhangWei.getId(), coachLi.getId(), "2026-03-01",
+                177.0, 74.6, 17.8, 57.3, 23.7, 4.4, 101.0, 80.0, 97.0,
+                null, null, null, null, null, null, "围度增长良好，继续提高蛋白摄入。");
+
+        ensureTrainingRecord(memberWangFei.getId(), coachLi.getId(), "2026-03-19", "力量训练",
+                60, "深蹲 5 组、卧推 4 组、硬拉 4 组。", "已完成");
+        ensureTrainingRecord(memberWangFei.getId(), coachLi.getId(), "2026-03-16", "减脂循环",
+                50, "风阻单车 15 分钟，战绳与壶铃循环训练。", "已完成");
+        ensureTrainingRecord(memberLiNa.getId(), coachLi.getId(), "2026-03-18", "康复训练",
+                60, "膝关节稳定、臀中肌激活与低冲击有氧。", "已完成");
+        ensureTrainingRecord(memberZhangWei.getId(), coachLi.getId(), "2026-03-20", "胸背力量",
+                70, "卧推、引体、划船与拉伸放松。", "已完成");
+        ensureTrainingRecord(memberLiuQiang.getId(), coachLi.getId(), "2026-03-21", "全身燃脂",
+                60, "HIIT + 划船机 + 核心循环。", "已完成");
+
+        List<NotificationItem> existing = notificationService.getAllNotifications();
+        ensureNotification(existing, memberLinKe.getId(), NotificationItem.ReceiverType.CLIENT, NotificationType.BOOKING,
+                "新增预约待确认", "林可预约了 03-24 19:00 的私教课程，请尽快确认。", false, null);
+        ensureNotification(existing, memberZhouRan.getId(), NotificationItem.ReceiverType.CLIENT, NotificationType.MEMBER,
+                "会员提交健康问卷", "新会员周冉已完成健康问卷，可查看基础信息并安排首课。", false, null);
+        ensureNotification(existing, memberChenMo.getId(), NotificationItem.ReceiverType.CLIENT, NotificationType.SYSTEM,
+                "系统提醒", "本周五前请补全本周课程记录，便于生成绩效统计。", true, null);
+        ensureNotification(existing, coachLi.getId(), NotificationItem.ReceiverType.COACH, NotificationType.BOOKING,
+                "新学员预约课程", "会员 张小米 预约了您 3月31日 14:00-15:00 的私教课程。", false,
+                "/pages/coach/schedule/index");
+        ensureNotification(existing, coachLi.getId(), NotificationItem.ReceiverType.COACH, NotificationType.PRICE,
+                "价格调整通知", "管理端已更新私教课程价格，新价格为 ¥299/节，将于 4月5日 生效。", false, null);
+        ensureNotification(existing, coachLi.getId(), NotificationItem.ReceiverType.COACH, NotificationType.ACHIEVEMENT,
+                "业绩达成", "恭喜，您本月课时数已突破 100 节，获得额外奖金 ¥500。", true, null);
     }
 
     private Client ensureClient(String openid, String nickname, String avatarSeed, String phone,
