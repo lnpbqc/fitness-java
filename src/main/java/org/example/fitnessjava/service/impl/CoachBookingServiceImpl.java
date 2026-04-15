@@ -31,7 +31,7 @@ public class CoachBookingServiceImpl implements CoachBookingService {
     private CoachScheduleSlotRepository coachScheduleSlotRepository;
 
     @Resource
-    private BookingCoachScheduleSlot bookingCoachScheduleSlot;
+    private BookingCoachScheduleSlotRepository bookingCoachScheduleSlotRepository;
 
     @Resource
     private CoachRepository coachRepository;
@@ -44,8 +44,6 @@ public class CoachBookingServiceImpl implements CoachBookingService {
 
     @Resource
     private BookingService bookingService;
-    @Autowired
-    private BookingCoachScheduleSlotRepository bookingCoachScheduleSlotRepository;
 
     @Override
     public List<BookingVO> getBookingsByCoachId(Integer coachId, String date) {
