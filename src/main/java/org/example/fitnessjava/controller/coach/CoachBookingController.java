@@ -51,7 +51,6 @@ public class CoachBookingController {
         return ResponseEntity.ok(bookings);
     }
 
-    // todo
     @GetMapping("/slotClients")
     @Operation(summary = "获取教练预约的学员列表", description = "获取当前教练的预约的学员列表")
     public ResponseEntity<List<Client>> getClientsOfSchedule(

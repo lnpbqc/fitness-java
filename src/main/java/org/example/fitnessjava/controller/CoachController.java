@@ -110,7 +110,6 @@ public class CoachController {
             }
 
             String openid = result.getOpenid();
-            String sessionKey = result.getSessionKey();
 
             if (openid == null) {
                 res.put("error", "openid null");
