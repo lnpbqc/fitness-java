@@ -58,11 +58,12 @@ public class CoachBookingController {
             @Parameter(description = "教练登录 token", required = true)
             @RequestHeader("Authorization") String token,
             @Parameter(description = "日期 YYYY-MM-DD，不传返回全部")
-            @RequestParam(required = true) String slotId
+            @RequestParam String slotId
     ) {
         Coach coach = getCurrentCoach(token);
+        List<Client> res = coachBookingService.getClientsByCoachIdAndSlotId(coach.getId(),Integer.parseInt(slotId));
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(res);
     }
 
     @PutMapping("/{bookingId}/reschedule")

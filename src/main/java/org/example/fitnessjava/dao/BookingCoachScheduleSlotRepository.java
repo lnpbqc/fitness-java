@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface BookingCoachScheduleSlotRepository extends JpaRepository<BookingCoachScheduleSlot, Integer> {
     BookingCoachScheduleSlot findByBookingId(int bookingId);
+
+    List<BookingCoachScheduleSlot> findByCoachScheduleSlotId(int coachScheduleSlotId);
 }

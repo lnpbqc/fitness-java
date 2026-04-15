@@ -2,21 +2,19 @@ package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.example.fitnessjava.dao.BookingRepository;
-import org.example.fitnessjava.dao.ClientRepository;
-import org.example.fitnessjava.dao.CoachRepository;
-import org.example.fitnessjava.dao.CoachScheduleSlotRepository;
-import org.example.fitnessjava.dao.PackageOrderRepository;
+import org.example.fitnessjava.dao.*;
 import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.dto.CoachProxyBookingRequest;
 import org.example.fitnessjava.pojo.dto.CoachRescheduleRequest;
 import org.example.fitnessjava.pojo.vo.BookingVO;
 import org.example.fitnessjava.service.BookingService;
 import org.example.fitnessjava.service.CoachBookingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +31,9 @@ public class CoachBookingServiceImpl implements CoachBookingService {
     private CoachScheduleSlotRepository coachScheduleSlotRepository;
 
     @Resource
+    private BookingCoachScheduleSlot bookingCoachScheduleSlot;
+
+    @Resource
     private CoachRepository coachRepository;
 
     @Resource
@@ -43,6 +44,8 @@ public class CoachBookingServiceImpl implements CoachBookingService {
 
     @Resource
     private BookingService bookingService;
+    @Autowired
+    private BookingCoachScheduleSlotRepository bookingCoachScheduleSlotRepository;
 
     @Override
     public List<BookingVO> getBookingsByCoachId(Integer coachId, String date) {
@@ -71,7 +74,8 @@ public class CoachBookingServiceImpl implements CoachBookingService {
             throw new IllegalArgumentException("当前预约状态不支持改期");
         }
 
-        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findByCoachId(booking.getCoachId())
+        int coachScheduleSlotId = bookingCoachScheduleSlotRepository.findByBookingId(bookingId).getCoachScheduleSlotId();
+        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findById(coachScheduleSlotId)
                 .orElseThrow(() -> new IllegalArgumentException("预约缺少排班时段"));
 
         if (request.getScheduleSlotId() == null) {
@@ -171,6 +175,22 @@ public class CoachBookingServiceImpl implements CoachBookingService {
         coachScheduleSlotRepository.save(scheduleSlot);
 
         return savedBooking;
+    }
+
+    @Override
+    public List<Client> getClientsByCoachIdAndSlotId(Integer coachId, Integer slotId) {
+        CoachScheduleSlot slot = coachScheduleSlotRepository.findAllByCoachId(coachId).stream().filter(s-> s.getId() == slotId).findFirst().orElse(null);
+        if (slot == null) {
+            throw new IllegalArgumentException("传入参数无效");
+        }
+        List<BookingCoachScheduleSlot> byCoachScheduleSlotId = bookingCoachScheduleSlotRepository.findByCoachScheduleSlotId(slot.getId());
+        ArrayList<Client> clients = new ArrayList<>();
+        for(BookingCoachScheduleSlot bookingCoachScheduleSlot : byCoachScheduleSlotId) {
+            bookingService.getBookingById(bookingCoachScheduleSlot.getBookingId()).ifPresent(booking -> {
+                clients.add(clientRepository.findById((long) booking.getUserId()).orElseThrow(() -> new IllegalArgumentException("预约对应学员不存在")));
+            });
+        }
+        return clients;
     }
 
     private BookingVO convertToBookingVO(Booking booking) {

@@ -110,7 +110,8 @@ public class BookingServiceImpl implements BookingService {
     public Booking cancelBooking(Integer id, String reason) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("预约记录不存在"));
-        coachScheduleSlotRepository.findByCoachId(booking.getCoachId()).ifPresent(this::releaseScheduleSlot);
+        int coachScheduleSlotId = bookingCoachScheduleSlotRepository.findByBookingId(booking.getId()).getCoachScheduleSlotId();
+        coachScheduleSlotRepository.findById(coachScheduleSlotId).ifPresent(this::releaseScheduleSlot);
         restorePackageOrderSessions(booking.getPackageOrderId());
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setStatusText("已取消" + (reason != null ? "：" + reason : ""));
@@ -281,7 +282,8 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getUserBooking(userId, bookingId);
         validateEditableBooking(booking);
 
-        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findByCoachId(booking.getCoachId()).orElse(null);
+        int coachScheduleSlotId = bookingCoachScheduleSlotRepository.findByBookingId(bookingId).getCoachScheduleSlotId();
+        CoachScheduleSlot currentSlot = coachScheduleSlotRepository.findById(coachScheduleSlotId).orElse(null);
         CoachScheduleSlot targetSlot = currentSlot;
         if (request != null && request.getScheduleSlotId() != null) {
             if (currentSlot == null || currentSlot.getId() != request.getScheduleSlotId()) {
@@ -317,7 +319,8 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = getUserBooking(userId, bookingId);
         validateCancelableBooking(booking);
 
-        coachScheduleSlotRepository.findByCoachId(booking.getCoachId()).ifPresent(this::releaseScheduleSlot);
+        int coachScheduleSlotId = bookingCoachScheduleSlotRepository.findByBookingId(bookingId).getCoachScheduleSlotId();
+        coachScheduleSlotRepository.findById(coachScheduleSlotId).ifPresent(this::releaseScheduleSlot);
         restorePackageOrderSessions(booking.getPackageOrderId());
 
         booking.setStatus(BookingStatus.CANCELLED);
