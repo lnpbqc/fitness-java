@@ -401,11 +401,11 @@ public class DataInitializer {
         LocalDate today = LocalDate.now();
 
         ensureTrainingRecord(demo.getId(), demoCoach.getId(), today.minusDays(7).toString(),
-                "Upper Strength", 60, "COMPLETED", "Bench + Row + Press", "Stable form");
+                "Upper Strength", 60, "Bench + Row + Press", "Stable form");
         ensureTrainingRecord(demo.getId(), demoCoach.getId(), today.minusDays(4).toString(),
-                "Lower Strength", 70, "COMPLETED", "Squat + Deadlift + Lunge", "Good core control");
+                "Lower Strength", 70, "Squat + Deadlift + Lunge", "Good core control");
         ensureTrainingRecord(demo.getId(), demoCoach.getId(), today.minusDays(1).toString(),
-                "Core and Cardio", 50, "COMPLETED", "Circuit + Core", "Need more sleep recovery");
+                "Core and Cardio", 50, "Circuit + Core", "Need more sleep recovery");
     }
 
     private void initNotifications(Client demoClient) {
@@ -794,7 +794,7 @@ public class DataInitializer {
     }
 
     private void ensureTrainingRecord(Integer clientId, Integer coachId, String date, String title,
-                                      Integer duration, String status, String content, String comment) {
+                                      Integer duration, String content, String comment) {
         List<TrainingRecord> existing = trainingRecordRepository.findByClientIdAndCoachId(clientId, coachId);
         boolean duplicated = existing.stream()
                 .anyMatch(r -> Objects.equals(r.getDate(), date) && Objects.equals(r.getTitle(), title));
@@ -808,7 +808,6 @@ public class DataInitializer {
         record.setDate(date);
         record.setTitle(title);
         record.setDuration(duration);
-        record.setStatus(status);
         record.setContent(content);
         record.setComment(comment);
         trainingRecordRepository.save(record);

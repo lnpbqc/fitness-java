@@ -51,6 +51,20 @@ public class CoachBookingController {
         return ResponseEntity.ok(bookings);
     }
 
+    // todo
+    @GetMapping("/slotClients")
+    @Operation(summary = "获取教练预约的学员列表", description = "获取当前教练的预约的学员列表")
+    public ResponseEntity<List<Client>> getClientsOfSchedule(
+            @Parameter(description = "教练登录 token", required = true)
+            @RequestHeader("Authorization") String token,
+            @Parameter(description = "日期 YYYY-MM-DD，不传返回全部")
+            @RequestParam(required = true) String slotId
+    ) {
+        Coach coach = getCurrentCoach(token);
+
+        return ResponseEntity.ok(null);
+    }
+
     @PutMapping("/{bookingId}/reschedule")
     @Operation(summary = "教练改期", description = "教练为指定预约申请改期，提交后需学员确认")
     public ResponseEntity<Booking> rescheduleBooking(
