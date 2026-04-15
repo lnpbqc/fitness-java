@@ -34,6 +34,14 @@
 - [x] 新增 `adminApi.settings` 方法。
 - [x] 提交前端校验（单价>=0，比例 0~1）。
 
+### 6. 管理端结算流水（新增）
+
+- [x] 新增管理端“金额流水”页面（仅教练结算流水）。
+- [x] 新增结算流水列表接口（支持日期/教练/预约ID筛选 + 分页）。
+- [x] 新增结算流水汇总接口（流水笔数、课时总金额、教练应得、老板留存）。
+- [x] 新增结算流水详情接口（展示规则快照与关联信息）。
+- [x] 新增管理端路由与菜单入口：`/settlements`。
+
 ### 5. 验证
 
 - [x] 后端 `mvn compile` / `mvn clean compile`。
@@ -75,6 +83,20 @@
   - 作用：管理端更新薪酬配置入参对象。
 - `fitness-admin-web/src/app/components/pages/CompensationSettings.tsx`
   - 作用：管理端“薪酬配置”页面，支持参数编辑、预览、保存。
+- `fitness-java/src/main/java/org/example/fitnessjava/controller/admin/AdminSettlementController.java`
+  - 作用：管理端教练结算流水 API 控制器，提供列表/汇总/详情接口。
+- `fitness-java/src/main/java/org/example/fitnessjava/service/AdminSettlementService.java`
+  - 作用：管理端结算流水查询服务接口，统一定义列表、汇总、详情查询能力。
+- `fitness-java/src/main/java/org/example/fitnessjava/service/impl/AdminSettlementServiceImpl.java`
+  - 作用：管理端结算流水查询实现，负责筛选、分页切片、金额汇总、关联教练/会员信息补齐。
+- `fitness-java/src/main/java/org/example/fitnessjava/pojo/vo/AdminSettlementListItemVO.java`
+  - 作用：结算流水列表/详情展示对象。
+- `fitness-java/src/main/java/org/example/fitnessjava/pojo/vo/AdminSettlementListResponseVO.java`
+  - 作用：结算流水分页返回对象（items/total/page/pageSize）。
+- `fitness-java/src/main/java/org/example/fitnessjava/pojo/vo/AdminSettlementSummaryVO.java`
+  - 作用：结算流水汇总对象（总笔数/总金额）。
+- `fitness-admin-web/src/app/components/pages/SettlementRecords.tsx`
+  - 作用：管理端“金额流水”页面，包含筛选、汇总卡、流水表格、详情弹窗。
 
 ### 已修改文件
 
@@ -86,10 +108,18 @@
   - 工作台预估收入切换为“配置驱动”。
 - `fitness-admin-web/src/lib/api.ts`
   - 增加 `adminApi.settings` 及薪酬配置类型定义。
+- `fitness-java/src/main/java/org/example/fitnessjava/dao/CoachLessonSettlementRepository.java`
+  - 增加管理端筛选查询 `findForAdmin`。
 - `fitness-admin-web/src/app/routes.tsx`
   - 新增 `/settings` 路由。
 - `fitness-admin-web/src/app/components/Root.tsx`
   - 侧边栏新增“薪酬配置”菜单。
+- `fitness-admin-web/src/lib/api.ts`
+  - 新增 `adminApi.settlements`（列表/汇总/详情）及类型定义。
+- `fitness-admin-web/src/app/routes.tsx`
+  - 新增 `/settlements` 路由。
+- `fitness-admin-web/src/app/components/Root.tsx`
+  - 侧边栏新增“金额流水”菜单。
 
 ### 本次编译结果
 
@@ -165,4 +195,24 @@ CoachLessonSettlementRepository.save -> coach_lesson_settlement
    -> CoachPerformanceServiceImpl
    -> CoachLessonSettlementRepository (结算流水聚合)
    -> 返回月度提成/趋势数据
+```
+
+### 4. 管理端金额流水查询流程
+
+```text
+管理员页面 SettlementRecords
+        |
+        | GET /api/admin/settlements (列表)
+        | GET /api/admin/settlements/summary (汇总)
+        v
+AdminSettlementController
+        |
+        v
+AdminSettlementServiceImpl
+        |
+        |-- CoachLessonSettlementRepository.findForAdmin(日期/教练/预约ID)
+        |-- BookingRepository + ClientRepository (补齐会员信息)
+        |-- CoachRepository (补齐教练名称)
+        v
+返回分页列表 + 汇总金额给前端
 ```
