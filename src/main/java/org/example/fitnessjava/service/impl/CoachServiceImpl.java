@@ -11,6 +11,7 @@ import org.example.fitnessjava.pojo.Coach;
 import org.example.fitnessjava.pojo.CoachWithUser;
 import org.example.fitnessjava.pojo.CoachScheduleSlot;
 import org.example.fitnessjava.service.CoachService;
+import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -33,6 +34,8 @@ public class CoachServiceImpl implements CoachService {
     private CoachWithUserRepository coachWithUserRepository;
     @Resource
     private CoachScheduleSlotRepository coachScheduleSlotRepository;
+    @Resource
+    private JwtUtil jwtUtil;
 
     @Override
     public ArrayList<Coach> getCoachesByFeatured() {
@@ -218,5 +221,34 @@ public class CoachServiceImpl implements CoachService {
         Coach coach = optional.get();
         coach.setVerified(verified);
         return Optional.of(coachRepository.save(coach));
+    }
+
+    @Override
+    public Optional<CoachWithUser> addCoachWithUser(Integer coachId,String qrCode) {
+        if (qrCode == null || qrCode.isBlank()) {
+            throw new IllegalArgumentException("二维码内容不能为空");
+        }
+
+        if (!qrCode.startsWith("MEMBER_QR:")) {
+            throw new IllegalArgumentException("无效的二维码格式");
+        }
+        String content = qrCode.substring(10);
+        String[] split = content.split(",");
+        Integer memberId = Integer.parseInt(split[0]);
+        String memberOpenidFromToken = jwtUtil.getSubjectFromAuthorization(split[1]);
+        Client byOpenid = clientRepository.findByOpenid(memberOpenidFromToken);
+        if (byOpenid == null) {
+            throw new IllegalArgumentException("二维码有误");
+        }
+        int memberIdFromToken = byOpenid.getId();
+        if (!memberId.equals(memberIdFromToken)) {
+            throw new IllegalArgumentException("二维码有误");
+        }
+        CoachWithUser coachWithUser = new CoachWithUser();
+        coachWithUser.setCoachId(coachId);
+        coachWithUser.setClientId(byOpenid.getId());
+
+
+        return Optional.of(coachWithUserRepository.save(coachWithUser));
     }
 }

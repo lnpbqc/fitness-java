@@ -76,7 +76,7 @@ public class CoachClientController {
     public ResponseEntity<Map<String, Object>> bindClient(
             @Parameter(description = "教练登录 token", required = true)
             @RequestHeader("Authorization") String token,
-            @RequestBody Map<String, Object> request
+            @RequestBody String clientQRCode
     ) {
         String openid = jwtUtil.getSubjectFromAuthorization(token);
         if (openid == null) {
@@ -84,45 +84,17 @@ public class CoachClientController {
         }
         Coach coach = coachService.getCoachByOpenid(openid)
                 .orElseThrow(() -> new IllegalArgumentException("教练不存在"));
-
-        Integer clientId = null;
-        if (request.get("clientId") != null) {
-            clientId = Integer.valueOf(request.get("clientId").toString());
-        } else if (request.get("phone") != null) {
-            String phone = request.get("phone").toString();
-            Client client = clientService.existUser(openid);
-            for (Client c : clientService.getAllUsers().stream()
-                    .map(u -> clientService.existUserByUserId(u.getId()))
-                    .filter(c -> c != null && phone.equals(c.getPhone()))
-                    .toList()) {
-                clientId = c.getId();
-                break;
-            }
+        Client client = null;
+        CoachWithUser relation =  coachService.addCoachWithUser(coach.getId(),clientQRCode).orElse(null);
+        if(relation == null) {
+            throw new RuntimeException("建立关联关系失败");
         }
-
-        if (clientId == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "学员不存在"));
-        }
-
-        if (coachWithUserRepository.existsByCoachIdAndClientId(coach.getId(), clientId)) {
-            return ResponseEntity.badRequest().body(Map.of("error", "已绑定该学员"));
-        }
-
-        Client targetClient = clientService.existUserByUserId(clientId);
-        if (targetClient == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "学员不存在"));
-        }
-
-        CoachWithUser relation = new CoachWithUser();
-        relation.setCoachId(coach.getId());
-        relation.setClientId(clientId);
-        coachWithUserRepository.save(relation);
+        client = clientService.existUserByUserId(relation.getClientId());
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "绑定成功",
-                "clientId", clientId,
-                "clientName", targetClient.getNickname()
+                "client", client
         ));
     }
 
