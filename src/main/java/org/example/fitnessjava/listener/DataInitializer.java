@@ -17,7 +17,9 @@ import java.util.stream.Collectors;
 @Component
 public class DataInitializer {
 
+//    private static final String DEMO_CLIENT_OPENID = "o9Nev67lfstCOQ0ZN63B_LcrAngA";
     private static final String DEMO_CLIENT_OPENID = "0";
+//    private static final String DEMO_COACH_OPENID = "obd5Z13rKpana_izTdNO3y7PtMG4";
     private static final String DEMO_COACH_OPENID = "0";
 
     @Resource
