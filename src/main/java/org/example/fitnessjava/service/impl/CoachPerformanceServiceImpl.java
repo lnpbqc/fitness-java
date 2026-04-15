@@ -2,12 +2,14 @@ package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.dao.BookingRepository;
-import org.example.fitnessjava.dao.ClientRepository;
+import org.example.fitnessjava.dao.CoachLessonSettlementRepository;
 import org.example.fitnessjava.dao.CoachWithUserRepository;
 import org.example.fitnessjava.pojo.Booking;
 import org.example.fitnessjava.pojo.BookingStatus;
+import org.example.fitnessjava.pojo.CoachLessonSettlement;
 import org.example.fitnessjava.pojo.CoachWithUser;
 import org.example.fitnessjava.pojo.vo.CoachPerformanceSummaryVO;
+import org.example.fitnessjava.service.CoachCompensationService;
 import org.example.fitnessjava.service.CoachPerformanceService;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +26,16 @@ public class CoachPerformanceServiceImpl implements CoachPerformanceService {
     @Resource
     private CoachWithUserRepository coachWithUserRepository;
 
+    @Resource
+    private CoachLessonSettlementRepository coachLessonSettlementRepository;
+
+    @Resource
+    private CoachCompensationService coachCompensationService;
+
     @Override
     public CoachPerformanceSummaryVO getPerformanceSummary(Integer coachId) {
         List<Booking> coachBookings = bookingRepository.findByCoachId(coachId);
+        List<CoachLessonSettlement> settlements = coachLessonSettlementRepository.findByCoachId(coachId);
 
         List<CoachWithUser> relations = coachWithUserRepository.findAllByCoachId(coachId);
         int memberCount = relations.size();
@@ -37,13 +46,17 @@ public class CoachPerformanceServiceImpl implements CoachPerformanceService {
                 .filter(b -> b.getBookingDate() != null && b.getBookingDate().startsWith(currentMonth))
                 .count();
 
-        double monthlyCommission = monthlyClassHours * 50.0;
-        double courseIncome = monthlyClassHours * 100.0;
+        double lessonUnitPrice = Optional.ofNullable(coachCompensationService.getSettings().getLessonUnitPrice()).orElse(0.0);
+        double monthlyCommission = settlements.stream()
+                .filter(s -> s.getSettledDate() != null && s.getSettledDate().startsWith(currentMonth))
+                .mapToDouble(s -> s.getCoachFee() == null ? 0 : s.getCoachFee())
+                .sum();
+        double courseIncome = monthlyClassHours * lessonUnitPrice;
 
-        List<CoachPerformanceSummaryVO.TrendItem> commissionTrend = buildTrendData(coachBookings, "commission");
-        List<CoachPerformanceSummaryVO.TrendItem> incomeTrend = buildTrendData(coachBookings, "income");
+        List<CoachPerformanceSummaryVO.TrendItem> commissionTrend = buildCommissionTrendData(settlements);
+        List<CoachPerformanceSummaryVO.TrendItem> incomeTrend = buildIncomeTrendData(coachBookings, lessonUnitPrice);
 
-        List<CoachPerformanceSummaryVO.SalesDataItem> salesData = buildSalesData(coachBookings);
+        List<CoachPerformanceSummaryVO.SalesDataItem> salesData = buildSalesData(coachBookings, lessonUnitPrice);
         List<CoachPerformanceSummaryVO.ClassTypeDataItem> classTypeData = buildClassTypeData(coachBookings);
 
         List<CoachPerformanceSummaryVO.AchievementItem> achievements = buildAchievements(memberCount, monthlyClassHours, courseIncome);
@@ -64,27 +77,48 @@ public class CoachPerformanceServiceImpl implements CoachPerformanceService {
 
     @Override
     public List<Map<String, Object>> getPerformanceTrend(Integer coachId) {
-        List<Booking> coachBookings = bookingRepository.findByCoachId(coachId);
+        List<CoachLessonSettlement> settlements = coachLessonSettlementRepository.findByCoachId(coachId);
         List<Map<String, Object>> trend = new ArrayList<>();
 
-        Map<String, Long> dailyCompleted = coachBookings.stream()
-                .filter(b -> b.getStatus() == BookingStatus.COMPLETED || b.getStatus() == BookingStatus.CHECKED_IN)
-                .filter(b -> b.getBookingDate() != null)
-                .collect(Collectors.groupingBy(Booking::getBookingDate, Collectors.counting()));
+        Map<String, Double> dailyCompleted = settlements.stream()
+                .filter(s -> s.getSettledDate() != null)
+                .collect(Collectors.groupingBy(
+                        CoachLessonSettlement::getSettledDate,
+                        Collectors.summingDouble(s -> s.getCoachFee() == null ? 0 : s.getCoachFee())
+                ));
 
-        for (Map.Entry<String, Long> entry : dailyCompleted.entrySet().stream()
+        for (Map.Entry<String, Double> entry : dailyCompleted.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toList())) {
             Map<String, Object> item = new HashMap<>();
             item.put("date", entry.getKey());
-            item.put("amount", entry.getValue() * 100.0);
+            item.put("amount", entry.getValue());
             trend.add(item);
         }
 
         return trend;
     }
 
-    private List<CoachPerformanceSummaryVO.TrendItem> buildTrendData(List<Booking> bookings, String type) {
+    private List<CoachPerformanceSummaryVO.TrendItem> buildCommissionTrendData(List<CoachLessonSettlement> settlements) {
+        Map<String, Double> monthlyData = settlements.stream()
+                .filter(s -> s.getSettledDate() != null)
+                .collect(Collectors.groupingBy(
+                        s -> s.getSettledDate().substring(0, 7),
+                        Collectors.summingDouble(s -> s.getCoachFee() == null ? 0 : s.getCoachFee())
+                ));
+
+        return monthlyData.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> {
+                    CoachPerformanceSummaryVO.TrendItem item = new CoachPerformanceSummaryVO.TrendItem();
+                    item.setDate(entry.getKey());
+                    item.setAmount(entry.getValue());
+                    return item;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<CoachPerformanceSummaryVO.TrendItem> buildIncomeTrendData(List<Booking> bookings, double lessonUnitPrice) {
         Map<String, Long> monthlyData = bookings.stream()
                 .filter(b -> b.getStatus() == BookingStatus.COMPLETED || b.getStatus() == BookingStatus.CHECKED_IN)
                 .filter(b -> b.getBookingDate() != null)
@@ -98,13 +132,13 @@ public class CoachPerformanceServiceImpl implements CoachPerformanceService {
                 .map(entry -> {
                     CoachPerformanceSummaryVO.TrendItem item = new CoachPerformanceSummaryVO.TrendItem();
                     item.setDate(entry.getKey());
-                    item.setAmount("commission".equals(type) ? entry.getValue() * 50.0 : entry.getValue() * 100.0);
+                    item.setAmount(entry.getValue() * lessonUnitPrice);
                     return item;
                 })
                 .collect(Collectors.toList());
     }
 
-    private List<CoachPerformanceSummaryVO.SalesDataItem> buildSalesData(List<Booking> bookings) {
+    private List<CoachPerformanceSummaryVO.SalesDataItem> buildSalesData(List<Booking> bookings, double lessonUnitPrice) {
         Map<String, Long> monthlyData = bookings.stream()
                 .filter(b -> b.getStatus() == BookingStatus.COMPLETED || b.getStatus() == BookingStatus.CHECKED_IN)
                 .filter(b -> b.getBookingDate() != null)
@@ -118,7 +152,7 @@ public class CoachPerformanceServiceImpl implements CoachPerformanceService {
                 .map(entry -> {
                     CoachPerformanceSummaryVO.SalesDataItem item = new CoachPerformanceSummaryVO.SalesDataItem();
                     item.setMonth(entry.getKey());
-                    item.setAmount(entry.getValue() * 100.0);
+                    item.setAmount(entry.getValue() * lessonUnitPrice);
                     return item;
                 })
                 .collect(Collectors.toList());

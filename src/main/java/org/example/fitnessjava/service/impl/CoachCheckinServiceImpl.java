@@ -9,6 +9,7 @@ import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.*;
 import org.example.fitnessjava.pojo.vo.CoachCheckinResponse;
 import org.example.fitnessjava.dao.CheckinTicketRepository;
+import org.example.fitnessjava.service.CoachLessonSettlementService;
 import org.example.fitnessjava.service.CoachCheckinService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Resource
+    private CoachLessonSettlementService coachLessonSettlementService;
 
     @Override
     @Transactional
@@ -89,6 +93,7 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
         booking.setStatus(BookingStatus.CHECKED_IN);
         booking.setStatusText("已核销");
         bookingRepository.save(booking);
+        coachLessonSettlementService.settleForBooking(booking);
 
         if (booking.getPackageOrderId() != null && !booking.getPackageOrderId().isBlank()) {
             try {

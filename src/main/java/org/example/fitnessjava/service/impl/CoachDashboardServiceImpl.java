@@ -7,6 +7,7 @@ import org.example.fitnessjava.pojo.Booking;
 import org.example.fitnessjava.pojo.BookingStatus;
 import org.example.fitnessjava.pojo.NotificationItem;
 import org.example.fitnessjava.pojo.vo.CoachDashboardVO;
+import org.example.fitnessjava.service.CoachCompensationService;
 import org.example.fitnessjava.service.CoachDashboardService;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class CoachDashboardServiceImpl implements CoachDashboardService {
 
     @Resource
     private NotificationRepository notificationRepository;
+
+    @Resource
+    private CoachCompensationService coachCompensationService;
 
     @Override
     public CoachDashboardVO getDashboard(Integer coachId) {
@@ -53,7 +57,8 @@ public class CoachDashboardServiceImpl implements CoachDashboardService {
         vo.setPendingBookingCount((int) pendingBookingCount);
         vo.setTodayClassCount((int) todayClassCount);
         vo.setPendingClassCount((int) pendingClassCount);
-        vo.setEstimatedIncome(todayClassCount * 100.0);
+        double coachFeePerClass = coachCompensationService.estimateCoachFeePerClass();
+        vo.setEstimatedIncome(todayClassCount * coachFeePerClass);
         vo.setUnreadNotificationCount(unreadNotificationCount);
 
         return vo;
