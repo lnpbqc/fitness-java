@@ -6,6 +6,7 @@ import org.example.fitnessjava.dao.PackageOrderRepository;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.PackageOrder;
 import org.example.fitnessjava.pojo.PackageOrderStatus;
+import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.vo.PackageOrderVO;
 import org.example.fitnessjava.service.PackageOrderService;
 import org.springframework.stereotype.Service;
@@ -165,6 +166,7 @@ public class PackageOrderServiceImpl implements PackageOrderService {
         List<PackageOrderVO> res = new ArrayList<>();
         getOrdersOfMine(openid).stream()
                 .filter(order -> order.getStatus() == PackageOrderStatus.ACTIVE)
+                .filter(order->order.getType()== PackageType.SESSION_CARD)
                 .filter(order -> order.getRemainingSessions()>0)
                 .filter(order -> {
 //                    "2026-2-1"

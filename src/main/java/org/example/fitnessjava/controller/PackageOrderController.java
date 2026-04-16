@@ -26,12 +26,13 @@ public class PackageOrderController {
     @Resource
     private JwtUtil jwtUtil;
 
-    @GetMapping
-    @Operation(summary = "获取套餐订单列表")
-    public List<PackageOrderVO> getOrders() {
-        List<PackageOrderVO> orders = packageOrderService.getAllOrders();
-        return orders;
-    }
+    // todo
+//    @GetMapping
+//    @Operation(summary = "获取套餐订单列表")
+//    public List<PackageOrderVO> getOrders() {
+//        List<PackageOrderVO> orders = packageOrderService.getAllOrders();
+//        return orders;
+//    }
 
     @GetMapping("/me")
     @Operation(summary = "获取当前用户的套餐订单列表")

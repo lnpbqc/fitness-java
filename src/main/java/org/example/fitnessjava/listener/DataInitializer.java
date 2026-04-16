@@ -132,12 +132,12 @@ public class DataInitializer {
                 4.9, 5, 260, Arrays.asList("strength", "hypertrophy", "shape"),
                 true, true, Coach.Status.ONLINE));
         coaches.put("yogaCoach", ensureCoach(
-                null, "Coach Wang", "wangcoach", "13900139456",
+                "0", "Coach Wang", "wangcoach", "13900139456",
                 "Yoga and posture specialist", "Yoga & Pilates", "RYT-500 and rehab background",
                 4.8, 4, 188, Arrays.asList("yoga", "pilates", "posture"),
                 true, true, Coach.Status.ONLINE));
         coaches.put("fatLossCoach", ensureCoach(
-                null, "Coach Zhang", "zhangcoach", "13600136789",
+                "0", "Coach Zhang", "zhangcoach", "13600136789",
                 "Fat-loss and nutrition planning", "Fat-loss", "AASFP certification",
                 4.7, 4, 156, Arrays.asList("fat-loss", "nutrition"),
                 false, true, Coach.Status.BUSY));
@@ -166,7 +166,7 @@ public class DataInitializer {
                 "30 days unlimited", SaleStatus.ON_SALE));
         packages.put("session20", ensurePackage("20 PT Sessions", PackageType.SESSION_CARD, 20, 90, 3999.0, 4999.0, 400,
                 "One-on-one PT package", SaleStatus.ON_SALE));
-        packages.put("assessment", ensurePackage("Body Assessment", PackageType.ASSESSMENT, 1, 7, 199.0, null, 20,
+        packages.put("assessment", ensurePackage("Body Assessment", PackageType.ASSESSMENT, 1, 7, 199.0, 0.0, 20,
                 "Initial assessment", SaleStatus.ON_SALE));
         packages.put("seasonCard", ensurePackage("Quarter Pass", PackageType.TIME_CARD, 0, 90, 1599.0, 1999.0, 160,
                 "90 days unlimited", SaleStatus.ON_SALE));
@@ -469,19 +469,19 @@ public class DataInitializer {
         clients.put("liuQiang", memberLiuQiang);
         clients.put("chenMei", memberChenMei);
 
-        Coach coachZhangMeiQi = ensureCoach(null, "张美琪", "zhangmeiqi", "400-888-0000",
+        Coach coachZhangMeiQi = ensureCoach("null", "张美琪", "zhangmeiqi", "400-888-0000",
                 "资深体能教练，专注减脂塑形与体态矫正。", "减脂塑形 · 体态矫正", "擅长从动作模式、饮食建议与训练周期三方面做完整陪跑。",
                 5.0, 5, 262, Arrays.asList("fat-loss", "posture"), true, true, Coach.Status.ONLINE);
-        Coach coachNa = ensureCoach(null, "娜教头", "najiaotou", "400-888-0000",
+        Coach coachNa = ensureCoach("null", "娜教头", "najiaotou", "400-888-0000",
                 "国家认证私教，力量训练与增肌塑形方向经验丰富。", "力量训练 · 增肌塑形", "擅长新手力量入门、女性力量训练和专项提升。",
                 5.0, 5, 284, Arrays.asList("strength", "hypertrophy"), true, true, Coach.Status.ONLINE);
-        Coach coachLiZiNing = ensureCoach(null, "李梓宁", "lizining", "400-888-0000",
+        Coach coachLiZiNing = ensureCoach("null", "李梓宁", "lizining", "400-888-0000",
                 "瑜伽与普拉提双证导师，兼顾柔韧性与稳定性训练。", "瑜伽康复 · 普拉提", "适合长期久坐、肩颈腰背紧张和产后恢复人群。",
                 4.8, 4, 234, Arrays.asList("yoga", "pilates", "rehab"), true, true, Coach.Status.ONLINE);
-        Coach coachYeWenHan = ensureCoach(null, "叶文涵", "yewenhan", "400-888-0000",
+        Coach coachYeWenHan = ensureCoach("null", "叶文涵", "yewenhan", "400-888-0000",
                 "功能训练与运动康复教练，强调动作质量与恢复效率。", "功能训练 · 运动康复", "擅长基础体能重建、运动后恢复与小器械训练。",
                 4.9, 4, 198, Arrays.asList("functional", "rehab"), true, true, Coach.Status.BUSY);
-        Coach coachLi = ensureCoach(null, "李教练", "lijiolian", "13800138999",
+        Coach coachLi = ensureCoach("null", "李教练", "lijiolian", "13800138999",
                 "高级私人教练", "综合私教", "教练端 mock 的主教练账号", 4.9, 5, 256,
                 Arrays.asList("strength", "rehab", "coaching"), true, true, Coach.Status.ONLINE);
 
@@ -729,10 +729,11 @@ public class DataInitializer {
         p.setSessions(sessions);
         p.setValidDays(validDays);
         p.setPrice(price);
-        p.setOriginalPrice(originalPrice);
+        p.setOriginalPrice(originalPrice == null ? price : originalPrice);
         p.setPointsReward(pointsReward);
         p.setDescription(description);
         p.setSaleStatus(saleStatus);
+        p.setLimitPurchase(false);
         return packageProductRepository.save(p);
     }
 
