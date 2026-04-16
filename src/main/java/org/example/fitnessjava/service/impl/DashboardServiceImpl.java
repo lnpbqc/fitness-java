@@ -153,6 +153,16 @@ public class DashboardServiceImpl implements DashboardService {
             todos.add(shipmentItem);
         }
 
+        Long pendingCoachApprovals = coachRepository.findByVerified(false).stream().count();
+        if (pendingCoachApprovals > 0) {
+            DashboardOverviewResponse.TodoItem coachApprovalItem = new DashboardOverviewResponse.TodoItem();
+            coachApprovalItem.setId("4");
+            coachApprovalItem.setTitle("待审核教练");
+            coachApprovalItem.setCount(pendingCoachApprovals);
+            coachApprovalItem.setUrgent(true);
+            todos.add(coachApprovalItem);
+        }
+
         if (todos.isEmpty()) {
             DashboardOverviewResponse.TodoItem emptyItem = new DashboardOverviewResponse.TodoItem();
             emptyItem.setId("0");
