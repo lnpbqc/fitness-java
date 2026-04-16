@@ -54,9 +54,17 @@ server:
    key-alias: tomcat
 
 upload:
-#  path: /home/zfxt/formyself/fitness-admin-all/fitness-java/uploads # 我不是linux
-  path: classpath:uploads
+  path: ${UPLOAD_PATH:./fitness/uploads}
 
 app:
   data-init:
     enabled: false
+
+logging:
+  file:
+    path: ${LOG_PATH:./fitness/logs}
+    name: ${LOG_FILE:fitness-java.log}
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.example.fitnessjava: INFO
