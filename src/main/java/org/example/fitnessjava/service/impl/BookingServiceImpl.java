@@ -202,6 +202,8 @@ public class BookingServiceImpl implements BookingService {
         for (Booking booking : bookings) {
             BookingCoachScheduleSlot mapping = bookingCoachScheduleSlotRepository.findByBookingId(booking.getId());
             if (mapping != null) {
+                mapping.setStatus(String.valueOf(booking.getStatus()));
+                mapping.setStatusText(booking.getStatusText());
                 // 尝试填充展示字段
                 CoachScheduleSlot slot = coachScheduleSlotRepository.findById(mapping.getCoachScheduleSlotId()).orElse(null);
                 if (slot != null) {
@@ -489,6 +491,7 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("套餐订单剩余课时不足");
         }
         packageOrder.setRemainingSessions(remainingSessions - 1);
+        packageOrder.setUsedSessions(packageOrder.getTotalSessions() - packageOrder.getRemainingSessions());
         packageOrderRepository.save(packageOrder);
     }
 

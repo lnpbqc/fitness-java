@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.pojo.PackageOrder;
+import org.example.fitnessjava.pojo.PackageType;
 import org.example.fitnessjava.pojo.vo.PackageOrderVO;
 import org.example.fitnessjava.service.PackageOrderService;
 import org.example.fitnessjava.util.JwtUtil;
@@ -26,13 +27,6 @@ public class PackageOrderController {
     @Resource
     private JwtUtil jwtUtil;
 
-    // todo
-//    @GetMapping
-//    @Operation(summary = "获取套餐订单列表")
-//    public List<PackageOrderVO> getOrders() {
-//        List<PackageOrderVO> orders = packageOrderService.getAllOrders();
-//        return orders;
-//    }
 
     @GetMapping("/me")
     @Operation(summary = "获取当前用户的套餐订单列表")
@@ -68,7 +62,7 @@ public class PackageOrderController {
     @PostMapping
     @Operation(summary = "创建套餐订单")
     public ResponseEntity<PackageOrder> createOrder(@RequestBody PackageOrder request) {
-        PackageOrder order = packageOrderService.createOrder(request);
+        PackageOrder order = packageOrderService.createOrder(request);  // todo 接入支付
         return ResponseEntity.ok(order);
     }
 

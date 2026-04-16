@@ -102,7 +102,6 @@ public class BookingController {
 
     @GetMapping("/my")
     @Operation(summary = "获取当前客户端的预约信息", description = "根据登录 token 获取该客户端的所有预约及相关排班信息")
-    @Cacheable(value = "bookings", key = "#token")
     public List<BookingCoachScheduleSlot> getMyBookings(
             @Parameter(description = "客户端登录 token", example = "Bearer ...")
             @RequestHeader("Authorization") String token
