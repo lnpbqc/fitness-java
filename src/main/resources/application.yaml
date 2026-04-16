@@ -6,10 +6,10 @@ spring:
 #    url: jdbc:mysql://8.163.7.156:64321/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
 #    username: root
 #    password: X7#k9P$m2@qL!vWc
-    url: jdbc:mysql://localhost:3306/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    url: jdbc:mysql://localhost:3336/fitness?serverTimezone=Asia/Shanghai&characterEncoding=utf-8&createDatabaseIfNotExist=true
     username: root
-#    password: root123456
-    password: lnpbqc
+    password: X7#k9P$m2@qL!vWc
+    # password: lnpbqc
 
   jpa:
     show-sql: false
@@ -56,3 +56,7 @@ server:
 upload:
 #  path: /home/zfxt/formyself/fitness-admin-all/fitness-java/uploads # 我不是linux
   path: classpath:uploads
+
+app:
+  data-init:
+    enabled: false
