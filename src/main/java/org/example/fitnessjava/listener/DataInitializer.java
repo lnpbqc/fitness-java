@@ -8,6 +8,7 @@ import org.example.fitnessjava.pojo.Package;
 import org.example.fitnessjava.service.AdminUserService;
 import org.example.fitnessjava.service.BannerService;
 import org.example.fitnessjava.service.NotificationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -57,9 +58,16 @@ public class DataInitializer {
     @Resource
     private TrainingRecordRepository trainingRecordRepository;
 
+    @Value("${app.data-init.enabled:false}")
+    private boolean dataInitEnabled;
+
     @PostConstruct
     public void init() {
         initAdminUser();
+
+        if (!dataInitEnabled) {
+            return;
+        }
 
         Map<String, Client> clients = initClients();
         Map<String, Coach> coaches = initCoaches();
