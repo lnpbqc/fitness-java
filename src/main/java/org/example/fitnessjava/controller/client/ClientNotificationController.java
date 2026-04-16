@@ -58,20 +58,6 @@ public class ClientNotificationController {
         return notificationService.getUnreadNotificationsByReceiver(userId, NotificationItem.ReceiverType.CLIENT);
     }
 
-    @GetMapping("/unread/count")
-    @Operation(summary = "获取未读通知数量", description = "返回当前登录用户的未读通知条数")
-    public Map<String, Object> getUnreadCount(
-            @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
-            @RequestHeader("Authorization") String token
-    ) {
-        Integer userId = getCurrentClientId(token);
-        List<NotificationItem> unread = notificationService.getUnreadNotificationsByReceiver(
-                userId,
-                NotificationItem.ReceiverType.CLIENT
-        );
-        return Map.of("count", unread.size());
-    }
-
     @PutMapping("/{id}/read")
     @Operation(summary = "标记单条通知为已读", description = "将指定通知标记为已读")
     public NotificationItem markAsRead(

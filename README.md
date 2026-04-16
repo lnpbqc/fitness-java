@@ -4,15 +4,23 @@
 > 在 coach 则是教练端专用
 > 在外面则是通用
 
-#### API: http://localhost:8080/swagger-ui/index.html
+#### API: http://localhost:8081/swagger-ui/index.html
 
 `/src/main/resources/dropDB.sql` 
 > 清除所有文件
 
-`/src/.../pojo/pendingEntity`
-> 待使用实体
 
+套餐
++ 私教次数卡
++ 体验卡
++ 评估卡
 
-#### TODO
-> 教练返回信息需规范
-> 增加对
+教练预约的时候只搜  SESSION_CARD
+
+预约的时候绑定对应的套餐
+
+核销的时候在套餐订单中扣减
+
+问卷
+
+体检
