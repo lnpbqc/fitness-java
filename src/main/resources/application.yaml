@@ -59,6 +59,10 @@ upload:
 app:
   data-init:
     enabled: false
+  admin-init:
+    username: ${ADMIN_INIT_USERNAME:admin}
+    password: ${ADMIN_INIT_PASSWORD:admin123}
+    nickname: ${ADMIN_INIT_NICKNAME:SuperAdmin}
 
 logging:
   file:

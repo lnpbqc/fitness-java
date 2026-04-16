@@ -61,6 +61,15 @@ public class DataInitializer {
     @Value("${app.data-init.enabled:false}")
     private boolean dataInitEnabled;
 
+    @Value("${app.admin-init.username:admin}")
+    private String adminInitUsername;
+
+    @Value("${app.admin-init.password:admin123}")
+    private String adminInitPassword;
+
+    @Value("${app.admin-init.nickname:SuperAdmin}")
+    private String adminInitNickname;
+
     @PostConstruct
     public void init() {
         initAdminUser();
@@ -95,13 +104,13 @@ public class DataInitializer {
     }
 
     private void initAdminUser() {
-        if (adminUserService.existsByUsername("admin")) {
+        if (adminUserService.existsByUsername(adminInitUsername)) {
             return;
         }
         AdminUser superAdmin = new AdminUser();
-        superAdmin.setUsername("admin");
-        superAdmin.setPassword("admin123");
-        superAdmin.setNickname("SuperAdmin");
+        superAdmin.setUsername(adminInitUsername);
+        superAdmin.setPassword(adminInitPassword);
+        superAdmin.setNickname(adminInitNickname);
         superAdmin.setRole(AdminRole.SUPER_ADMIN);
         superAdmin.setEnabled(true);
         adminUserService.createUser(superAdmin);
