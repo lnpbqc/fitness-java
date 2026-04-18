@@ -56,7 +56,7 @@ public class AdminNotificationController {
                 return ResponseEntity.badRequest().body(Map.of("error", "内容不能为空"));
             }
 
-            NotificationItem notification = notificationService.createNotification(request);
+            List<NotificationItem> notification = notificationService.createNotification(request);
             return ResponseEntity.ok(notification);
         } catch (Exception e) {
             e.printStackTrace();
