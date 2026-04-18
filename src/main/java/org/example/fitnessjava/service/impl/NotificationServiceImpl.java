@@ -1,6 +1,8 @@
 package org.example.fitnessjava.service.impl;
 
 import jakarta.annotation.Resource;
+import org.example.fitnessjava.dao.ClientRepository;
+import org.example.fitnessjava.dao.CoachRepository;
 import org.example.fitnessjava.dao.NotificationRepository;
 import org.example.fitnessjava.pojo.NotificationItem;
 import org.example.fitnessjava.pojo.NotificationType;
@@ -16,6 +18,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Resource
     private NotificationRepository notificationRepository;
+
+    @Resource
+    private ClientRepository clientRepository;
+
+    @Resource
+    private CoachRepository coachRepository;
 
     @Override
     public List<NotificationItem> getAllNotifications() {
@@ -52,7 +60,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationItem createNotification(NotificationItem notification) {
+    public List<NotificationItem> createNotification(NotificationItem notification) {
         if (notification.getIsRead() == null) {
             notification.setIsRead(false);
         }
@@ -61,7 +69,24 @@ public class NotificationServiceImpl implements NotificationService {
                     ? NotificationItem.ReceiverType.ALL
                     : NotificationItem.ReceiverType.CLIENT);
         }
-        return notificationRepository.save(notification);
+        ArrayList<NotificationItem> notificationItems = new ArrayList<>();
+        // 如果是全部的话，应该给每个创建一个记录
+        if(notification.getReceiverType().equals(NotificationItem.ReceiverType.ALL)) {
+            notification.setReceiverType(NotificationItem.ReceiverType.COACH);
+            coachRepository.findAll().forEach(coach -> {
+                notification.setReceiverId(coach.getId());
+                notificationItems.add(notification);
+            });
+            notification.setReceiverType(NotificationItem.ReceiverType.CLIENT);
+            clientRepository.findAll().forEach(client -> {
+                notification.setReceiverId(client.getId());
+                notificationItems.add(notification);
+            });
+        } else {
+            notificationItems.add(notification);
+        }
+
+        return notificationRepository.saveAll(notificationItems);
     }
 
     @Override

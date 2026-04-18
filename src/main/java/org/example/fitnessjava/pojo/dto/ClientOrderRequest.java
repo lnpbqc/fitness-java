@@ -9,7 +9,6 @@ public class ClientOrderRequest {
 
     private String type; // "PACKAGE" or "SHOP"
 
-    private Double totalAmount;
     private Integer pointsUsed;
 
     // PACKAGE order fields

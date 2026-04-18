@@ -75,7 +75,6 @@ public class CoachCheckinServiceImpl implements CoachCheckinService {
         if (ticket.getStatus() == TicketStatus.USED) {
             throw new IllegalArgumentException("该核销码已被使用");
         }
-        // todo: 定时任务设置过期
         if (ticket.getStatus() == TicketStatus.EXPIRED) {
             throw new IllegalArgumentException("该核销码已过期");
         }

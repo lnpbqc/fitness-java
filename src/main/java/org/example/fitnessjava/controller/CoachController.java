@@ -60,7 +60,7 @@ public class CoachController {
 
     @GetMapping()
     @Operation(summary = "按标签获取教练列表", description = "支持 all、today、mine 三种标签；mine 需要携带 Authorization")
-    @Cacheable(value = "coaches", key = "(#tabType != null ? #tabType : 'all') + ':' + (#token != null ? #token : 'anonymous')")
+//    @Cacheable(value = "coaches", key = "(#tabType != null ? #tabType : 'all') + ':' + (#token != null ? #token : 'anonymous')")
     public ArrayList<Coach> coaches(
             @Parameter(description = "教练列表标签，可选值：all、today、mine", example = "all")
             @RequestParam String tabType,

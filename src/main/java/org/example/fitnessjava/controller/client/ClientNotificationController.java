@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.pojo.Client;
 import org.example.fitnessjava.pojo.NotificationItem;
@@ -46,6 +47,15 @@ public class ClientNotificationController {
     ) {
         Integer userId = getCurrentClientId(token);
         return notificationService.getNotificationsByReceiver(userId, NotificationItem.ReceiverType.CLIENT);
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "获取当前用户通知列表长度", description = "返回当前登录用户的所有通知数")
+    public Integer getMyNotificationLength(
+            @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
+            @RequestHeader("Authorization") String token
+    ) {
+        return getMyNotifications(token).size();
     }
 
     @GetMapping("/unread")

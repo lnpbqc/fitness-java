@@ -145,6 +145,7 @@ public class CoachServiceImpl implements CoachService {
         Set<Integer> addedCoachIds = new LinkedHashSet<>();
         // 按当天排班时段顺序去重返回教练列表。
         for (CoachScheduleSlot todaySlot : todaySlots) {
+            if(!todaySlot.isAvailable())continue;
             if (!addedCoachIds.add(todaySlot.getCoachId())) {
                 continue;
             }

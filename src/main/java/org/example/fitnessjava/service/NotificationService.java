@@ -13,7 +13,7 @@ public interface NotificationService {
 
     List<NotificationItem> getUnreadNotificationsByReceiver(Integer receiverId, NotificationItem.ReceiverType receiverType);
 
-    NotificationItem createNotification(NotificationItem notification);
+    List<NotificationItem> createNotification(NotificationItem notification);
 
     NotificationItem markAsRead(String id);
 
