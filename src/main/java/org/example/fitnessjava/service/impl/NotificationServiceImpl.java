@@ -73,17 +73,19 @@ public class NotificationServiceImpl implements NotificationService {
         ArrayList<NotificationItem> notificationItems = new ArrayList<>();
         // 如果是全部的话，应该给每个创建一个记录
         if(notification.getReceiverType().equals(NotificationItem.ReceiverType.ALL)) {
-            NotificationItem t1 = new NotificationItem();
-            BeanUtils.copyProperties(notification, t1);
-            t1.setReceiverType(NotificationItem.ReceiverType.COACH);
+            
             coachRepository.findAll().forEach(coach -> {
+                NotificationItem t1 = new NotificationItem();
+                BeanUtils.copyProperties(notification, t1);
+                t1.setReceiverType(NotificationItem.ReceiverType.COACH);
                 t1.setReceiverId(coach.getId());
                 notificationItems.add(t1);
             });
-            NotificationItem t2 = new NotificationItem();
-            BeanUtils.copyProperties(notification, t2);
-            t2.setReceiverType(NotificationItem.ReceiverType.CLIENT);
+            
             clientRepository.findAll().forEach(client -> {
+                NotificationItem t2 = new NotificationItem();
+                BeanUtils.copyProperties(notification, t2);
+                t2.setReceiverType(NotificationItem.ReceiverType.CLIENT);
                 t2.setReceiverId(client.getId());
                 notificationItems.add(t2);
             });
