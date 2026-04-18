@@ -6,8 +6,10 @@ import jakarta.annotation.Resource;
 import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.service.ProductService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,19 @@ public class AdminProductController {
         return productService.updateStock(id, stock)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "上传商品图片")
+    public ResponseEntity<?> uploadProductImage(@RequestParam("file") MultipartFile file) {
+        try {
+            String image = productService.uploadProductImage(file);
+            return ResponseEntity.ok(Map.of("image", image));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("message", "上传失败：" + e.getMessage()));
+        }
     }
 
     @DeleteMapping("/{id}")

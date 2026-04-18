@@ -5,16 +5,31 @@ import org.example.fitnessjava.dao.ProductRepository;
 import org.example.fitnessjava.pojo.Product;
 import org.example.fitnessjava.pojo.SaleStatus;
 import org.example.fitnessjava.service.ProductService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     @Resource
     private ProductRepository productRepository;
+
+    @Value("${upload.path}")
+    private String uploadBasePath;
+
+    private String getUploadDir() {
+        String path = uploadBasePath.endsWith("/") ? uploadBasePath : uploadBasePath + "/";
+        return path + "products";
+    }
 
     @Override
     public List<Product> getAllProducts() {
@@ -107,5 +122,30 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<String> getCategories() {
         return productRepository.getCategories();
+    }
+
+    @Override
+    public String uploadProductImage(MultipartFile file) throws Exception {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("上传文件不能为空");
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        String fileExtension = ".jpg";
+        if (originalFilename != null && originalFilename.lastIndexOf('.') > -1) {
+            fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+        }
+
+        String filename = UUID.randomUUID().toString() + fileExtension;
+
+        Path uploadPath = Paths.get(getUploadDir());
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        Path filePath = uploadPath.resolve(filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/uploads/products/" + filename;
     }
 }
