@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<NotificationItem, String> {
 
-    List<NotificationItem> findByReceiverIdAndReceiverTypeOrderByCreateTimeDesc(
+    List<NotificationItem> findAllByReceiverIdAndReceiverTypeOrderByCreateTimeDesc(
             Integer receiverId,
             NotificationItem.ReceiverType receiverType
     );

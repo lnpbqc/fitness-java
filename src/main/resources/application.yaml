@@ -54,7 +54,7 @@ server:
    key-alias: tomcat
 
 upload:
-  path: ${UPLOAD_PATH:./fitness/uploads}
+  path: ${UPLOAD_PATH:./uploads}
 
 app:
   data-init:

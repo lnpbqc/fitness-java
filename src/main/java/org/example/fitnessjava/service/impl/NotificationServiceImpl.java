@@ -34,12 +34,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<NotificationItem> getNotificationsByReceiver(Integer receiverId, NotificationItem.ReceiverType receiverType) {
         List<NotificationItem> notifications = new ArrayList<>(
-                notificationRepository.findByReceiverIdAndReceiverTypeOrderByCreateTimeDesc(receiverId, receiverType)
+                notificationRepository.findAllByReceiverIdAndReceiverTypeOrderByCreateTimeDesc(receiverId, receiverType)
         );
-        if (receiverType == NotificationItem.ReceiverType.CLIENT) {
-            notifications.addAll(notificationRepository.findByReceiverIdAndReceiverTypeIsNullOrderByCreateTimeDesc(receiverId));
-            notifications.sort(Comparator.comparing(NotificationItem::getCreateTime, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
-        }
         return notifications;
     }
 
