@@ -7,6 +7,7 @@ import org.example.fitnessjava.dao.NotificationRepository;
 import org.example.fitnessjava.pojo.NotificationItem;
 import org.example.fitnessjava.pojo.NotificationType;
 import org.example.fitnessjava.service.NotificationService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -72,15 +73,19 @@ public class NotificationServiceImpl implements NotificationService {
         ArrayList<NotificationItem> notificationItems = new ArrayList<>();
         // 如果是全部的话，应该给每个创建一个记录
         if(notification.getReceiverType().equals(NotificationItem.ReceiverType.ALL)) {
-            notification.setReceiverType(NotificationItem.ReceiverType.COACH);
+            NotificationItem t1 = new NotificationItem();
+            BeanUtils.copyProperties(notification, t1);
+            t1.setReceiverType(NotificationItem.ReceiverType.COACH);
             coachRepository.findAll().forEach(coach -> {
-                notification.setReceiverId(coach.getId());
-                notificationItems.add(notification);
+                t1.setReceiverId(coach.getId());
+                notificationItems.add(t1);
             });
-            notification.setReceiverType(NotificationItem.ReceiverType.CLIENT);
+            NotificationItem t2 = new NotificationItem();
+            BeanUtils.copyProperties(notification, t2);
+            t2.setReceiverType(NotificationItem.ReceiverType.CLIENT);
             clientRepository.findAll().forEach(client -> {
-                notification.setReceiverId(client.getId());
-                notificationItems.add(notification);
+                t2.setReceiverId(client.getId());
+                notificationItems.add(t2);
             });
         } else {
             notificationItems.add(notification);

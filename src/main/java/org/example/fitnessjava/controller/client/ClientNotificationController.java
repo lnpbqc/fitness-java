@@ -51,11 +51,11 @@ public class ClientNotificationController {
 
     @GetMapping("/count")
     @Operation(summary = "获取当前用户通知列表长度", description = "返回当前登录用户的所有通知数")
-    public Integer getMyNotificationLength(
+    public Integer getMyUnreadNotificationLength(
             @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
             @RequestHeader("Authorization") String token
     ) {
-        return getMyNotifications(token).size();
+        return getUnreadNotifications(token).size();
     }
 
     @GetMapping("/unread")
