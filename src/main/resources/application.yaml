@@ -11,6 +11,11 @@ spring:
 #    password: X7#k9P$m2@qL!vWc
     password: lnpbqc
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   jpa:
     show-sql: false
     database: mysql
@@ -42,10 +47,6 @@ jwt:
 
 server:
   port: 8081
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
   ssl:
    enabled: false
    key-store: classpath:ssl/keystore.p12
