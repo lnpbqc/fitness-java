@@ -5,13 +5,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.example.fitnessjava.pojo.Banner;
 import org.example.fitnessjava.service.BannerService;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/banners")
@@ -44,33 +41,6 @@ public class AdminBannerController {
             return ResponseEntity.ok(banner);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "上传轮播图（文件上传）")
-    public ResponseEntity<?> uploadBanner(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "linkType", required = false) String linkType,
-            @RequestParam(value = "linkValue", required = false) String linkValue) {
-        try {
-            if (file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "error", "上传文件不能为空"
-                ));
-            }
-
-            Banner banner = bannerService.uploadBanner(file, linkType, linkValue);
-            return ResponseEntity.ok(banner);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                "error", e.getMessage()
-            ));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of(
-                "error", "上传失败：" + e.getMessage()
-            ));
         }
     }
 
