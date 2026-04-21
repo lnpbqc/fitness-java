@@ -16,6 +16,7 @@ import org.example.fitnessjava.service.ClientService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/client/user")
 @Slf4j
 @Tag(name = "客户端用户接口", description = "客户端用户登录与当前用户信息查询接口")
 public class UserController {
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[0-9\\-]{6,20}$");
+
     @Resource
     private ClientService clientService;
     @Resource
@@ -106,5 +110,46 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any client account");
         }
         return clientService.convertToUserVO(client);
+    }
+
+    @PostMapping("/me")
+    @Operation(summary = "修改当前客户端用户信息", description = "根据 Authorization 中的 token 修改当前客户端用户信息")
+    @CacheEvict(value = "user", key = "#token")
+    public UserVO updateMe(
+            @Parameter(description = "客户端登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
+            @RequestHeader("Authorization") String token,
+            @RequestBody UserVO userVO
+    ) {
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        if (openid == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+        }
+        validateUpdateMeRequest(userVO);
+        return clientService.updateMe(openid, userVO)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any client account"));
+    }
+
+    private void validateUpdateMeRequest(UserVO userVO) {
+        if (userVO == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is required");
+        }
+
+        if (userVO.getPhone() != null) {
+            String phone = userVO.getPhone().trim();
+            if (!phone.isEmpty() && !PHONE_PATTERN.matcher(phone).matches()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid phone format");
+            }
+        }
+
+        if (userVO.getAge() != null) {
+            Integer age = userVO.getAge();
+            if (age < 0 || age > 150) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Age must be between 0 and 150");
+            }
+        }
+
+        if (userVO.getTags() != null && userVO.getTags().size() > 20) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tags size cannot exceed 20");
+        }
     }
 }

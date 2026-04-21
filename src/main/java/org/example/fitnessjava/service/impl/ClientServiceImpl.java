@@ -147,4 +147,31 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findByOpenid(openid);
         return client.getId();
     }
+
+    @Override
+    public Optional<UserVO> updateMe(String openid, UserVO userVO) {
+        return Optional.ofNullable(clientRepository.findByOpenid(openid))
+                .map(client -> {
+                    if (userVO.getNickname() != null) {
+                        client.setNickname(userVO.getNickname().trim());
+                    }
+                    if (userVO.getAvatar() != null) {
+                        client.setAvatar(userVO.getAvatar().trim());
+                    }
+                    if (userVO.getPhone() != null) {
+                        client.setPhone(userVO.getPhone().trim());
+                    }
+                    if (userVO.getGender() != null) {
+                        client.setGender(userVO.getGender().trim());
+                    }
+                    if (userVO.getAge() != null) {
+                        client.setAge(userVO.getAge());
+                    }
+                    if (userVO.getTags() != null) {
+                        client.setTags(userVO.getTags());
+                    }
+                    clientRepository.save(client);
+                    return convertToUserVO(client);
+                });
+    }
 }

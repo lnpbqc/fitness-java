@@ -19,4 +19,5 @@ public interface ClientService {
     Client updateClient(Client client);
     Client existUserByUserId(Integer userId);
     int getIdByToken(String token);
+    Optional<UserVO> updateMe(String openid, UserVO userVO);
 }
