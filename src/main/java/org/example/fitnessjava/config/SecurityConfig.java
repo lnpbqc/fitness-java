@@ -36,11 +36,8 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // static resources: image access is public
-                .requestMatchers("/uploads/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/uploads/**").permitAll()
-                // image upload must pass JWT auth
-                .requestMatchers(HttpMethod.POST, "/api/uploads/images/upload").authenticated()
+                // static resources and upload APIs
+                .requestMatchers("/uploads/**", "/api/uploads/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 // admin area (kept as current project behavior)
@@ -83,12 +80,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-      "http://localhost:5173",
+            "http://localhost:5173",
             "http://localhost:3000",
             "http://127.0.0.1:5173",
             "http://127.0.0.1:3000",
             "http://8.163.7.156:35173",
-	    "http://165.99.42.158:35173",
+	        "http://165.99.42.158:35173",
             "https://tr.788890.xyz"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

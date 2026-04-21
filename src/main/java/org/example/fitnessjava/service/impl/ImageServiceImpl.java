@@ -1,5 +1,8 @@
 package org.example.fitnessjava.service.impl;
 
+import jakarta.annotation.Resource;
+import org.example.fitnessjava.dao.ImageUploadRecordRepository;
+import org.example.fitnessjava.pojo.ImageUploadRecord;
 import org.example.fitnessjava.service.ImageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,8 +27,11 @@ public class ImageServiceImpl implements ImageService {
     @Value("${upload.path}")
     private String uploadBasePath;
 
+    @Resource
+    private ImageUploadRecordRepository imageUploadRecordRepository;
+
     @Override
-    public String uploadImage(MultipartFile file, String folder) throws Exception {
+    public String uploadImage(MultipartFile file, String folder, String uploadIp) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Uploaded file cannot be empty");
         }
@@ -43,7 +49,9 @@ public class ImageServiceImpl implements ImageService {
         Path targetPath = uploadDir.resolve(filename);
         Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-        return buildImageUrl(safeFolder, filename);
+        String imageUrl = buildImageUrl(safeFolder, filename);
+        saveUploadRecord(uploadIp, imageUrl);
+        return imageUrl;
     }
 
     @Override
@@ -88,5 +96,12 @@ public class ImageServiceImpl implements ImageService {
             return ".jpg";
         }
         return originalFilename.substring(originalFilename.lastIndexOf('.'));
+    }
+
+    private void saveUploadRecord(String uploadIp, String imagePath) {
+        ImageUploadRecord record = new ImageUploadRecord();
+        record.setUploadIp(uploadIp == null || uploadIp.isBlank() ? "unknown" : uploadIp.trim());
+        record.setImagePath(imagePath);
+        imageUploadRecordRepository.save(record);
     }
 }

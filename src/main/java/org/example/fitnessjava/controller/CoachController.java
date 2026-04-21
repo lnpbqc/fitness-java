@@ -14,6 +14,7 @@ import org.example.fitnessjava.service.CoachService;
 import org.example.fitnessjava.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +24,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/coach")
 @Slf4j
 @Tag(name = "教练端接口", description = "教练登录、教练信息和教练列表查询接口")
 public class CoachController {
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?[0-9\\-]{6,20}$");
 
     @Resource
     private CoachService coachService;
@@ -174,5 +177,39 @@ public class CoachController {
         }
         log.info("CoachController: coachByOpenid:{}", coachByOpenid);
         return coachByOpenid.get();
+    }
+
+    @PostMapping("/me")
+    @Operation(summary = "修改当前教练信息", description = "根据 Authorization 中的 token 修改当前教练信息")
+    @CacheEvict(value = "coach",key = "#token")
+    public Coach updateCoach(
+            @Parameter(description = "教练登录 token", example = "Bearer eyJhbGciOiJIUzI1NiJ9...")
+            @RequestHeader("Authorization") String token,
+            @RequestBody Coach coach
+    ) {
+        String openid = jwtUtil.getSubjectFromAuthorization(token);
+        if (openid == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
+        }
+        validateUpdateCoachRequest(coach);
+        return coachService.updateMe(openid, coach)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any coach account"));
+    }
+
+    private void validateUpdateCoachRequest(Coach coach) {
+        if (coach == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is required");
+        }
+
+        if (coach.getPhone() != null) {
+            String phone = coach.getPhone().trim();
+            if (!phone.isEmpty() && !PHONE_PATTERN.matcher(phone).matches()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid phone format");
+            }
+        }
+
+        if (coach.getTags() != null && coach.getTags().size() > 20) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tags size cannot exceed 20");
+        }
     }
 }

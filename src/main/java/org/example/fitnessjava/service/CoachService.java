@@ -39,4 +39,6 @@ public interface CoachService {
     Optional<Coach> updateCoachVerified(Long id, Boolean verified);
 
     Optional<CoachWithUser> addCoachWithUser(Integer coachId, String qrCode);
+
+    Optional<Coach> updateMe(String openid, Coach coach);
 }

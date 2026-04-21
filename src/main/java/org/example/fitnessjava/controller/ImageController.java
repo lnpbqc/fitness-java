@@ -2,6 +2,7 @@ package org.example.fitnessjava.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.example.fitnessjava.service.ImageService;
@@ -29,10 +30,12 @@ public class ImageController {
     @Operation(summary = "Upload image")
     public ResponseEntity<?> uploadImage(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "folder", required = false, defaultValue = "images") String folder
+            @RequestParam(value = "folder", required = false, defaultValue = "images") String folder,
+            HttpServletRequest request
     ) {
         try {
-            String imageUrl = imageService.uploadImage(file, folder);
+            String uploadIp = resolveClientIp(request);
+            String imageUrl = imageService.uploadImage(file, folder, uploadIp);
             log.info("Upload image successful,url: {}", imageUrl);
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -58,6 +61,7 @@ public class ImageController {
             @RequestParam(value = "folder", required = false, defaultValue = "images") String folder
     ) {
         try {
+            log.info("Access image successful,url: /uploads/{}/{}",folder, filename);
             return ResponseEntity.ok(Map.of(
                     "url", imageService.buildImageUrl(folder, filename)
             ));
@@ -66,5 +70,17 @@ public class ImageController {
                     "message", e.getMessage()
             ));
         }
+    }
+
+    private String resolveClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isBlank()) {
+            return xRealIp.trim();
+        }
+        return request.getRemoteAddr();
     }
 }

@@ -158,10 +158,9 @@ public class CoachServiceImpl implements CoachService {
                 todayCoaches.add(coach);
             }
         }
-        ArrayList<Coach> collect = todayCoaches.stream()
+        return todayCoaches.stream()
                 .filter(Coach::getVerified)
                 .collect(Collectors.toCollection(ArrayList::new));
-        return collect;
     }
 
     private ArrayList<Coach> getFallbackTodayCoaches() {
@@ -251,5 +250,34 @@ public class CoachServiceImpl implements CoachService {
 
 
         return Optional.of(coachWithUserRepository.save(coachWithUser));
+    }
+
+    @Override
+    public Optional<Coach> updateMe(String openid, Coach coach) {
+        return coachRepository.findByOpenid(openid)
+                .map(current -> {
+                    if (coach.getNickname() != null) {
+                        current.setNickname(coach.getNickname().trim());
+                    }
+                    if (coach.getAvatar() != null) {
+                        current.setAvatar(coach.getAvatar().trim());
+                    }
+                    if (coach.getPhone() != null) {
+                        current.setPhone(coach.getPhone().trim());
+                    }
+                    if (coach.getIntro() != null) {
+                        current.setIntro(coach.getIntro().trim());
+                    }
+                    if (coach.getSpecialty() != null) {
+                        current.setSpecialty(coach.getSpecialty().trim());
+                    }
+                    if (coach.getDescription() != null) {
+                        current.setDescription(coach.getDescription().trim());
+                    }
+                    if (coach.getTags() != null) {
+                        current.setTags(coach.getTags());
+                    }
+                    return coachRepository.save(current);
+                });
     }
 }
