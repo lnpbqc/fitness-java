@@ -30,14 +30,17 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // static and docs
-                .requestMatchers("/uploads/**", "/api/uploads/**").permitAll()
+                // static resources: image access is public
+                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/uploads/**").permitAll()
+                // image upload must pass JWT auth
+                .requestMatchers(HttpMethod.POST, "/api/uploads/images/upload").authenticated()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 
                 // admin area (kept as current project behavior)
@@ -91,7 +94,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
