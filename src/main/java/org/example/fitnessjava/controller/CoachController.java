@@ -46,7 +46,7 @@ public class CoachController {
     @Operation(summary = "获取推荐教练", description = "返回推荐教练列表，主要用于首页或推荐位展示")
     @Cacheable(value = "coaches",key = "'recommend'")
     public ArrayList<Coach> recommendedCoaches() {
-        return coachService.getCoachesByFeatured();
+        return hidePosterUrl(coachService.getCoachesByFeatured());
     }
 
     @GetMapping("/{id}")
@@ -57,7 +57,7 @@ public class CoachController {
             @PathVariable int id
     ) {
         Optional<Coach> coachById = coachService.getCoachById((long) id);
-        return coachById.orElse(null);
+        return hidePosterUrl(coachById.orElse(null));
     }
 
 
@@ -78,17 +78,17 @@ public class CoachController {
         log.info("CoachController: coaches tabType: {}", normalizedTabType);
         switch (normalizedTabType) {
             case "today":
-                return coachService.getTodayCoaches();
+                return hidePosterUrl(coachService.getTodayCoaches());
             case "mine":
                 String openid = jwtUtil.getSubjectFromAuthorization(token);
                 if (openid == null) {
                     log.warn("CoachController: 无效的 Authorization token");
                     return new ArrayList<>();
                 }
-                return coachService.getCoachesOfUser(openid);
+                return hidePosterUrl(coachService.getCoachesOfUser(openid));
             case "all":
             default:
-                return coachService.getAllVisibleCoaches();
+                return hidePosterUrl(coachService.getAllVisibleCoaches());
         }
     }
 
@@ -176,7 +176,7 @@ public class CoachController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any coach account");
         }
         log.info("CoachController: coachByOpenid:{}", coachByOpenid);
-        return coachByOpenid.get();
+        return hidePosterUrl(coachByOpenid.get());
     }
 
     @PostMapping("/me")
@@ -192,8 +192,9 @@ public class CoachController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
         }
         validateUpdateCoachRequest(coach);
-        return coachService.updateMe(openid, coach)
+        Coach updated = coachService.updateMe(openid, coach)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Token is not bound to any coach account"));
+        return hidePosterUrl(updated);
     }
 
     private void validateUpdateCoachRequest(Coach coach) {
@@ -211,5 +212,20 @@ public class CoachController {
         if (coach.getTags() != null && coach.getTags().size() > 20) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Tags size cannot exceed 20");
         }
+    }
+
+    private ArrayList<Coach> hidePosterUrl(ArrayList<Coach> coaches) {
+        if (coaches == null) {
+            return new ArrayList<>();
+        }
+        coaches.forEach(this::hidePosterUrl);
+        return coaches;
+    }
+
+    private Coach hidePosterUrl(Coach coach) {
+        if (coach != null) {
+            coach.setPosterUrl(null);
+        }
+        return coach;
     }
 }

@@ -18,7 +18,7 @@ public interface CoachService {
 
     Coach createCoach(Coach coach);
 
-    Optional<Coach> updateCoach(Long id, String name, String avatar, String intro, String specialty, String description, Double rating, Integer level, String phone, Coach.Status status, Boolean featured);
+    Optional<Coach> updateCoach(Long id, String name, String avatar, String intro, String specialty, String description, Double rating, Integer level, String phone, String location, String posterUrl, Coach.Status status, Boolean featured);
 
     Optional<Coach> updateCoachFeatured(Long id, Boolean featured);
 

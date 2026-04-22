@@ -86,7 +86,7 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    public Optional<Coach> updateCoach(Long id, String name, String avatar, String intro, String specialty, String description, Double rating, Integer level, String phone, Coach.Status status, Boolean featured) {
+    public Optional<Coach> updateCoach(Long id, String name, String avatar, String intro, String specialty, String description, Double rating, Integer level, String phone, String location, String posterUrl, Coach.Status status, Boolean featured) {
         Optional<Coach> optional = coachRepository.findById(id);
         if (optional.isEmpty()) {
             return Optional.empty();
@@ -100,6 +100,8 @@ public class CoachServiceImpl implements CoachService {
         if (rating != null) coach.setRating(rating);
         if (level != null) coach.setLevel(level);
         if (phone != null) coach.setPhone(phone);
+        if (location != null) coach.setLocation(location);
+        if (posterUrl != null) coach.setPosterUrl(posterUrl);
         if (status != null) coach.setStatus(status);
         if (featured != null) coach.setFeatured(featured);
         return Optional.of(coachRepository.save(coach));
@@ -273,6 +275,9 @@ public class CoachServiceImpl implements CoachService {
                     }
                     if (coach.getDescription() != null) {
                         current.setDescription(coach.getDescription().trim());
+                    }
+                    if (coach.getLocation() != null) {
+                        current.setLocation(coach.getLocation().trim());
                     }
                     if (coach.getTags() != null) {
                         current.setTags(coach.getTags());

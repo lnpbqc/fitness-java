@@ -54,7 +54,7 @@ public class AdminCoachController {
     public ResponseEntity<Coach> updateCoach(@PathVariable Long id, @RequestBody Coach request) {
         return coachService.updateCoach(id, request.getNickname(), request.getAvatar(), request.getIntro(),
                 request.getSpecialty(), request.getDescription(), request.getRating(), 
-                request.getLevel(), request.getPhone(), request.getStatus(), request.getFeatured())
+                request.getLevel(), request.getPhone(), request.getLocation(), request.getPosterUrl(), request.getStatus(), request.getFeatured())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

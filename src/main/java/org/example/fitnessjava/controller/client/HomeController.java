@@ -48,6 +48,7 @@ public class HomeController {
             }
         }
         ArrayList<Coach> coachesByFeatures = coachService.getCoachesByFeatured();
+        coachesByFeatures.forEach(coach -> coach.setPosterUrl(null));
         ArrayList<Banner> banners = bannerService.getBanners();
 
         ClientHomeResponse response = new ClientHomeResponse();
